@@ -36,6 +36,10 @@ var synchro_counter = 0;
 const synchro_counter_max = 50;
 var bgm_playing = false;
 
+var inField_ManInFrontOfTheMirror = false;
+var inField_ManInTheMirror = false;
+
+
 const WIDTH = 320;
 const HEIGHT = 320;
 
@@ -221,7 +225,7 @@ function drawSignal(ctx) {
         if(mirror_sound[sound_num.synchronized_alert] != null){
 //            mirror_sound[sound_num.synchronized_alert].play();
             const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
-            window.speechSynthesis.speak(uttr)
+            window.speechSynthesis.speak(uttr);
             if(bgm_playing){
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
                 bgm_playing = false;
@@ -234,7 +238,7 @@ function drawSignal(ctx) {
         if(mirror_sound[sound_num.not_synchronized] != null){
 //            mirror_sound[sound_num.not_synchronized].play();
             const uttr = new SpeechSynthesisUtterance("ずれています")
-            window.speechSynthesis.speak(uttr)
+            window.speechSynthesis.speak(uttr);
             if(bgm_playing){
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
                 bgm_playing = false;
@@ -315,6 +319,43 @@ function calculate_joint_degree(kp){
     return joint_degree;
 }
 
+function isInField(kp){
+    var result = true;
+
+    if( kp[rightShoulder].position.x < 0 || kp[rightShoulder].position.x > WIDTH) result = false;
+    if( kp[leftElbow].position.x < 0 || kp[leftElbow].position.x > WIDTH) result = false;
+    if( kp[rightElbow].position.x < 0 || kp[rightElbow].position.x > WIDTH) result = false;
+    if( kp[leftWrist].position.x < 0 || kp[leftWrist].position.x > WIDTH) result = false;
+    if( kp[rightWrist].position.x < 0 || kp[rightWrist].position.x > WIDTH) result = false;
+    if( kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
+    if( kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
+    if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
+    if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
+    if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
+    if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
+
+    if( kp[rightShoulder].position.y < 0 || kp[rightShoulder].position.y > HEIGHT) result = false;
+    if( kp[leftElbow].position.y < 0 || kp[leftElbow].position.y > HEIGHT) result = false;
+    if( kp[rightElbow].position.y < 0 || kp[rightElbow].position.y > HEIGHT) result = false;
+    if( kp[leftWrist].position.y < 0 || kp[leftWrist].position.y > HEIGHT) result = false;
+    if( kp[rightWrist].position.y < 0 || kp[rightWrist].position.y > HEIGHT) result = false;
+    if( kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
+    if( kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
+    if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
+    if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
+//    if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
+//    if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
+
+if(result){
+    console.log("true");
+}else{
+    console.log("false");
+}
+
+
+    return result;
+}
+
 function mirror_joint_degree(joint_degree){
     var mirror_joint_degree = new Array(numOfJoint);
 
@@ -380,6 +421,17 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
+                if(!inField_ManInTheMirror && isInField(kp)){      // out of field to in field
+                    inField_ManInTheMirror = true;
+                    const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみつけました")
+                    window.speechSynthesis.speak(uttr);
+                }
+                if(inField_ManInTheMirror && !isInField(kp)){      // in field to out of field
+                    inField_ManInTheMirror = false;
+                    const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
+                    window.speechSynthesis.speak(uttr);
+                }
+
                 if(joint_degree1 && joint_degree2){
                     joint_degree1 = calculate_joint_degree(kp);
                 }
@@ -403,6 +455,17 @@ function predictWebcam2() {
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
                 const kp2 = predictions2[n].keypoints;
+                if(!inField_ManInFrontOfTheMirror && isInField(kp2)){      // out of field to in field
+                    inField_ManInFrontOfTheMirror = true;
+                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみつけました")
+                    window.speechSynthesis.speak(uttr);
+                }
+                if(inField_ManInFrontOfTheMirror && !isInField(kp2)){      // in field to out of field
+                    inField_ManInFrontOfTheMirror = false;
+                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
+                    window.speechSynthesis.speak(uttr);
+                }
+
                 if(joint_degree1 && joint_degree2){
                     joint_degree2 = calculate_joint_degree(kp2);
                 }
