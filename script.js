@@ -217,22 +217,22 @@ function drawSignal(ctx) {
 
     if(syncro_percent < 60){
         ctx.fillStyle = "#FF0000";
-        if(sound_alert != null){
-            sound_alert.play();
+        if(mirror_sound[sound_num.synchronized_alert] != null){
+            mirror_sound[sound_num.synchronized_alert].play();
             stopMIDI();
             playMIDI(900);
         }
     }else if(syncro_percent < 80){ 
         ctx.fillStyle = "#FFA500";
-        if(sound_notsame != null){
-            sound_notsame.play();
+        if(mirror_sound[sound_num.not_synchronized] != null){
+            mirror_sound[sound_num.not_synchronized].play();
             stopMIDI();
             playMIDI(300);
         }
     }else{
         ctx.fillStyle = "#118B11";
-        if(sound_good != null){
-            sound_good.play();
+        if(mirror_sound[sound_num.synchronized] != null){
+            mirror_sound[sound_num.synchronized].play();
             stopMIDI();
         }
     }
@@ -444,35 +444,30 @@ function getDeviceList() {
 
 
 
-  // Set bgm
-  var sound_good, sound_notsame, sound_alert;
+// Set bgm
+const sound_name = ['synchronized','not_synchronized','synchronized_alert']
+const sound_num = Object.freeze({synchronized: 0, not_synchronized: 1, synchronized_alert: 2});
+var mirror_sound = new Array(3);
 
   document.getElementById('play').addEventListener('click', function () {
-    if(sound_good==null){
-        sound_good = new Audio('./music/good.m4a');
-        sound_good.load();
-       sound_good.play();
-    }
-    if(sound_notsame==null){
-        sound_notsame = new Audio('./music/notsame.m4a');
-        sound_notsame.load();
-    }
-    if(sound_alert==null){
-        sound_alert = new Audio('./music/alert.m4a');
-        sound_alert.load();
+    for (let i = 0; i < sound_name.length; i++){
+        if(mirror_sound[i]==null){
+            mirror_sound[i] = new Audio('./music/sound_' + sound_name[i] + '.m4a');
+            mirror_sound[i].load();
+        }
     }
   });
 
   function bgm_pause(){
-    if(sound_good!=null) { sound_good.pause(); }
-    if(sound_notsame!=null) { sound_notsame.pause(); }
-    if(sound_alert!=null) {sound_alert.pause(); }
+    for (let i = 0; i < sound_name.length; i++){
+        if(mirror_sound[i]!=null) { mirror_sound[i].pause(); }
+    }
   }
 
   function bgm_stop(){
-    if(sound_good!=null) { sound_good.pause(); sound_good.currentTime = 0;}
-    if(sound_notsame!=null) { sound_notsame.pause(); sound_notsame.currentTime = 0;}
-    if(sound_alert!=null) {sound_alert.pause(); sound_alert.currentTime = 0;}
+    for (let i = 0; i < sound_name.length; i++){
+        if(mirror_sound[i]!=null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0;}
+    }
   }
 
 
