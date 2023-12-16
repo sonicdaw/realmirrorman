@@ -34,6 +34,7 @@ const numOfJoint = 16
 
 var synchro_counter = 0;
 const synchro_counter_max = 50;
+var bgm_playing = false;
 
 const WIDTH = 320;
 const HEIGHT = 320;
@@ -218,21 +219,37 @@ function drawSignal(ctx) {
     if(syncro_percent < 60){
         ctx.fillStyle = "#FF0000";
         if(mirror_sound[sound_num.synchronized_alert] != null){
-            mirror_sound[sound_num.synchronized_alert].play();
+//            mirror_sound[sound_num.synchronized_alert].play();
+            const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
+            window.speechSynthesis.speak(uttr)
+            if(bgm_playing){
+                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
+                bgm_playing = false;
+            }
             stopMIDI();
-            playMIDI(900);
+//            playMIDI(900);
         }
     }else if(syncro_percent < 80){ 
         ctx.fillStyle = "#FFA500";
         if(mirror_sound[sound_num.not_synchronized] != null){
-            mirror_sound[sound_num.not_synchronized].play();
+//            mirror_sound[sound_num.not_synchronized].play();
+            const uttr = new SpeechSynthesisUtterance("ずれています")
+            window.speechSynthesis.speak(uttr)
+            if(bgm_playing){
+                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
+                bgm_playing = false;
+            }
             stopMIDI();
-            playMIDI(300);
+//            playMIDI(300);
         }
     }else{
         ctx.fillStyle = "#118B11";
         if(mirror_sound[sound_num.synchronized] != null){
-            mirror_sound[sound_num.synchronized].play();
+//            mirror_sound[sound_num.synchronized].play();
+            if(!bgm_playing){
+                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
+                bgm_playing = true;
+            }
             stopMIDI();
         }
     }
@@ -445,14 +462,15 @@ function getDeviceList() {
 
 
 // Set bgm
-const sound_name = ['synchronized','not_synchronized','synchronized_alert']
-const sound_num = Object.freeze({synchronized: 0, not_synchronized: 1, synchronized_alert: 2});
-var mirror_sound = new Array(3);
+const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3', 'synchronized.m4a','not_synchronized.m4a','synchronized_alert.m4a']
+const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0, synchronized: 1, not_synchronized: 2, synchronized_alert: 3});
+var mirror_sound = new Array(4);
 
   document.getElementById('play').addEventListener('click', function () {
+
     for (let i = 0; i < sound_name.length; i++){
         if(mirror_sound[i]==null){
-            mirror_sound[i] = new Audio('./music/sound_' + sound_name[i] + '.m4a');
+            mirror_sound[i] = new Audio('./music/sound_' + sound_name[i]);
             mirror_sound[i].load();
         }
     }
@@ -479,6 +497,7 @@ var mirror_sound = new Array(3);
   var ctx_audio=new AudioContext();
 
 function playMIDI(freq){
+    return;
     console.log("PlayMIDI");
     if(!playing){
         console.log("Playing: false");
