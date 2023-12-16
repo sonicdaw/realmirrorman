@@ -231,8 +231,6 @@ function drawSignal(ctx) {
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
                 bgm_playing = false;
             }
-            stopMIDI();
-//            playMIDI(900);
         }
     }else if(syncro_percent < 80){ 
         ctx.fillStyle = "#FFA500";
@@ -245,8 +243,6 @@ function drawSignal(ctx) {
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
                 bgm_playing = false;
             }
-            stopMIDI();
-//            playMIDI(300);
         }
     }else{
         ctx.fillStyle = "#118B11";
@@ -257,7 +253,6 @@ function drawSignal(ctx) {
                 bgm_playing = true;
             }
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.4;
-            stopMIDI();
         }
     }
 
@@ -554,52 +549,3 @@ var mirror_sound = new Array(4);
         if(mirror_sound[i]!=null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0;}
     }
   }
-
-
-  // MIDI
-  // ref https://html5experts.jp/ryoyakawai/12569/
-  // https://ryoyakawai.github.io/html5conference2015/analog/sample02.html
-  var vco0, vco1, lfo, vcf;
-  var playing =false;
-  var ctx_audio=new AudioContext();
-
-function playMIDI(freq){
-    return;
-    console.log("PlayMIDI");
-    if(!playing){
-        console.log("Playing: false");
-        vco0=ctx_audio.createOscillator();
-    //  vco1=ctx_audio.createOscillator();
-    //  lfo=ctx_audio.createOscillator();
-    vcf=ctx_audio.createBiquadFilter();
-
-    vco0.connect(vcf);
-    //  vco1.connect(vcf);
-    //  lfo.connect(vco0.frequency);
-    //  lfo.connect(vco1.frequency);
-    //  lfo.connect(vcf.detune);
-    vcf.connect(ctx_audio.destination);
-    vco0.frequency.setValueAtTime(freq, ctx_audio.currentTime);
-    //  vco1.frequency.setValueAtTime(1000, ctx_audio.currentTime);
- 
-        vco0.start(0);
-//        vco1.start(0);
-//        lfo.start(0);   
-        playing = true;
-    }
-}
-
-function stopMIDI(){    // Stop after playing
-    console.log("stopMIDI");
-    if(playing){
-        console.log("Playing: true");
-        vco0.stop(0);
-        vco0.disconnect(vcf);
-        vcf.disconnect(ctx_audio.destination);
- //       vco1.stop(0);
- //       lfo.stop(0); 
-        vco0 = null;
-        vcf = null;
-        playing = false;    
-    }
-}
