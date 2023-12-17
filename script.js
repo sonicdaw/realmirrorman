@@ -10,7 +10,14 @@ var canvas2 = document.getElementById('canvas2');
 const ctx2 = canvas2.getContext('2d')
 var canvas3 = document.getElementById('canvas3');
 const ctx3 = canvas3.getContext('2d')
+var canvas3 = document.getElementById('canvas3_status');
+const ctx3_status = canvas3.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
+
+var timer;
+var interval = 10;
+const VOLUME_DEFAULT = 0.03;
+const VOLUME_LOW = 0.01;
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -38,7 +45,11 @@ var bgm_playing = false;
 
 var inField_ManInFrontOfTheMirror = false;
 var inField_ManInTheMirror = false;
+var FilterinField_ManInFrontOfTheMirror = 0;
+var FilterinField_ManInTheMirror = 0;
 
+const game_mode = Object.freeze({WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3});
+var game_status = game_mode.WaitingForPlayers;
 
 const WIDTH = 320;
 const HEIGHT = 320;
@@ -214,7 +225,7 @@ function drawSignal(ctx) {
     }
     synchro_counter++;
 
-    ctx.clearRect(0, 0, 640, 480);
+    ctx.clearRect(0, 0, 320, 50);
     ctx.beginPath()
     ctx.font = "30pt 'Times New Roman'";
     var syncro_percent = Math.round((1000 - synchro) / 10);
@@ -222,11 +233,13 @@ function drawSignal(ctx) {
 
     if(syncro_percent < 60){
         ctx.fillStyle = "#FF0000";
-        if(mirror_sound[sound_num.synchronized_alert] != null){
-//            mirror_sound[sound_num.synchronized_alert].play();
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.1;
+
+        if(game_status==game_mode.Playing){
             const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
             window.speechSynthesis.speak(uttr);
+        }
+        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
             if(bgm_playing){
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
                 bgm_playing = false;
@@ -234,11 +247,12 @@ function drawSignal(ctx) {
         }
     }else if(syncro_percent < 80){ 
         ctx.fillStyle = "#FFA500";
-        if(mirror_sound[sound_num.not_synchronized] != null){
-//            mirror_sound[sound_num.not_synchronized].play();
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.1;
+        if(game_status==game_mode.Playing){
             const uttr = new SpeechSynthesisUtterance("ずれています")
             window.speechSynthesis.speak(uttr);
+        }
+        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
             if(bgm_playing){
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
                 bgm_playing = false;
@@ -246,19 +260,58 @@ function drawSignal(ctx) {
         }
     }else{
         ctx.fillStyle = "#118B11";
-        if(mirror_sound[sound_num.synchronized] != null){
-//            mirror_sound[sound_num.synchronized].play();
-            if(!bgm_playing){
+        if(!bgm_playing && game_status==game_mode.Playing){
+            if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
                 mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
+                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
                 bgm_playing = true;
             }
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.4;
         }
     }
 
     ctx.fillText("Syncro: " + syncro_percent + "%", 50, 40);
     ctx.fillStyle = "#000000";
     ctx.stroke();
+}
+
+function drawStatus(ctx){
+    var game_status_disp;
+    switch (game_status) {
+        case game_mode.WaitingForPlayers:
+          game_status_disp = "Waiting for Players";
+          break
+
+        case game_mode.Playing:
+          game_status_disp = "Playing";
+          break
+
+        case game_mode.Pause:
+          game_status_disp = "Pause: ";
+          break
+
+        case game_mode.End:     // BGM End (Play all time or out of field)
+          game_status_disp = "Game End";
+          break
+        default:
+      }
+    ctx.clearRect(0, 0, 320, 50);
+
+    ctx.beginPath()
+    ctx.font = "15pt 'Times New Roman'";
+    if(inField_ManInTheMirror){
+        ctx.fillText("In The Mirror: IN " + FilterinField_ManInTheMirror, 20, 15);
+    }else{
+        ctx.fillText("In The Mirror: OUT " + FilterinField_ManInTheMirror, 20,  15);
+    }
+    if(inField_ManInFrontOfTheMirror){
+        ctx.fillText("In Front of The Mirror: IN " + FilterinField_ManInFrontOfTheMirror, 20, 30);
+    }else{
+        ctx.fillText("In Front of The Mirror: OUT "+ FilterinField_ManInFrontOfTheMirror, 20, 30);
+    }
+    ctx.fillText(game_status_disp, 20, 45);
+    ctx.fillStyle = "#000000";
+    ctx.stroke();
+
 }
 
 function calculate_joint_degree(kp){
@@ -320,6 +373,7 @@ function calculate_joint_degree(kp){
 function isInField(kp){
     var result = true;
 
+    if( kp[leftShoulder].position.x < 0 || kp[leftShoulder].position.x > WIDTH) result = false;
     if( kp[rightShoulder].position.x < 0 || kp[rightShoulder].position.x > WIDTH) result = false;
     if( kp[leftElbow].position.x < 0 || kp[leftElbow].position.x > WIDTH) result = false;
     if( kp[rightElbow].position.x < 0 || kp[rightElbow].position.x > WIDTH) result = false;
@@ -327,11 +381,12 @@ function isInField(kp){
     if( kp[rightWrist].position.x < 0 || kp[rightWrist].position.x > WIDTH) result = false;
     if( kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
     if( kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
-    if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
-    if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
-    if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
-    if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
+//    if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
+//    if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
+//    if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
+//    if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
 
+    if( kp[leftShoulder].position.y < 0 || kp[leftShoulder].position.y > HEIGHT) result = false;
     if( kp[rightShoulder].position.y < 0 || kp[rightShoulder].position.y > HEIGHT) result = false;
     if( kp[leftElbow].position.y < 0 || kp[leftElbow].position.y > HEIGHT) result = false;
     if( kp[rightElbow].position.y < 0 || kp[rightElbow].position.y > HEIGHT) result = false;
@@ -339,8 +394,8 @@ function isInField(kp){
     if( kp[rightWrist].position.y < 0 || kp[rightWrist].position.y > HEIGHT) result = false;
     if( kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
     if( kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
-    if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
-    if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
+//    if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
+//    if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
 //    if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
 //    if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
 
@@ -412,25 +467,46 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
-                if(!inField_ManInTheMirror && isInField(kp)){      // out of field to in field
+                var ResultInField = isInField(kp);
+                if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
                     inField_ManInTheMirror = true;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.1;
-
+                    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+                    }
                     const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみつけました")
                     window.speechSynthesis.speak(uttr);
                 }
-                if(inField_ManInTheMirror && !isInField(kp)){      // in field to out of field
-                    inField_ManInTheMirror = false;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.1;
 
-                    const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
-                    window.speechSynthesis.speak(uttr);
+                if(ResultInField){
+                    FilterinField_ManInTheMirror = 0;
+                }
+                if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
+                    FilterinField_ManInTheMirror++;
+                    if(FilterinField_ManInTheMirror > 500){         // Detect filter
+                        inField_ManInTheMirror = false;
+                        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+                            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+                        }
+                        const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
+                        window.speechSynthesis.speak(uttr);
+                        FilterinField_ManInTheMirror = 0;
+                    }
                 }
 
                 if(joint_degree1 && joint_degree2){
                     joint_degree1 = calculate_joint_degree(kp);
                 }
                 drawPose(ctx, kp, joint_degree1, true/*mirror draw*/);
+            }else{      // prediction is low = Out of field
+                FilterinField_ManInTheMirror++;
+                if(FilterinField_ManInTheMirror > 500){         // Detect filter
+                    inField_ManInTheMirror = false;
+                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+
+                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
+                    window.speechSynthesis.speak(uttr);
+                    FilterinField_ManInTheMirror = 0;
+                }
             }
         }
 
@@ -450,29 +526,47 @@ function predictWebcam2() {
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
                 var kp2 = predictions2[n].keypoints;
-                if(!inField_ManInFrontOfTheMirror && isInField(kp2)){      // out of field to in field
+                var ResultInField = isInField(kp2);
+                if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
                     inField_ManInFrontOfTheMirror = true;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.1;
+                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
 
                     const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみつけました")
                     window.speechSynthesis.speak(uttr);
                 }
-                if(inField_ManInFrontOfTheMirror && !isInField(kp2)){      // in field to out of field
-                    inField_ManInFrontOfTheMirror = false;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = 0.1;
 
-                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
-                    window.speechSynthesis.speak(uttr);
+                if(ResultInField){
+                    FilterinField_ManInFrontOfTheMirror = 0;
+                }
+                if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
+                    FilterinField_ManInFrontOfTheMirror++;
+                    if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
+                        inField_ManInFrontOfTheMirror = false;
+                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+
+                        const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
+                        window.speechSynthesis.speak(uttr);
+                        FilterinField_ManInFrontOfTheMirror = 0;
+                    }
                 }
 
                 if(joint_degree1 && joint_degree2){
                     joint_degree2 = calculate_joint_degree(kp2);
                 }
                 drawPose(ctx2, kp2, joint_degree2, false/*mirror draw*/)
-                comapre_joint_degree();
-                drawSignal(ctx3);
+            }else{      // prediction is low = Out of field
+                FilterinField_ManInFrontOfTheMirror++;
+                if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
+                    inField_ManInFrontOfTheMirror = false;
+                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+
+                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
+                    window.speechSynthesis.speak(uttr);
+                    FilterinField_ManInFrontOfTheMirror = 0;
+                }
             }
         }
+        comapre_joint_degree();
 
         window.requestAnimationFrame(predictWebcam2);
     });
@@ -549,3 +643,75 @@ var mirror_sound = new Array(4);
         if(mirror_sound[i]!=null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0;}
     }
   }
+
+  function update_game_status(){
+    switch (game_status) {
+        case game_mode.WaitingForPlayers:
+            if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Play Status
+                game_status = game_mode.Playing;
+                const uttr = new SpeechSynthesisUtterance("げーむをかいしします")
+                window.speechSynthesis.speak(uttr);
+            }else{
+//                const uttr = new SpeechSynthesisUtterance("かがみのまえとなかにたってください")
+//                window.speechSynthesis.speak(uttr);
+            }
+          break
+
+        case game_mode.Playing:
+            if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
+                game_status = game_mode.End;
+                const uttr = new SpeechSynthesisUtterance("ぷれーやーがいなくなりました。げーむをしゅうりょうします")
+                window.speechSynthesis.speak(uttr);
+            }
+
+            if(!inField_ManInFrontOfTheMirror){    // Play Status -> Pause
+                game_status = game_mode.Pause;
+                const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました。もどってください。")
+                window.speechSynthesis.speak(uttr);
+            }
+
+            if(!inField_ManInTheMirror){    // Play Status -> Pause
+                game_status = game_mode.Pause;
+                const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました。もどってください。")
+                window.speechSynthesis.speak(uttr);
+            }
+          break
+
+        case game_mode.Pause:
+            if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Pasuse Status -> Play Status
+                game_status = game_mode.Playing;
+            }
+            if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
+                game_status = game_mode.End;
+                const uttr = new SpeechSynthesisUtterance("ぷれーやーがいなくなりました。げーむをしゅうりょうします")
+                window.speechSynthesis.speak(uttr);
+            }
+
+          break
+
+        case game_mode.End:     // BGM End (Play all time or out of field)
+            const uttr = new SpeechSynthesisUtterance("げーむしゅうりょうです")
+            window.speechSynthesis.speak(uttr);
+//            game_status = game_mode.WaitingForPlayers;
+          break
+
+        default:
+      }
+  }
+
+  function mirror_loop(){
+    drawSignal(ctx3);
+    drawStatus(ctx3_status);
+    update_game_status();
+  }
+
+  var move = function() {
+    mirror_loop();
+
+    clearTimeout(timer);
+    timer = setTimeout(move, interval);
+  };
+
+  window.onload = function() {
+    move();
+  };
