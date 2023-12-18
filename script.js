@@ -37,7 +37,10 @@ const leftKnee = 13
 const rightKnee = 14
 const leftAnkle = 15
 const rightAnkle = 16
-const numOfJoint = 16
+const numOfJoint = 17
+
+var kp_1 = new Array(numOfJoint);
+var kp_2 = new Array(numOfJoint);
 
 var synchro_counter = 0;
 const synchro_counter_max = 50;
@@ -169,6 +172,7 @@ var joint_degree2 = new Array(numOfJoint);
 var synchro = 0;
 
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
+    if(kp[leftShoulder] == null) return false;
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     drawHead(ctx, kp[nose], kp[leftEye], mirror);
 
@@ -314,7 +318,11 @@ function drawStatus(ctx){
 
 }
 
+
+// Pose Analyze
+
 function calculate_joint_degree(kp){
+    if(kp[leftShoulder] == null) return false;
     var joint_degree = new Array(numOfJoint);
 
     joint_degree[nose] = 0;     // not used
@@ -371,6 +379,7 @@ function calculate_joint_degree(kp){
 }
 
 function isInField(kp){
+    if(kp[leftShoulder] == null) return false;
     var result = true;
 
     if( kp[leftShoulder].position.x < 0 || kp[leftShoulder].position.x > WIDTH) result = false;
@@ -442,7 +451,7 @@ function mirror_joint_degree(joint_degree){
     return mirror_joint_degree;
 }
 
-function comapre_joint_degree(){
+function compare_joint_degree(){
     var sync_confidence = 0;
     var mirror_joint_degree2 = mirror_joint_degree(joint_degree2);
     for(var i=0; i < numOfJoint; i++){
@@ -454,6 +463,9 @@ function comapre_joint_degree(){
     synchro = sync_confidence;
     return;
 }
+
+
+// Cam Pose Capture
 
 // in the mirror
 function predictWebcam() {
@@ -467,42 +479,32 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
-                var ResultInField = isInField(kp);
-                if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
-                    inField_ManInTheMirror = true;
-                    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
-                    }
-                    const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみつけました")
-                    window.speechSynthesis.speak(uttr);
-                }
 
-                if(ResultInField){
-                    FilterinField_ManInTheMirror = 0;
-                }
-                if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
-                    FilterinField_ManInTheMirror++;
-                    if(FilterinField_ManInTheMirror > 500){         // Detect filter
-                        inField_ManInTheMirror = false;
-                        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-                        }
-                        const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
-                        window.speechSynthesis.speak(uttr);
-                        FilterinField_ManInTheMirror = 0;
-                    }
-                }
+                kp_1[nose] = Object.assign({},kp[nose]);
+                kp_1[leftEye] = Object.assign({},kp[leftEye]);
+                kp_1[rightEye] = Object.assign({},kp[rightEye]);
+                kp_1[leftEar] = Object.assign({},kp[leftEar]);
+                kp_1[rightEar] = Object.assign({},kp[rightEar]);
+                kp_1[leftShoulder] = Object.assign({},kp[leftShoulder]);
+                kp_1[rightShoulder] = Object.assign({},kp[rightShoulder]);
+                kp_1[leftElbow] = Object.assign({},kp[leftElbow]);
+                kp_1[rightElbow] = Object.assign({},kp[rightElbow]);
+                kp_1[leftWrist] = Object.assign({},kp[leftWrist]);
+                kp_1[rightWrist] = Object.assign({},kp[rightWrist]);
+                kp_1[leftHip] = Object.assign({},kp[leftHip]);
+                kp_1[rightHip] = Object.assign({},kp[rightHip]);
+                kp_1[leftKnee] = Object.assign({},kp[leftKnee]);
+                kp_1[rightKnee] = Object.assign({},kp[rightKnee]);
+                kp_1[leftAnkle] = Object.assign({},kp[leftAnkle]);
+                kp_1[rightAnkle] = Object.assign({},kp[rightAnkle]);
 
-                if(joint_degree1 && joint_degree2){
-                    joint_degree1 = calculate_joint_degree(kp);
-                }
-                drawPose(ctx, kp, joint_degree1, true/*mirror draw*/);
             }else{      // prediction is low = Out of field
                 FilterinField_ManInTheMirror++;
                 if(FilterinField_ManInTheMirror > 500){         // Detect filter
                     inField_ManInTheMirror = false;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-
+                    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+                    }
                     const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
                     window.speechSynthesis.speak(uttr);
                     FilterinField_ManInTheMirror = 0;
@@ -525,53 +527,46 @@ function predictWebcam2() {
 
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
-                var kp2 = predictions2[n].keypoints;
-                var ResultInField = isInField(kp2);
-                if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
-                    inField_ManInFrontOfTheMirror = true;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+                var kp = predictions2[n].keypoints;
 
-                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみつけました")
-                    window.speechSynthesis.speak(uttr);
-                }
+                kp_2[nose] = Object.assign({},kp[nose]);
+                kp_2[leftEye] = Object.assign({},kp[leftEye]);
+                kp_2[rightEye] = Object.assign({},kp[rightEye]);
+                kp_2[leftEar] = Object.assign({},kp[leftEar]);
+                kp_2[rightEar] = Object.assign({},kp[rightEar]);
+                kp_2[leftShoulder] = Object.assign({},kp[leftShoulder]);
+                kp_2[rightShoulder] = Object.assign({},kp[rightShoulder]);
+                kp_2[leftElbow] = Object.assign({},kp[leftElbow]);
+                kp_2[rightElbow] = Object.assign({},kp[rightElbow]);
+                kp_2[leftWrist] = Object.assign({},kp[leftWrist]);
+                kp_2[rightWrist] = Object.assign({},kp[rightWrist]);
+                kp_2[leftHip] = Object.assign({},kp[leftHip]);
+                kp_2[rightHip] = Object.assign({},kp[rightHip]);
+                kp_2[leftKnee] = Object.assign({},kp[leftKnee]);
+                kp_2[rightKnee] = Object.assign({},kp[rightKnee]);
+                kp_2[leftAnkle] = Object.assign({},kp[leftAnkle]);
+                kp_2[rightAnkle] = Object.assign({},kp[rightAnkle]);
 
-                if(ResultInField){
-                    FilterinField_ManInFrontOfTheMirror = 0;
-                }
-                if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
-                    FilterinField_ManInFrontOfTheMirror++;
-                    if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
-                        inField_ManInFrontOfTheMirror = false;
-                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-
-                        const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
-                        window.speechSynthesis.speak(uttr);
-                        FilterinField_ManInFrontOfTheMirror = 0;
-                    }
-                }
-
-                if(joint_degree1 && joint_degree2){
-                    joint_degree2 = calculate_joint_degree(kp2);
-                }
-                drawPose(ctx2, kp2, joint_degree2, false/*mirror draw*/)
             }else{      // prediction is low = Out of field
                 FilterinField_ManInFrontOfTheMirror++;
                 if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
                     inField_ManInFrontOfTheMirror = false;
-                    mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-
+                    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+                    }
                     const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
                     window.speechSynthesis.speak(uttr);
                     FilterinField_ManInFrontOfTheMirror = 0;
                 }
             }
         }
-        comapre_joint_degree();
 
         window.requestAnimationFrame(predictWebcam2);
     });
 }
 
+
+// Device List
 
 // https://qiita.com/massie_g/items/b9863e4366cfed339528
 function getDeviceList() {
@@ -616,8 +611,8 @@ function getDeviceList() {
   }
 
 
-
 // Set bgm
+
 const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3', 'synchronized.m4a','not_synchronized.m4a','synchronized_alert.m4a']
 const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0, synchronized: 1, not_synchronized: 2, synchronized_alert: 3});
 var mirror_sound = new Array(4);
@@ -643,6 +638,78 @@ var mirror_sound = new Array(4);
         if(mirror_sound[i]!=null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0;}
     }
   }
+
+// draw man
+
+function draw_man(){
+    drawPose(ctx, kp_1, joint_degree1, true/*mirror draw*/);
+    drawPose(ctx2, kp_2, joint_degree2, false/*mirror draw*/);
+}
+
+// Man Status
+
+function update_man_status(){
+// Calc Man1 in the mirror
+    var ResultInField = isInField(kp_1);
+    if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
+        inField_ManInTheMirror = true;
+        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+        }
+        const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみつけました")
+        window.speechSynthesis.speak(uttr);
+    }
+
+    if(ResultInField){
+        FilterinField_ManInTheMirror = 0;
+    }
+    if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
+        FilterinField_ManInTheMirror++;
+        if(FilterinField_ManInTheMirror > 500){         // Detect filter
+            inField_ManInTheMirror = false;
+            if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+            }
+            const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
+            window.speechSynthesis.speak(uttr);
+            FilterinField_ManInTheMirror = 0;
+        }
+    }
+    joint_degree1 = calculate_joint_degree(kp_1);
+
+
+
+// Calc Man1 in front of the mirror
+    ResultInField = isInField(kp_2);
+    if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
+        inField_ManInFrontOfTheMirror = true;
+        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+        }
+        const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみつけました")
+        window.speechSynthesis.speak(uttr);
+    }
+
+    if(ResultInField){
+        FilterinField_ManInFrontOfTheMirror = 0;
+    }
+    if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
+        FilterinField_ManInFrontOfTheMirror++;
+        if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
+            inField_ManInFrontOfTheMirror = false;
+            if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+            }
+            const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
+            window.speechSynthesis.speak(uttr);
+            FilterinField_ManInFrontOfTheMirror = 0;
+        }
+    }
+    joint_degree2 = calculate_joint_degree(kp_2);
+}
+
+
+// Game Status
 
   function update_game_status(){
     switch (game_status) {
@@ -700,6 +767,11 @@ var mirror_sound = new Array(4);
   }
 
   function mirror_loop(){
+    update_man_status();
+    if(joint_degree1 && joint_degree2){
+        compare_joint_degree();
+    }
+    draw_man();
     drawSignal(ctx3);
     drawStatus(ctx3_status);
     update_game_status();
