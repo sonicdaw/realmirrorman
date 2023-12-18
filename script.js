@@ -18,6 +18,7 @@ var timer;
 var interval = 10;
 const VOLUME_DEFAULT = 0.03;
 const VOLUME_LOW = 0.01;
+var bgm_volume = VOLUME_LOW;
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -44,6 +45,7 @@ var kp_2 = new Array(numOfJoint);
 
 var synchro_counter = 0;
 const synchro_counter_max = 50;
+var pre_bgm_playing = false;
 var bgm_playing = false;
 
 var inField_ManInFrontOfTheMirror = false;
@@ -242,35 +244,20 @@ function drawSignal(ctx) {
             const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
             window.speechSynthesis.speak(uttr);
         }
-        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-            if(bgm_playing){
-                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
-                bgm_playing = false;
-            }
-        }
+        bgm_volume = VOLUME_LOW;
+        bgm_playing = false;
     }else if(syncro_percent < 80){ 
         ctx.fillStyle = "#FFA500";
         if(game_status==game_mode.Playing){
             const uttr = new SpeechSynthesisUtterance("ずれています")
             window.speechSynthesis.speak(uttr);
         }
-        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-            if(bgm_playing){
-                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
-                bgm_playing = false;
-            }
-        }
+        bgm_volume = VOLUME_LOW;
+        bgm_playing = false;
     }else{
         ctx.fillStyle = "#118B11";
-        if(!bgm_playing && game_status==game_mode.Playing){
-            if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
-                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
-                bgm_playing = true;
-            }
-        }
+        bgm_volume = VOLUME_DEFAULT;
+        bgm_playing = true;
     }
 
     ctx.fillText("Syncro: " + syncro_percent + "%", 50, 40);
@@ -502,9 +489,8 @@ function predictWebcam() {
                 FilterinField_ManInTheMirror++;
                 if(FilterinField_ManInTheMirror > 500){         // Detect filter
                     inField_ManInTheMirror = false;
-                    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-                    }
+                    bgm_volume = VOLUME_LOW;
+
                     const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
                     window.speechSynthesis.speak(uttr);
                     FilterinField_ManInTheMirror = 0;
@@ -551,9 +537,8 @@ function predictWebcam2() {
                 FilterinField_ManInFrontOfTheMirror++;
                 if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
                     inField_ManInFrontOfTheMirror = false;
-                    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-                    }
+                    bgm_volume = VOLUME_LOW;
+
                     const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
                     window.speechSynthesis.speak(uttr);
                     FilterinField_ManInFrontOfTheMirror = 0;
@@ -611,7 +596,7 @@ function getDeviceList() {
   }
 
 
-// Set bgm
+// bgm
 
 const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3', 'synchronized.m4a','not_synchronized.m4a','synchronized_alert.m4a']
 const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0, synchronized: 1, not_synchronized: 2, synchronized_alert: 3});
@@ -639,6 +624,24 @@ var mirror_sound = new Array(4);
     }
   }
 
+function bgm_control(){
+    // Volume Control
+    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
+        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = bgm_volume;
+
+        if(pre_bgm_playing && !bgm_playing){  // Play -> Pause
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
+        }
+
+        if(!pre_bgm_playing && bgm_playing){  // Pause -> Play
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
+        }
+    }
+
+    pre_bgm_playing = bgm_playing;
+}
+
+
 // draw man
 
 function draw_man(){
@@ -653,9 +656,7 @@ function update_man_status(){
     var ResultInField = isInField(kp_1);
     if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
         inField_ManInTheMirror = true;
-        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
-        }
+        bgm_volume = VOLUME_DEFAULT;
         const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみつけました")
         window.speechSynthesis.speak(uttr);
     }
@@ -667,9 +668,7 @@ function update_man_status(){
         FilterinField_ManInTheMirror++;
         if(FilterinField_ManInTheMirror > 500){         // Detect filter
             inField_ManInTheMirror = false;
-            if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-            }
+            bgm_volume = VOLUME_LOW;
             const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
             window.speechSynthesis.speak(uttr);
             FilterinField_ManInTheMirror = 0;
@@ -683,9 +682,7 @@ function update_man_status(){
     ResultInField = isInField(kp_2);
     if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
-        if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
-        }
+        bgm_volume = VOLUME_DEFAULT;
         const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみつけました")
         window.speechSynthesis.speak(uttr);
     }
@@ -697,9 +694,7 @@ function update_man_status(){
         FilterinField_ManInFrontOfTheMirror++;
         if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
             inField_ManInFrontOfTheMirror = false;
-            if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-                mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-            }
+            bgm_volume = VOLUME_LOW;
             const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
             window.speechSynthesis.speak(uttr);
             FilterinField_ManInFrontOfTheMirror = 0;
@@ -775,6 +770,7 @@ function update_man_status(){
     drawSignal(ctx3);
     drawStatus(ctx3_status);
     update_game_status();
+    bgm_control();
   }
 
   var move = function() {
