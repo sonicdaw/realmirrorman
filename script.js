@@ -44,7 +44,7 @@ var kp_1 = new Array(numOfJoint);
 var kp_2 = new Array(numOfJoint);
 
 var synchro_counter = 0;
-const synchro_counter_max = 50;
+const synchro_counter_max = 100;
 var pre_bgm_playing = false;
 var bgm_playing = false;
 
@@ -172,6 +172,7 @@ function degree(theta) {
 var joint_degree1 = new Array(numOfJoint);
 var joint_degree2 = new Array(numOfJoint);
 var synchro = 0;
+var syncro_percent = 0;
 
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     if(kp[leftShoulder] == null) return false;
@@ -222,42 +223,16 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
 
 
 function drawSignal(ctx) {
-    if(synchro_counter != 0){
-        synchro_counter++;  // Skip to update synchro result for a while
-        if(synchro_counter > synchro_counter_max){
-            synchro_counter = 0;
-        }
-        return;
-    }
-    synchro_counter++;
-
     ctx.clearRect(0, 0, 320, 50);
     ctx.beginPath()
     ctx.font = "30pt 'Times New Roman'";
-    var syncro_percent = Math.round((1000 - synchro) / 10);
-    if(syncro_percent < 0 ) syncro_percent = 0;
 
     if(syncro_percent < 60){
         ctx.fillStyle = "#FF0000";
-
-        if(game_status==game_mode.Playing){
-            const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
-            window.speechSynthesis.speak(uttr);
-        }
-        bgm_volume = VOLUME_LOW;
-        bgm_playing = false;
     }else if(syncro_percent < 80){ 
         ctx.fillStyle = "#FFA500";
-        if(game_status==game_mode.Playing){
-            const uttr = new SpeechSynthesisUtterance("ずれています")
-            window.speechSynthesis.speak(uttr);
-        }
-        bgm_volume = VOLUME_LOW;
-        bgm_playing = false;
     }else{
         ctx.fillStyle = "#118B11";
-        bgm_volume = VOLUME_DEFAULT;
-        bgm_playing = true;
     }
 
     ctx.fillText("Syncro: " + syncro_percent + "%", 50, 40);
@@ -448,6 +423,7 @@ function compare_joint_degree(){
         }
     }
     synchro = sync_confidence;
+
     return;
 }
 
@@ -703,6 +679,38 @@ function update_man_status(){
     joint_degree2 = calculate_joint_degree(kp_2);
 }
 
+function handle_syncro_percent(){
+    if(synchro_counter != 0){
+        synchro_counter++;  // Skip to update synchro result for a while
+        if(synchro_counter > synchro_counter_max){
+            synchro_counter = 0;
+        }
+        return;
+    }
+    synchro_counter++;
+
+    syncro_percent = Math.round((1000 - synchro) / 10);
+    if(syncro_percent < 0 ) syncro_percent = 0;
+
+    if(syncro_percent < 60){
+        if(game_status==game_mode.Playing){
+            const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
+            window.speechSynthesis.speak(uttr);
+        }
+        bgm_volume = VOLUME_LOW;
+        bgm_playing = false;
+    }else if(syncro_percent < 80){
+        if(game_status==game_mode.Playing){
+            const uttr = new SpeechSynthesisUtterance("ずれています")
+            window.speechSynthesis.speak(uttr);
+        }
+        bgm_volume = VOLUME_LOW;
+        bgm_playing = false;
+    }else{
+        bgm_volume = VOLUME_DEFAULT;
+        bgm_playing = true;
+    }
+}
 
 // Game Status
 
@@ -770,6 +778,7 @@ function update_man_status(){
     drawSignal(ctx3);
     drawStatus(ctx3_status);
     update_game_status();
+    handle_syncro_percent();
     bgm_control();
   }
 
