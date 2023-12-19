@@ -466,9 +466,7 @@ function predictWebcam() {
                 if(FilterinField_ManInTheMirror > 500){         // Detect filter
                     inField_ManInTheMirror = false;
                     bgm_volume = VOLUME_LOW;
-
-                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
-                    window.speechSynthesis.speak(uttr);
+                    speech_string = speech_text.LostManInTheMirror;
                     FilterinField_ManInTheMirror = 0;
                 }
             }
@@ -514,9 +512,7 @@ function predictWebcam2() {
                 if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
                     inField_ManInFrontOfTheMirror = false;
                     bgm_volume = VOLUME_LOW;
-
-                    const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
-                    window.speechSynthesis.speak(uttr);
+                    speech_string = speech_text.LostManInFrontOfTheMirror;
                     FilterinField_ManInFrontOfTheMirror = 0;
                 }
             }
@@ -633,8 +629,7 @@ function update_man_status(){
     if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
         inField_ManInTheMirror = true;
         bgm_volume = VOLUME_DEFAULT;
-        const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみつけました")
-        window.speechSynthesis.speak(uttr);
+        speech_string = speech_text.FoundManInTheMirror;
     }
 
     if(ResultInField){
@@ -645,8 +640,7 @@ function update_man_status(){
         if(FilterinField_ManInTheMirror > 500){         // Detect filter
             inField_ManInTheMirror = false;
             bgm_volume = VOLUME_LOW;
-            const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました")
-            window.speechSynthesis.speak(uttr);
+            speech_string = speech_text.LostManInTheMirror;
             FilterinField_ManInTheMirror = 0;
         }
     }
@@ -659,8 +653,7 @@ function update_man_status(){
     if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
         bgm_volume = VOLUME_DEFAULT;
-        const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみつけました")
-        window.speechSynthesis.speak(uttr);
+        speech_string = speech_text.FoundManInFrontOfTheMirror;
     }
 
     if(ResultInField){
@@ -671,8 +664,7 @@ function update_man_status(){
         if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
             inField_ManInFrontOfTheMirror = false;
             bgm_volume = VOLUME_LOW;
-            const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました")
-            window.speechSynthesis.speak(uttr);
+            speech_string = speech_text.LostManInFrontOfTheMirror;
             FilterinField_ManInFrontOfTheMirror = 0;
         }
     }
@@ -694,15 +686,13 @@ function handle_syncro_percent(){
 
     if(syncro_percent < 60){
         if(game_status==game_mode.Playing){
-            const uttr = new SpeechSynthesisUtterance("まったくあっていませんよ")
-            window.speechSynthesis.speak(uttr);
+            speech_string = speech_text.synchronized_alert;
         }
         bgm_volume = VOLUME_LOW;
         bgm_playing = false;
     }else if(syncro_percent < 80){
         if(game_status==game_mode.Playing){
-            const uttr = new SpeechSynthesisUtterance("ずれています")
-            window.speechSynthesis.speak(uttr);
+            speech_string = speech_text.not_synchronized;
         }
         bgm_volume = VOLUME_LOW;
         bgm_playing = false;
@@ -712,6 +702,36 @@ function handle_syncro_percent(){
     }
 }
 
+const speech_text = Object.freeze({
+    Setup: "かがみのまえとなかにたってください",
+    GameStart: "げーむをかいしします",
+    GameEnd: "げーむしゅうりょうです",
+    not_synchronized: "ずれています",
+    synchronized_alert: "まったくあっていませんよ",
+    FoundManInTheMirror: "かがみのなかのひとをみつけました",
+    LostManInTheMirror: "かがみのなかのひとをみうしないました",
+    FoundManInFrontOfTheMirror: "かがみのまえのひとをみつけました",
+    LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
+    LostManInTheMirror: "かがみのなかのひとをみうしないました。もどってください。",
+    LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました。もどってください。",
+    LostPlayers: "ぷれーやーがいなくなりました。げーむをしゅうりょうします"
+});
+
+var speech_string = "";
+var pre_speech_string = "";
+
+function speech_controller(){
+//    console.log(speech_string);
+    if(speech_string==pre_speech_string){
+        return;
+    }
+    if(speech_string!=""){
+        const uttr = new SpeechSynthesisUtterance(speech_string)
+        window.speechSynthesis.speak(uttr);
+    }
+    pre_speech_string = speech_string;
+}
+
 // Game Status
 
   function update_game_status(){
@@ -719,31 +739,26 @@ function handle_syncro_percent(){
         case game_mode.WaitingForPlayers:
             if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Play Status
                 game_status = game_mode.Playing;
-                const uttr = new SpeechSynthesisUtterance("げーむをかいしします")
-                window.speechSynthesis.speak(uttr);
+                speech_string = speech_text.GameStart;
             }else{
-//                const uttr = new SpeechSynthesisUtterance("かがみのまえとなかにたってください")
-//                window.speechSynthesis.speak(uttr);
+//                speech_string = speech_text.Setup;    // Dont read
             }
           break
 
         case game_mode.Playing:
             if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
-                const uttr = new SpeechSynthesisUtterance("ぷれーやーがいなくなりました。げーむをしゅうりょうします")
-                window.speechSynthesis.speak(uttr);
+                speech_string = speech_text.LostPlayers;
             }
 
             if(!inField_ManInFrontOfTheMirror){    // Play Status -> Pause
                 game_status = game_mode.Pause;
-                const uttr = new SpeechSynthesisUtterance("かがみのまえのひとをみうしないました。もどってください。")
-                window.speechSynthesis.speak(uttr);
+                speech_string = speech_text.LostManInFrontOfTheMirror;
             }
 
             if(!inField_ManInTheMirror){    // Play Status -> Pause
                 game_status = game_mode.Pause;
-                const uttr = new SpeechSynthesisUtterance("かがみのなかのひとをみうしないました。もどってください。")
-                window.speechSynthesis.speak(uttr);
+                speech_string = speech_text.LostManInTheMirror;
             }
           break
 
@@ -753,15 +768,13 @@ function handle_syncro_percent(){
             }
             if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
-                const uttr = new SpeechSynthesisUtterance("ぷれーやーがいなくなりました。げーむをしゅうりょうします")
-                window.speechSynthesis.speak(uttr);
+                speech_string = speech_text.LostPlayers;
             }
 
           break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
-            const uttr = new SpeechSynthesisUtterance("げーむしゅうりょうです")
-            window.speechSynthesis.speak(uttr);
+            speech_string = speech_text.GameEnd;
 //            game_status = game_mode.WaitingForPlayers;
           break
 
@@ -780,6 +793,7 @@ function handle_syncro_percent(){
     update_game_status();
     handle_syncro_percent();
     bgm_control();
+    speech_controller();
   }
 
   var move = function() {
