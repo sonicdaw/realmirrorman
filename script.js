@@ -739,6 +739,7 @@ function speech_controller(){
           break
 
         case game_mode.Playing:
+            bgm_playing = true;
             if(!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
@@ -748,13 +749,12 @@ function speech_controller(){
           break
 
         case game_mode.Pause:
-            if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Pasuse Status -> Play Status
-                speech_push(game_mode.Playing);
-            }else if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
+            if(!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
+            }else if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Pause Status -> Play Status
+                game_status = game_mode.Playing;
             }
-
           break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
