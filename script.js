@@ -728,7 +728,7 @@ function speech_controller(){
                 game_status = game_mode.Playing;
                 speech_push(speech_text.GameStart);
             }else{
-//                speech_push(speech_text.Setup);    // Dont read
+                speech_push(speech_text.Setup);
             }
           break
 
@@ -762,7 +762,7 @@ function speech_controller(){
 
         case game_mode.End:     // BGM End (Play all time or out of field)
             speech_push(speech_text.GameEnd);
-//            game_status = game_mode.WaitingForPlayers;
+            game_status = game_mode.WaitingForPlayers;
           break
 
         default:
