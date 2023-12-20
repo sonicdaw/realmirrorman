@@ -47,6 +47,7 @@ var synchro_counter = 0;
 const synchro_counter_max = 100;
 var pre_bgm_playing = false;
 var bgm_playing = false;
+var bgm_stopping = false;
 
 var inField_ManInFrontOfTheMirror = false;
 var inField_ManInTheMirror = false;
@@ -560,11 +561,16 @@ function bgm_control(){
         mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = bgm_volume;
 
         if(pre_bgm_playing && !bgm_playing){  // Play -> Pause
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
+            bgm_pause();
         }
 
-        if(!pre_bgm_playing && bgm_playing){  // Pause -> Play
+        if(!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing){  // Pause -> Play
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
+        }
+
+        if(bgm_stopping){
+            bgm_stop();
+            bgm_stopping = false;
         }
     }
 
@@ -763,6 +769,7 @@ function speech_controller(){
         case game_mode.End:     // BGM End (Play all time or out of field)
             speech_push(speech_text.GameEnd);
             game_status = game_mode.WaitingForPlayers;
+            bgm_stopping = true;
           break
 
         default:
