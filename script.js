@@ -700,7 +700,7 @@ const speech_text = Object.freeze({
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
     LostManInTheMirror: "かがみのなかのひとをみうしないました。もどってください。",
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました。もどってください。",
-    LostPlayers: "ぷれーやーがいなくなりました。げーむをしゅうりょうします"
+    LostPlayers: "ぷれーやーがいなくなりました。"
 });
 
 var speech_string = [];
@@ -739,27 +739,18 @@ function speech_controller(){
           break
 
         case game_mode.Playing:
-            if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
+            if(!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
-            }
-
-            if(!inField_ManInFrontOfTheMirror){    // Play Status -> Pause
+            }else if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> Pause
                 game_status = game_mode.Pause;
-                speech_push(speech_text.LostManInFrontOfTheMirror);
-            }
-
-            if(!inField_ManInTheMirror){    // Play Status -> Pause
-                game_status = game_mode.Pause;
-                speech_push(speech_text.LostManInTheMirror);
             }
           break
 
         case game_mode.Pause:
             if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Pasuse Status -> Play Status
                 speech_push(game_mode.Playing);
-            }
-            if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
+            }else if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
             }
