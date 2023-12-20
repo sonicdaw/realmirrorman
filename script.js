@@ -54,6 +54,7 @@ var FilterinField_ManInFrontOfTheMirror = 0;
 var FilterinField_ManInTheMirror = 0;
 var Captured_ManInFrontOfTheMirror = false;
 var Captured_ManInTheMirror = false;
+const FilterinField_Max = 500;
 
 const game_mode = Object.freeze({WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3});
 var game_status = game_mode.WaitingForPlayers;
@@ -267,14 +268,14 @@ function drawStatus(ctx){
     ctx.beginPath()
     ctx.font = "15pt 'Times New Roman'";
     if(inField_ManInTheMirror){
-        ctx.fillText("In The Mirror: IN " + FilterinField_ManInTheMirror, 20, 15);
+        ctx.fillText("In The Mirror: IN ", 20, 15);
     }else{
-        ctx.fillText("In The Mirror: OUT " + FilterinField_ManInTheMirror, 20,  15);
+        ctx.fillText("In The Mirror: OUT ", 20,  15);
     }
     if(inField_ManInFrontOfTheMirror){
-        ctx.fillText("In Front of The Mirror: IN " + FilterinField_ManInFrontOfTheMirror, 20, 30);
+        ctx.fillText("In Front of The Mirror: IN ", 20, 30);
     }else{
-        ctx.fillText("In Front of The Mirror: OUT "+ FilterinField_ManInFrontOfTheMirror, 20, 30);
+        ctx.fillText("In Front of The Mirror: OUT ", 20, 30);
     }
     ctx.fillText(game_status_disp, 20, 45);
     ctx.fillStyle = "#000000";
@@ -592,6 +593,7 @@ function update_man_status(){
         inField_ManInTheMirror = true;
         bgm_volume = VOLUME_DEFAULT;
         speech_push(speech_text.FoundManInTheMirror);
+        FilterinField_ManInTheMirror = 0;
     }
 
     if(ResultInField){
@@ -599,11 +601,10 @@ function update_man_status(){
     }
     if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
         FilterinField_ManInTheMirror++;
-        if(FilterinField_ManInTheMirror > 500){         // Detect filter
+        if(FilterinField_ManInTheMirror > FilterinField_Max){         // Detect filter
             inField_ManInTheMirror = false;
             bgm_volume = VOLUME_LOW;
             speech_push(speech_text.LostManInTheMirror);
-            FilterinField_ManInTheMirror = 0;
         }
     }
     joint_degree1 = calculate_joint_degree(kp_1);
@@ -620,6 +621,7 @@ function update_man_status(){
         inField_ManInFrontOfTheMirror = true;
         bgm_volume = VOLUME_DEFAULT;
         speech_push(speech_text.FoundManInFrontOfTheMirror);
+        FilterinField_ManInFrontOfTheMirror = 0;
     }
 
     if(ResultInField){
@@ -627,15 +629,27 @@ function update_man_status(){
     }
     if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
         FilterinField_ManInFrontOfTheMirror++;
-        if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
+        if(FilterinField_ManInFrontOfTheMirror > FilterinField_Max){         // Detect filter
             inField_ManInFrontOfTheMirror = false;
             bgm_volume = VOLUME_LOW;
             speech_push(speech_text.LostManInFrontOfTheMirror);
-            FilterinField_ManInFrontOfTheMirror = 0;
         }
     }
     joint_degree2 = calculate_joint_degree(kp_2);
 }
+
+function draw_mirror_out_gauge(){
+    ctx.beginPath();
+    ctx.fillStyle = "red";
+    ctx.fillRect(0,0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx.stroke();
+
+    ctx2.beginPath();
+    ctx2.fillStyle = "red";
+    ctx2.fillRect(0,0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx2.stroke();
+}
+
 
 function handle_syncro_percent(){
     if(synchro_counter != 0){
@@ -761,6 +775,7 @@ function speech_controller(){
         compare_joint_degree();
     }
     draw_man();
+    draw_mirror_out_gauge();
     drawSignal(ctx3);
     drawStatus(ctx3_status);
     update_game_status();
