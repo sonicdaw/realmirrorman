@@ -267,17 +267,7 @@ function drawStatus(ctx){
     ctx.clearRect(0, 0, 320, 50);
 
     ctx.beginPath()
-    ctx.font = "15pt 'Times New Roman'";
-    if(inField_ManInTheMirror){
-        ctx.fillText("In The Mirror: IN ", 20, 15);
-    }else{
-        ctx.fillText("In The Mirror: OUT ", 20,  15);
-    }
-    if(inField_ManInFrontOfTheMirror){
-        ctx.fillText("In Front of The Mirror: IN ", 20, 30);
-    }else{
-        ctx.fillText("In Front of The Mirror: OUT ", 20, 30);
-    }
+    ctx.font = "20pt 'Times New Roman'";
     ctx.fillText(game_status_disp, 20, 45);
     ctx.fillStyle = "#000000";
     ctx.stroke();
@@ -656,6 +646,20 @@ function draw_mirror_out_gauge(){
     ctx2.stroke();
 }
 
+function draw_man_in_out(){
+    if(!inField_ManInTheMirror){
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(128,128,128,0.8)';
+        ctx.fillRect(0,0, WIDTH, HEIGHT);
+        ctx.stroke();
+    }
+    if(!inField_ManInFrontOfTheMirror){
+        ctx2.beginPath();
+        ctx2.fillStyle = 'rgba(128,128,128,0.8)';
+        ctx2.fillRect(0,0, WIDTH, HEIGHT);
+        ctx2.stroke();
+    }
+}
 
 function handle_syncro_percent(){
     if(synchro_counter != 0){
@@ -774,6 +778,7 @@ function speech_controller(){
     }
     draw_man();
     draw_mirror_out_gauge();
+    draw_man_in_out();
     drawSignal(ctx3);
     drawStatus(ctx3_status);
     update_game_status();
