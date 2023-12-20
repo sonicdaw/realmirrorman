@@ -52,6 +52,8 @@ var inField_ManInFrontOfTheMirror = false;
 var inField_ManInTheMirror = false;
 var FilterinField_ManInFrontOfTheMirror = 0;
 var FilterinField_ManInTheMirror = 0;
+var Captured_ManInFrontOfTheMirror = false;
+var Captured_ManInTheMirror = false;
 
 const game_mode = Object.freeze({WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3});
 var game_status = game_mode.WaitingForPlayers;
@@ -442,33 +444,11 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
-
-                kp_1[nose] = Object.assign({},kp[nose]);
-                kp_1[leftEye] = Object.assign({},kp[leftEye]);
-                kp_1[rightEye] = Object.assign({},kp[rightEye]);
-                kp_1[leftEar] = Object.assign({},kp[leftEar]);
-                kp_1[rightEar] = Object.assign({},kp[rightEar]);
-                kp_1[leftShoulder] = Object.assign({},kp[leftShoulder]);
-                kp_1[rightShoulder] = Object.assign({},kp[rightShoulder]);
-                kp_1[leftElbow] = Object.assign({},kp[leftElbow]);
-                kp_1[rightElbow] = Object.assign({},kp[rightElbow]);
-                kp_1[leftWrist] = Object.assign({},kp[leftWrist]);
-                kp_1[rightWrist] = Object.assign({},kp[rightWrist]);
-                kp_1[leftHip] = Object.assign({},kp[leftHip]);
-                kp_1[rightHip] = Object.assign({},kp[rightHip]);
-                kp_1[leftKnee] = Object.assign({},kp[leftKnee]);
-                kp_1[rightKnee] = Object.assign({},kp[rightKnee]);
-                kp_1[leftAnkle] = Object.assign({},kp[leftAnkle]);
-                kp_1[rightAnkle] = Object.assign({},kp[rightAnkle]);
-
+                kp_1 = Object.assign({},kp);
+                Captured_ManInTheMirror = true;
             }else{      // prediction is low = Out of field
-                FilterinField_ManInTheMirror++;
-                if(FilterinField_ManInTheMirror > 500){         // Detect filter
-                    inField_ManInTheMirror = false;
-                    bgm_volume = VOLUME_LOW;
-                    speech_string = speech_text.LostManInTheMirror;
-                    FilterinField_ManInTheMirror = 0;
-                }
+                Captured_ManInTheMirror = false;
+
             }
         }
 
@@ -488,33 +468,10 @@ function predictWebcam2() {
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
                 var kp = predictions2[n].keypoints;
-
-                kp_2[nose] = Object.assign({},kp[nose]);
-                kp_2[leftEye] = Object.assign({},kp[leftEye]);
-                kp_2[rightEye] = Object.assign({},kp[rightEye]);
-                kp_2[leftEar] = Object.assign({},kp[leftEar]);
-                kp_2[rightEar] = Object.assign({},kp[rightEar]);
-                kp_2[leftShoulder] = Object.assign({},kp[leftShoulder]);
-                kp_2[rightShoulder] = Object.assign({},kp[rightShoulder]);
-                kp_2[leftElbow] = Object.assign({},kp[leftElbow]);
-                kp_2[rightElbow] = Object.assign({},kp[rightElbow]);
-                kp_2[leftWrist] = Object.assign({},kp[leftWrist]);
-                kp_2[rightWrist] = Object.assign({},kp[rightWrist]);
-                kp_2[leftHip] = Object.assign({},kp[leftHip]);
-                kp_2[rightHip] = Object.assign({},kp[rightHip]);
-                kp_2[leftKnee] = Object.assign({},kp[leftKnee]);
-                kp_2[rightKnee] = Object.assign({},kp[rightKnee]);
-                kp_2[leftAnkle] = Object.assign({},kp[leftAnkle]);
-                kp_2[rightAnkle] = Object.assign({},kp[rightAnkle]);
-
+                kp_2 = Object.assign({},kp);
+                Captured_ManInFrontOfTheMirror = true;
             }else{      // prediction is low = Out of field
-                FilterinField_ManInFrontOfTheMirror++;
-                if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
-                    inField_ManInFrontOfTheMirror = false;
-                    bgm_volume = VOLUME_LOW;
-                    speech_string = speech_text.LostManInFrontOfTheMirror;
-                    FilterinField_ManInFrontOfTheMirror = 0;
-                }
+                Captured_ManInFrontOfTheMirror = false;
             }
         }
 
@@ -625,11 +582,16 @@ function draw_man(){
 
 function update_man_status(){
 // Calc Man1 in the mirror
-    var ResultInField = isInField(kp_1);
+    var ResultInField;
+    if(Captured_ManInTheMirror){
+        ResultInField = isInField(kp_1);
+    }else{
+        ResultInField = false;
+    }
     if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
         inField_ManInTheMirror = true;
         bgm_volume = VOLUME_DEFAULT;
-        speech_string = speech_text.FoundManInTheMirror;
+        speech_push(speech_text.FoundManInTheMirror);
     }
 
     if(ResultInField){
@@ -640,7 +602,7 @@ function update_man_status(){
         if(FilterinField_ManInTheMirror > 500){         // Detect filter
             inField_ManInTheMirror = false;
             bgm_volume = VOLUME_LOW;
-            speech_string = speech_text.LostManInTheMirror;
+            speech_push(speech_text.LostManInTheMirror);
             FilterinField_ManInTheMirror = 0;
         }
     }
@@ -649,11 +611,15 @@ function update_man_status(){
 
 
 // Calc Man1 in front of the mirror
-    ResultInField = isInField(kp_2);
+    if(Captured_ManInFrontOfTheMirror){
+        ResultInField = isInField(kp_2);
+    }else{
+        ResultInField = false;
+    }
     if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
         bgm_volume = VOLUME_DEFAULT;
-        speech_string = speech_text.FoundManInFrontOfTheMirror;
+        speech_push(speech_text.FoundManInFrontOfTheMirror);
     }
 
     if(ResultInField){
@@ -664,7 +630,7 @@ function update_man_status(){
         if(FilterinField_ManInFrontOfTheMirror > 500){         // Detect filter
             inField_ManInFrontOfTheMirror = false;
             bgm_volume = VOLUME_LOW;
-            speech_string = speech_text.LostManInFrontOfTheMirror;
+            speech_push(speech_text.LostManInFrontOfTheMirror);
             FilterinField_ManInFrontOfTheMirror = 0;
         }
     }
@@ -686,13 +652,13 @@ function handle_syncro_percent(){
 
     if(syncro_percent < 60){
         if(game_status==game_mode.Playing){
-            speech_string = speech_text.synchronized_alert;
+            speech_push(speech_text.synchronized_alert);
         }
         bgm_volume = VOLUME_LOW;
         bgm_playing = false;
     }else if(syncro_percent < 80){
         if(game_status==game_mode.Playing){
-            speech_string = speech_text.not_synchronized;
+            speech_push(speech_text.not_synchronized);
         }
         bgm_volume = VOLUME_LOW;
         bgm_playing = false;
@@ -717,19 +683,26 @@ const speech_text = Object.freeze({
     LostPlayers: "ぷれーやーがいなくなりました。げーむをしゅうりょうします"
 });
 
-var speech_string = "";
+var speech_string = [];
 var pre_speech_string = "";
 
-function speech_controller(){
-//    console.log(speech_string);
-    if(speech_string==pre_speech_string){
+function speech_push(string){
+    if(string==pre_speech_string){
         return;
     }
-    if(speech_string!=""){
-        const uttr = new SpeechSynthesisUtterance(speech_string)
-        window.speechSynthesis.speak(uttr);
+    speech_string.push(string);
+    pre_speech_string = string;
+}
+
+function speech_controller(){
+    if(speech_string.length != 0){
+        console.log(speech_string[0]);
+        if(speech_string!=""){
+            const uttr = new SpeechSynthesisUtterance(speech_string[0])
+            window.speechSynthesis.speak(uttr);
+        }
+        speech_string.shift();
     }
-    pre_speech_string = speech_string;
 }
 
 // Game Status
@@ -739,42 +712,42 @@ function speech_controller(){
         case game_mode.WaitingForPlayers:
             if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Play Status
                 game_status = game_mode.Playing;
-                speech_string = speech_text.GameStart;
+                speech_push(speech_text.GameStart);
             }else{
-//                speech_string = speech_text.Setup;    // Dont read
+//                speech_push(speech_text.Setup);    // Dont read
             }
           break
 
         case game_mode.Playing:
             if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
-                speech_string = speech_text.LostPlayers;
+                speech_push(speech_text.LostPlayers);
             }
 
             if(!inField_ManInFrontOfTheMirror){    // Play Status -> Pause
                 game_status = game_mode.Pause;
-                speech_string = speech_text.LostManInFrontOfTheMirror;
+                speech_push(speech_text.LostManInFrontOfTheMirror);
             }
 
             if(!inField_ManInTheMirror){    // Play Status -> Pause
                 game_status = game_mode.Pause;
-                speech_string = speech_text.LostManInTheMirror;
+                speech_push(speech_text.LostManInTheMirror);
             }
           break
 
         case game_mode.Pause:
             if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Pasuse Status -> Play Status
-                game_status = game_mode.Playing;
+                speech_push(game_mode.Playing);
             }
             if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
-                speech_string = speech_text.LostPlayers;
+                speech_push(speech_text.LostPlayers);
             }
 
           break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
-            speech_string = speech_text.GameEnd;
+            speech_push(speech_text.GameEnd);
 //            game_status = game_mode.WaitingForPlayers;
           break
 
