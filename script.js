@@ -178,6 +178,8 @@ var joint_degree2 = new Array(numOfJoint);
 var synchro = 0;
 var syncro_percent = 0;
 
+// draw
+
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     if(kp[leftShoulder] == null) return false;
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -226,7 +228,6 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     }
 }
 
-
 function drawSignal(ctx) {
     ctx.clearRect(0, 0, 320, 50);
     ctx.beginPath()
@@ -273,6 +274,38 @@ function drawStatus(ctx){
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
+}
+
+function draw_man(){
+    drawPose(ctx, kp_1, joint_degree1, true/*mirror draw*/);
+    drawPose(ctx2, kp_2, joint_degree2, false/*mirror draw*/);
+}
+
+function draw_mirror_out_gauge(){
+    ctx.beginPath();
+    ctx.fillStyle = "red";
+    ctx.fillRect(0,0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx.stroke();
+
+    ctx2.beginPath();
+    ctx2.fillStyle = "red";
+    ctx2.fillRect(0,0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx2.stroke();
+}
+
+function draw_man_in_out(){
+    if(!inField_ManInTheMirror){
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(128,128,128,0.8)';
+        ctx.fillRect(0,0, WIDTH, HEIGHT);
+        ctx.stroke();
+    }
+    if(!inField_ManInFrontOfTheMirror){
+        ctx2.beginPath();
+        ctx2.fillStyle = 'rgba(128,128,128,0.8)';
+        ctx2.fillRect(0,0, WIDTH, HEIGHT);
+        ctx2.stroke();
+    }
 }
 
 
@@ -422,6 +455,89 @@ function compare_joint_degree(){
     return;
 }
 
+// Man Status
+
+function update_man_status(){
+    // Calc Man1 in the mirror
+        var ResultInField;
+        if(Captured_ManInTheMirror){
+            ResultInField = isInField(kp_1);
+        }else{
+            ResultInField = false;
+        }
+        if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
+            inField_ManInTheMirror = true;
+            speech_push(speech_text.FoundManInTheMirror);
+            FilterinField_ManInTheMirror = 0;
+        }
+
+        if(ResultInField){
+            FilterinField_ManInTheMirror = 0;
+        }
+        if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
+            FilterinField_ManInTheMirror++;
+            if(FilterinField_ManInTheMirror > FilterinField_Max){         // Detect filter
+                inField_ManInTheMirror = false;
+                speech_push(speech_text.LostManInTheMirror);
+            }
+        }
+        joint_degree1 = calculate_joint_degree(kp_1);
+
+
+
+    // Calc Man1 in front of the mirror
+        if(Captured_ManInFrontOfTheMirror){
+            ResultInField = isInField(kp_2);
+        }else{
+            ResultInField = false;
+        }
+        if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
+            inField_ManInFrontOfTheMirror = true;
+            speech_push(speech_text.FoundManInFrontOfTheMirror);
+            FilterinField_ManInFrontOfTheMirror = 0;
+        }
+
+        if(ResultInField){
+            FilterinField_ManInFrontOfTheMirror = 0;
+        }
+        if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
+            FilterinField_ManInFrontOfTheMirror++;
+            if(FilterinField_ManInFrontOfTheMirror > FilterinField_Max){         // Detect filter
+                inField_ManInFrontOfTheMirror = false;
+                speech_push(speech_text.LostManInFrontOfTheMirror);
+            }
+        }
+        joint_degree2 = calculate_joint_degree(kp_2);
+    }
+
+    function handle_syncro_percent(){
+        if(synchro_counter != 0){
+            synchro_counter++;  // Skip to update synchro result for a while
+            if(synchro_counter > synchro_counter_max){
+                synchro_counter = 0;
+            }
+            return;
+        }
+        synchro_counter++;
+
+        syncro_percent = Math.round((1000 - synchro) / 10);
+        if(syncro_percent < 0 ) syncro_percent = 0;
+
+        if(syncro_percent < 60){
+            if(game_status==game_mode.Playing){
+                speech_push(speech_text.synchronized_alert);
+            }
+            bgm_playing = false;
+        }else if(syncro_percent < 80){
+            if(game_status==game_mode.Playing){
+                speech_push(speech_text.not_synchronized);
+            }
+            bgm_playing = false;
+        }else{
+            bgm_playing = true;
+        }
+    }
+
 
 // Cam Pose Capture
 
@@ -518,6 +634,9 @@ function getDeviceList() {
   }
 
 
+
+
+
 // bgm
 
 const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3']
@@ -581,123 +700,7 @@ function bgm_control(){
 }
 
 
-
-// draw man
-
-function draw_man(){
-    drawPose(ctx, kp_1, joint_degree1, true/*mirror draw*/);
-    drawPose(ctx2, kp_2, joint_degree2, false/*mirror draw*/);
-}
-
-// Man Status
-
-function update_man_status(){
-// Calc Man1 in the mirror
-    var ResultInField;
-    if(Captured_ManInTheMirror){
-        ResultInField = isInField(kp_1);
-    }else{
-        ResultInField = false;
-    }
-    if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
-        inField_ManInTheMirror = true;
-        speech_push(speech_text.FoundManInTheMirror);
-        FilterinField_ManInTheMirror = 0;
-    }
-
-    if(ResultInField){
-        FilterinField_ManInTheMirror = 0;
-    }
-    if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
-        FilterinField_ManInTheMirror++;
-        if(FilterinField_ManInTheMirror > FilterinField_Max){         // Detect filter
-            inField_ManInTheMirror = false;
-            speech_push(speech_text.LostManInTheMirror);
-        }
-    }
-    joint_degree1 = calculate_joint_degree(kp_1);
-
-
-
-// Calc Man1 in front of the mirror
-    if(Captured_ManInFrontOfTheMirror){
-        ResultInField = isInField(kp_2);
-    }else{
-        ResultInField = false;
-    }
-    if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
-        inField_ManInFrontOfTheMirror = true;
-        speech_push(speech_text.FoundManInFrontOfTheMirror);
-        FilterinField_ManInFrontOfTheMirror = 0;
-    }
-
-    if(ResultInField){
-        FilterinField_ManInFrontOfTheMirror = 0;
-    }
-    if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
-        FilterinField_ManInFrontOfTheMirror++;
-        if(FilterinField_ManInFrontOfTheMirror > FilterinField_Max){         // Detect filter
-            inField_ManInFrontOfTheMirror = false;
-            speech_push(speech_text.LostManInFrontOfTheMirror);
-        }
-    }
-    joint_degree2 = calculate_joint_degree(kp_2);
-}
-
-function draw_mirror_out_gauge(){
-    ctx.beginPath();
-    ctx.fillStyle = "red";
-    ctx.fillRect(0,0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 10);
-    ctx.stroke();
-
-    ctx2.beginPath();
-    ctx2.fillStyle = "red";
-    ctx2.fillRect(0,0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 10);
-    ctx2.stroke();
-}
-
-function draw_man_in_out(){
-    if(!inField_ManInTheMirror){
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(128,128,128,0.8)';
-        ctx.fillRect(0,0, WIDTH, HEIGHT);
-        ctx.stroke();
-    }
-    if(!inField_ManInFrontOfTheMirror){
-        ctx2.beginPath();
-        ctx2.fillStyle = 'rgba(128,128,128,0.8)';
-        ctx2.fillRect(0,0, WIDTH, HEIGHT);
-        ctx2.stroke();
-    }
-}
-
-function handle_syncro_percent(){
-    if(synchro_counter != 0){
-        synchro_counter++;  // Skip to update synchro result for a while
-        if(synchro_counter > synchro_counter_max){
-            synchro_counter = 0;
-        }
-        return;
-    }
-    synchro_counter++;
-
-    syncro_percent = Math.round((1000 - synchro) / 10);
-    if(syncro_percent < 0 ) syncro_percent = 0;
-
-    if(syncro_percent < 60){
-        if(game_status==game_mode.Playing){
-            speech_push(speech_text.synchronized_alert);
-        }
-        bgm_playing = false;
-    }else if(syncro_percent < 80){
-        if(game_status==game_mode.Playing){
-            speech_push(speech_text.not_synchronized);
-        }
-        bgm_playing = false;
-    }else{
-        bgm_playing = true;
-    }
-}
+// Speech
 
 const speech_text = Object.freeze({
     Setup: "かがみのまえとなかにたってください",
