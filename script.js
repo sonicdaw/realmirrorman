@@ -19,6 +19,7 @@ var interval = 10;
 const VOLUME_DEFAULT = 0.03;
 const VOLUME_LOW = 0.01;
 var bgm_volume = VOLUME_LOW;
+var sound_on = false;
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -523,15 +524,24 @@ const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3', 'synchronized.m4a','not_sync
 const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0, synchronized: 1, not_synchronized: 2, synchronized_alert: 3});
 var mirror_sound = new Array(4);
 
-  document.getElementById('play').addEventListener('click', function () {
+//  document.getElementById('play').addEventListener('click', function () {
+//    initBGM();
+//  });
 
+  function getDeviceList_SoundOn(){
+    getDeviceList();
+    initBGM();
+    sound_on = true;
+  }
+
+  function initBGM(){
     for (let i = 0; i < sound_name.length; i++){
         if(mirror_sound[i]==null){
             mirror_sound[i] = new Audio('./music/sound_' + sound_name[i]);
 //            mirror_sound[i].load();
         }
     }
-  });
+  }
 
   function bgm_pause(){
     for (let i = 0; i < sound_name.length; i++){
@@ -566,6 +576,7 @@ function bgm_control(){
 
     pre_bgm_playing = bgm_playing;
 }
+
 
 
 // draw man
@@ -719,6 +730,7 @@ function speech_push(string){
 }
 
 function speech_controller(){
+    if(!sound_on) return;
     if(speech_string.length != 0){
         console.log(speech_string[0]);
         if(speech_string!=""){
