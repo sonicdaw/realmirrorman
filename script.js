@@ -556,7 +556,6 @@ var mirror_sound = new Array(1);
   }
 
 function bgm_control(){
-    // Volume Control
     if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
         if(window.speechSynthesis.speaking){
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
@@ -745,6 +744,8 @@ function speech_controller(){
         case game_mode.WaitingForPlayers:
             if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Play Status
                 game_status = game_mode.Playing;
+                bgm_playing = true;
+                syncro_percent = 100;
                 speech_push(speech_text.GameStart);
             }else{
                 speech_push(speech_text.Setup);
@@ -752,7 +753,6 @@ function speech_controller(){
           break
 
         case game_mode.Playing:
-            bgm_playing = true;
             if(!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror){    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
