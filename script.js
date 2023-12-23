@@ -713,9 +713,9 @@ const speech_text = Object.freeze({
     LostManInTheMirror: "かがみのなかのひとをみうしないました",
     FoundManInFrontOfTheMirror: "かがみのまえのひとをみつけました",
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
-    LostManInTheMirror: "かがみのなかのひとをみうしないました。もどってください。",
-    LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました。もどってください。",
-    LostPlayers: "ぷれーやーがいなくなりました。"
+    LostManInTheMirror: "かがみのなかのひとをみうしないました",
+    LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
+    LostPlayers: "ぷれーやーがいなくなりました"
 });
 
 var speech_string = [];
