@@ -538,7 +538,7 @@ var mirror_sound = new Array(1);
     for (let i = 0; i < sound_name.length; i++){
         if(mirror_sound[i]==null){
             mirror_sound[i] = new Audio('./music/sound_' + sound_name[i]);
-//            mirror_sound[i].load();
+            mirror_sound[i].load();
         }
     }
   }
@@ -721,15 +721,22 @@ function speech_push(string){
     if(string==pre_speech_string){
         return;
     }
+    if(string == speech_text.GameStart || string == speech_text.GameEnd){ // Priority high speech
+        speech_string.splice(0);    // remove all items
+//        window.speechSynthesis.cancel();  // cant control right after cancelling
+        console.log("speech cancel");
+    }
+
     speech_string.push(string);
     pre_speech_string = string;
 }
 
 function speech_controller(){
     if(!sound_on) return;
+    if(window.speechSynthesis.speaking) return;
     if(speech_string.length != 0){
         console.log(speech_string[0]);
-        if(speech_string!=""){
+        if(speech_string[0]!=""){
             const uttr = new SpeechSynthesisUtterance(speech_string[0])
             window.speechSynthesis.speak(uttr);
         }
