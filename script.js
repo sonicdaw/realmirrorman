@@ -16,8 +16,8 @@ const cameraOptions = document.querySelector('.video-options>select');
 
 var timer;
 var interval = 10;
-const VOLUME_DEFAULT = 0.03;
-const VOLUME_LOW = 0.01;
+const VOLUME_DEFAULT = 0.3;
+const VOLUME_LOW = 0.1;
 var bgm_volume = VOLUME_LOW;
 var sound_on = false;
 
