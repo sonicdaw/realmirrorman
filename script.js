@@ -16,9 +16,8 @@ const cameraOptions = document.querySelector('.video-options>select');
 
 var timer;
 var interval = 10;
-const VOLUME_DEFAULT = 0.3;
+const VOLUME_DEFAULT = 0.5;
 const VOLUME_LOW = 0.1;
-var bgm_volume = VOLUME_LOW;
 var sound_on = false;
 
 // reference https://note.com/npaka/n/n839066c1f23a
@@ -558,7 +557,11 @@ var mirror_sound = new Array(1);
 function bgm_control(){
     // Volume Control
     if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = bgm_volume;
+        if(window.speechSynthesis.speaking){
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+        }else{
+            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+        }
 
         if(pre_bgm_playing && !bgm_playing){  // Play -> Pause
             bgm_pause();
@@ -598,7 +601,6 @@ function update_man_status(){
     }
     if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
         inField_ManInTheMirror = true;
-        bgm_volume = VOLUME_DEFAULT;
         speech_push(speech_text.FoundManInTheMirror);
         FilterinField_ManInTheMirror = 0;
     }
@@ -610,7 +612,6 @@ function update_man_status(){
         FilterinField_ManInTheMirror++;
         if(FilterinField_ManInTheMirror > FilterinField_Max){         // Detect filter
             inField_ManInTheMirror = false;
-            bgm_volume = VOLUME_LOW;
             speech_push(speech_text.LostManInTheMirror);
         }
     }
@@ -626,7 +627,6 @@ function update_man_status(){
     }
     if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
-        bgm_volume = VOLUME_DEFAULT;
         speech_push(speech_text.FoundManInFrontOfTheMirror);
         FilterinField_ManInFrontOfTheMirror = 0;
     }
@@ -638,7 +638,6 @@ function update_man_status(){
         FilterinField_ManInFrontOfTheMirror++;
         if(FilterinField_ManInFrontOfTheMirror > FilterinField_Max){         // Detect filter
             inField_ManInFrontOfTheMirror = false;
-            bgm_volume = VOLUME_LOW;
             speech_push(speech_text.LostManInFrontOfTheMirror);
         }
     }
@@ -689,16 +688,13 @@ function handle_syncro_percent(){
         if(game_status==game_mode.Playing){
             speech_push(speech_text.synchronized_alert);
         }
-        bgm_volume = VOLUME_LOW;
         bgm_playing = false;
     }else if(syncro_percent < 80){
         if(game_status==game_mode.Playing){
             speech_push(speech_text.not_synchronized);
         }
-        bgm_volume = VOLUME_LOW;
         bgm_playing = false;
     }else{
-        bgm_volume = VOLUME_DEFAULT;
         bgm_playing = true;
     }
 }
