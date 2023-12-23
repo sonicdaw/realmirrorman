@@ -520,9 +520,9 @@ function getDeviceList() {
 
 // bgm
 
-const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3', 'synchronized.m4a','not_synchronized.m4a','synchronized_alert.m4a']
-const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0, synchronized: 1, not_synchronized: 2, synchronized_alert: 3});
-var mirror_sound = new Array(4);
+const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3']
+const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0});
+var mirror_sound = new Array(1);
 
 //  document.getElementById('play').addEventListener('click', function () {
 //    initBGM();
