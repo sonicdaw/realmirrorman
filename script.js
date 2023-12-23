@@ -57,7 +57,7 @@ var Captured_ManInFrontOfTheMirror = false;
 var Captured_ManInTheMirror = false;
 const FilterinField_Max = 500;
 
-const game_mode = Object.freeze({WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3});
+const game_mode = Object.freeze({ WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3 });
 var game_status = game_mode.WaitingForPlayers;
 
 const WIDTH = 320;
@@ -83,9 +83,9 @@ function enableCam1(event) {
     var deviceId = getSelectedVideo();
     var constraints = {
         video: {
-          deviceId: deviceId
+            deviceId: deviceId
         }
-      };
+    };
 
     var cameras = navigator.mediaDevices.getUserMedia(constraints);
     cameras.then(function (stream) {
@@ -103,12 +103,13 @@ function enableCam2(event) {
     var deviceId = getSelectedVideo();
     var constraints = {
         video: {
-          deviceId: deviceId
+            deviceId: deviceId
         }
-      };
+    };
 
     var cameras = navigator.mediaDevices.getUserMedia(constraints);
-    cameras.then(function (stream) {;
+    cameras.then(function (stream) {
+        ;
         video2.srcObject = stream;
         video2.addEventListener('loadeddata', predictWebcam2);
     });
@@ -125,10 +126,10 @@ const drawLine = (ctx, kp0, kp1, mirror) => {
     ctx.strokeStyle = 'black'
     ctx.lineWidth = 2
     ctx.beginPath()
-    if(mirror){
+    if (mirror) {
         ctx.moveTo(WIDTH - kp0.position.x, kp0.position.y)
         ctx.lineTo(WIDTH - kp1.position.x, kp1.position.y)
-    }else{
+    } else {
         ctx.moveTo(kp0.position.x, kp0.position.y)
         ctx.lineTo(kp1.position.x, kp1.position.y)
     }
@@ -139,9 +140,9 @@ const drawPoint = (ctx, kp, mirror) => {
     if (kp.score < 0.3) return
     ctx.fillStyle = 'black'
     ctx.beginPath()
-    if(mirror){
+    if (mirror) {
         ctx.arc(WIDTH - kp.position.x, kp.position.y, 3, 0, 2 * Math.PI);
-    }else{
+    } else {
         ctx.arc(kp.position.x, kp.position.y, 3, 0, 2 * Math.PI);
     }
     ctx.fill()
@@ -151,9 +152,9 @@ const drawHead = (ctx, kp, kp2, mirror) => {
     if (kp.score < 0.3) return
     ctx.fillStyle = 'black'
     ctx.beginPath()
-    if(mirror){
+    if (mirror) {
         ctx.arc(WIDTH - kp.position.x, kp.position.y, Math.abs(kp2.position.x - kp.position.x) * 2, 0, 2 * Math.PI);
-    }else{
+    } else {
         ctx.arc(kp.position.x, kp.position.y, Math.abs(kp2.position.x - kp.position.x) * 2, 0, 2 * Math.PI);
     }
     ctx.stroke()
@@ -181,7 +182,7 @@ var syncro_percent = 0;
 // draw
 
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
-    if(kp[leftShoulder] == null) return false;
+    if (kp[leftShoulder] == null) return false;
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
     drawHead(ctx, kp[nose], kp[leftEye], mirror);
 
@@ -206,25 +207,25 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
 
     ctx.font = "20pt 'Times New Roman'";
     ctx.fillStyle = 'black';
-    if(mirror){
+    if (mirror) {
         ctx.fillText(joint_degree[leftShoulder] + "°", WIDTH - kp[leftShoulder].position.x, kp[leftShoulder].position.y);
         ctx.fillText(joint_degree[rightShoulder] + "°", WIDTH - kp[rightShoulder].position.x, kp[rightShoulder].position.y);
         ctx.fillText(joint_degree[leftElbow] + "°", WIDTH - kp[leftElbow].position.x, kp[leftElbow].position.y);
         ctx.fillText(joint_degree[rightElbow] + "°", WIDTH - kp[rightElbow].position.x, kp[rightElbow].position.y);
         ctx.fillText(joint_degree[leftHip] + "°", WIDTH - kp[leftHip].position.x, kp[leftHip].position.y);
         ctx.fillText(joint_degree[rightHip] + "°", WIDTH - kp[rightHip].position.x, kp[rightHip].position.y);
-        ctx.fillText(joint_degree[rightKnee] + "°",WIDTH - kp[rightKnee].position.x, kp[rightKnee].position.y);
-        ctx.fillText(joint_degree[leftKnee] + "°",WIDTH - kp[leftKnee].position.x, kp[leftKnee].position.y);
-    
-    }else{
-        ctx.fillText(joint_degree[leftShoulder] + "°",kp[leftShoulder].position.x, kp[leftShoulder].position.y);
-        ctx.fillText(joint_degree[rightShoulder] + "°",kp[rightShoulder].position.x, kp[rightShoulder].position.y);
-        ctx.fillText(joint_degree[leftElbow] + "°",kp[leftElbow].position.x, kp[leftElbow].position.y);
-        ctx.fillText(joint_degree[rightElbow] + "°",kp[rightElbow].position.x, kp[rightElbow].position.y);
-        ctx.fillText(joint_degree[leftHip] + "°",kp[leftHip].position.x, kp[leftHip].position.y);
-        ctx.fillText(joint_degree[rightHip] + "°",kp[rightHip].position.x, kp[rightHip].position.y);
-        ctx.fillText(joint_degree[rightKnee] + "°",kp[rightKnee].position.x, kp[rightKnee].position.y);
-        ctx.fillText(joint_degree[leftKnee] + "°",kp[leftKnee].position.x, kp[leftKnee].position.y);
+        ctx.fillText(joint_degree[rightKnee] + "°", WIDTH - kp[rightKnee].position.x, kp[rightKnee].position.y);
+        ctx.fillText(joint_degree[leftKnee] + "°", WIDTH - kp[leftKnee].position.x, kp[leftKnee].position.y);
+
+    } else {
+        ctx.fillText(joint_degree[leftShoulder] + "°", kp[leftShoulder].position.x, kp[leftShoulder].position.y);
+        ctx.fillText(joint_degree[rightShoulder] + "°", kp[rightShoulder].position.x, kp[rightShoulder].position.y);
+        ctx.fillText(joint_degree[leftElbow] + "°", kp[leftElbow].position.x, kp[leftElbow].position.y);
+        ctx.fillText(joint_degree[rightElbow] + "°", kp[rightElbow].position.x, kp[rightElbow].position.y);
+        ctx.fillText(joint_degree[leftHip] + "°", kp[leftHip].position.x, kp[leftHip].position.y);
+        ctx.fillText(joint_degree[rightHip] + "°", kp[rightHip].position.x, kp[rightHip].position.y);
+        ctx.fillText(joint_degree[rightKnee] + "°", kp[rightKnee].position.x, kp[rightKnee].position.y);
+        ctx.fillText(joint_degree[leftKnee] + "°", kp[leftKnee].position.x, kp[leftKnee].position.y);
     }
 }
 
@@ -233,11 +234,11 @@ function drawSignal(ctx) {
     ctx.beginPath()
     ctx.font = "30pt 'Times New Roman'";
 
-    if(syncro_percent < 60){
+    if (syncro_percent < 60) {
         ctx.fillStyle = "#FF0000";
-    }else if(syncro_percent < 80){ 
+    } else if (syncro_percent < 80) {
         ctx.fillStyle = "#FFA500";
-    }else{
+    } else {
         ctx.fillStyle = "#118B11";
     }
 
@@ -246,26 +247,26 @@ function drawSignal(ctx) {
     ctx.stroke();
 }
 
-function drawStatus(ctx){
+function drawStatus(ctx) {
     var game_status_disp;
     switch (game_status) {
         case game_mode.WaitingForPlayers:
-          game_status_disp = "Waiting for Players";
-          break
+            game_status_disp = "Waiting for Players";
+            break
 
         case game_mode.Playing:
-          game_status_disp = "Playing";
-          break
+            game_status_disp = "Playing";
+            break
 
         case game_mode.Pause:
-          game_status_disp = "Pause: ";
-          break
+            game_status_disp = "Pause: ";
+            break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
-          game_status_disp = "Game End";
-          break
+            game_status_disp = "Game End";
+            break
         default:
-      }
+    }
     ctx.clearRect(0, 0, 320, 50);
 
     ctx.beginPath()
@@ -276,34 +277,34 @@ function drawStatus(ctx){
 
 }
 
-function draw_man(){
+function draw_man() {
     drawPose(ctx, kp_1, joint_degree1, true/*mirror draw*/);
     drawPose(ctx2, kp_2, joint_degree2, false/*mirror draw*/);
 }
 
-function draw_mirror_out_gauge(){
+function draw_mirror_out_gauge() {
     ctx.beginPath();
     ctx.fillStyle = "red";
-    ctx.fillRect(0,0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx.fillRect(0, 0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 10);
     ctx.stroke();
 
     ctx2.beginPath();
     ctx2.fillStyle = "red";
-    ctx2.fillRect(0,0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx2.fillRect(0, 0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 10);
     ctx2.stroke();
 }
 
-function draw_man_in_out(){
-    if(!inField_ManInTheMirror){
+function draw_man_in_out() {
+    if (!inField_ManInTheMirror) {
         ctx.beginPath();
         ctx.fillStyle = 'rgba(128,128,128,0.8)';
-        ctx.fillRect(0,0, WIDTH, HEIGHT);
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
         ctx.stroke();
     }
-    if(!inField_ManInFrontOfTheMirror){
+    if (!inField_ManInFrontOfTheMirror) {
         ctx2.beginPath();
         ctx2.fillStyle = 'rgba(128,128,128,0.8)';
-        ctx2.fillRect(0,0, WIDTH, HEIGHT);
+        ctx2.fillRect(0, 0, WIDTH, HEIGHT);
         ctx2.stroke();
     }
 }
@@ -311,8 +312,8 @@ function draw_man_in_out(){
 
 // Pose Analyze
 
-function calculate_joint_degree(kp){
-    if(kp[leftShoulder] == null) return false;
+function calculate_joint_degree(kp) {
+    if (kp[leftShoulder] == null) return false;
     var joint_degree = new Array(numOfJoint);
 
     joint_degree[nose] = 0;     // not used
@@ -368,40 +369,40 @@ function calculate_joint_degree(kp){
     return joint_degree;
 }
 
-function isInField(kp){
-    if(kp[leftShoulder] == null) return false;
+function isInField(kp) {
+    if (kp[leftShoulder] == null) return false;
     var result = true;
 
-    if( kp[leftShoulder].position.x < 0 || kp[leftShoulder].position.x > WIDTH) result = false;
-    if( kp[rightShoulder].position.x < 0 || kp[rightShoulder].position.x > WIDTH) result = false;
-    if( kp[leftElbow].position.x < 0 || kp[leftElbow].position.x > WIDTH) result = false;
-    if( kp[rightElbow].position.x < 0 || kp[rightElbow].position.x > WIDTH) result = false;
-    if( kp[leftWrist].position.x < 0 || kp[leftWrist].position.x > WIDTH) result = false;
-    if( kp[rightWrist].position.x < 0 || kp[rightWrist].position.x > WIDTH) result = false;
-    if( kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
-    if( kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
-//    if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
-//    if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
-//    if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
-//    if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
+    if (kp[leftShoulder].position.x < 0 || kp[leftShoulder].position.x > WIDTH) result = false;
+    if (kp[rightShoulder].position.x < 0 || kp[rightShoulder].position.x > WIDTH) result = false;
+    if (kp[leftElbow].position.x < 0 || kp[leftElbow].position.x > WIDTH) result = false;
+    if (kp[rightElbow].position.x < 0 || kp[rightElbow].position.x > WIDTH) result = false;
+    if (kp[leftWrist].position.x < 0 || kp[leftWrist].position.x > WIDTH) result = false;
+    if (kp[rightWrist].position.x < 0 || kp[rightWrist].position.x > WIDTH) result = false;
+    if (kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
+    if (kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
+    //    if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
+    //    if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
+    //    if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
+    //    if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
 
-    if( kp[leftShoulder].position.y < 0 || kp[leftShoulder].position.y > HEIGHT) result = false;
-    if( kp[rightShoulder].position.y < 0 || kp[rightShoulder].position.y > HEIGHT) result = false;
-    if( kp[leftElbow].position.y < 0 || kp[leftElbow].position.y > HEIGHT) result = false;
-    if( kp[rightElbow].position.y < 0 || kp[rightElbow].position.y > HEIGHT) result = false;
-    if( kp[leftWrist].position.y < 0 || kp[leftWrist].position.y > HEIGHT) result = false;
-    if( kp[rightWrist].position.y < 0 || kp[rightWrist].position.y > HEIGHT) result = false;
-    if( kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
-    if( kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
-//    if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
-//    if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
-//    if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
-//    if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
+    if (kp[leftShoulder].position.y < 0 || kp[leftShoulder].position.y > HEIGHT) result = false;
+    if (kp[rightShoulder].position.y < 0 || kp[rightShoulder].position.y > HEIGHT) result = false;
+    if (kp[leftElbow].position.y < 0 || kp[leftElbow].position.y > HEIGHT) result = false;
+    if (kp[rightElbow].position.y < 0 || kp[rightElbow].position.y > HEIGHT) result = false;
+    if (kp[leftWrist].position.y < 0 || kp[leftWrist].position.y > HEIGHT) result = false;
+    if (kp[rightWrist].position.y < 0 || kp[rightWrist].position.y > HEIGHT) result = false;
+    if (kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
+    if (kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
+    //    if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
+    //    if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
+    //    if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
+    //    if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
 
     return result;
 }
 
-function mirror_joint_degree(joint_degree){
+function mirror_joint_degree(joint_degree) {
     var mirror_joint_degree = new Array(numOfJoint);
 
     mirror_joint_degree[nose] = 0;     // not used
@@ -441,12 +442,12 @@ function mirror_joint_degree(joint_degree){
     return mirror_joint_degree;
 }
 
-function compare_joint_degree(){
+function compare_joint_degree() {
     var sync_confidence = 0;
     var mirror_joint_degree2 = mirror_joint_degree(joint_degree2);
-    for(var i=0; i < numOfJoint; i++){
+    for (var i = 0; i < numOfJoint; i++) {
         var diff = Math.abs(joint_degree1[i] - mirror_joint_degree2[i]);
-        if(diff > 30){
+        if (diff > 30) {
             sync_confidence = sync_confidence + diff;
         }
     }
@@ -457,86 +458,86 @@ function compare_joint_degree(){
 
 // Man Status
 
-function update_man_status(){
+function update_man_status() {
     // Calc Man1 in the mirror
-        var ResultInField;
-        if(Captured_ManInTheMirror){
-            ResultInField = isInField(kp_1);
-        }else{
-            ResultInField = false;
-        }
-        if(!inField_ManInTheMirror && ResultInField){      // out of field to in field
-            inField_ManInTheMirror = true;
-            speech_push(speech_text.FoundManInTheMirror);
-            FilterinField_ManInTheMirror = 0;
-        }
+    var ResultInField;
+    if (Captured_ManInTheMirror) {
+        ResultInField = isInField(kp_1);
+    } else {
+        ResultInField = false;
+    }
+    if (!inField_ManInTheMirror && ResultInField) {      // out of field to in field
+        inField_ManInTheMirror = true;
+        speech_push(speech_text.FoundManInTheMirror);
+        FilterinField_ManInTheMirror = 0;
+    }
 
-        if(ResultInField){
-            FilterinField_ManInTheMirror = 0;
+    if (ResultInField) {
+        FilterinField_ManInTheMirror = 0;
+    }
+    if (inField_ManInTheMirror && !ResultInField) {      // in field to out of field
+        FilterinField_ManInTheMirror++;
+        if (FilterinField_ManInTheMirror > FilterinField_Max) {         // Detect filter
+            inField_ManInTheMirror = false;
+            speech_push(speech_text.LostManInTheMirror);
         }
-        if(inField_ManInTheMirror && !ResultInField){      // in field to out of field
-            FilterinField_ManInTheMirror++;
-            if(FilterinField_ManInTheMirror > FilterinField_Max){         // Detect filter
-                inField_ManInTheMirror = false;
-                speech_push(speech_text.LostManInTheMirror);
-            }
-        }
-        joint_degree1 = calculate_joint_degree(kp_1);
+    }
+    joint_degree1 = calculate_joint_degree(kp_1);
 
 
 
     // Calc Man1 in front of the mirror
-        if(Captured_ManInFrontOfTheMirror){
-            ResultInField = isInField(kp_2);
-        }else{
-            ResultInField = false;
-        }
-        if(!inField_ManInFrontOfTheMirror && ResultInField){      // out of field to in field
-            inField_ManInFrontOfTheMirror = true;
-            speech_push(speech_text.FoundManInFrontOfTheMirror);
-            FilterinField_ManInFrontOfTheMirror = 0;
-        }
-
-        if(ResultInField){
-            FilterinField_ManInFrontOfTheMirror = 0;
-        }
-        if(inField_ManInFrontOfTheMirror && !ResultInField){      // in field to out of field
-            FilterinField_ManInFrontOfTheMirror++;
-            if(FilterinField_ManInFrontOfTheMirror > FilterinField_Max){         // Detect filter
-                inField_ManInFrontOfTheMirror = false;
-                speech_push(speech_text.LostManInFrontOfTheMirror);
-            }
-        }
-        joint_degree2 = calculate_joint_degree(kp_2);
+    if (Captured_ManInFrontOfTheMirror) {
+        ResultInField = isInField(kp_2);
+    } else {
+        ResultInField = false;
+    }
+    if (!inField_ManInFrontOfTheMirror && ResultInField) {      // out of field to in field
+        inField_ManInFrontOfTheMirror = true;
+        speech_push(speech_text.FoundManInFrontOfTheMirror);
+        FilterinField_ManInFrontOfTheMirror = 0;
     }
 
-    function handle_syncro_percent(){
-        if(synchro_counter != 0){
-            synchro_counter++;  // Skip to update synchro result for a while
-            if(synchro_counter > synchro_counter_max){
-                synchro_counter = 0;
-            }
-            return;
-        }
-        synchro_counter++;
-
-        syncro_percent = Math.round((1000 - synchro) / 10);
-        if(syncro_percent < 0 ) syncro_percent = 0;
-
-        if(syncro_percent < 60){
-            if(game_status==game_mode.Playing){
-                speech_push(speech_text.synchronized_alert);
-            }
-            bgm_playing = false;
-        }else if(syncro_percent < 80){
-            if(game_status==game_mode.Playing){
-                speech_push(speech_text.not_synchronized);
-            }
-            bgm_playing = false;
-        }else{
-            bgm_playing = true;
+    if (ResultInField) {
+        FilterinField_ManInFrontOfTheMirror = 0;
+    }
+    if (inField_ManInFrontOfTheMirror && !ResultInField) {      // in field to out of field
+        FilterinField_ManInFrontOfTheMirror++;
+        if (FilterinField_ManInFrontOfTheMirror > FilterinField_Max) {         // Detect filter
+            inField_ManInFrontOfTheMirror = false;
+            speech_push(speech_text.LostManInFrontOfTheMirror);
         }
     }
+    joint_degree2 = calculate_joint_degree(kp_2);
+}
+
+function handle_syncro_percent() {
+    if (synchro_counter != 0) {
+        synchro_counter++;  // Skip to update synchro result for a while
+        if (synchro_counter > synchro_counter_max) {
+            synchro_counter = 0;
+        }
+        return;
+    }
+    synchro_counter++;
+
+    syncro_percent = Math.round((1000 - synchro) / 10);
+    if (syncro_percent < 0) syncro_percent = 0;
+
+    if (syncro_percent < 60) {
+        if (game_status == game_mode.Playing) {
+            speech_push(speech_text.synchronized_alert);
+        }
+        bgm_playing = false;
+    } else if (syncro_percent < 80) {
+        if (game_status == game_mode.Playing) {
+            speech_push(speech_text.not_synchronized);
+        }
+        bgm_playing = false;
+    } else {
+        bgm_playing = true;
+    }
+}
 
 
 // Cam Pose Capture
@@ -553,9 +554,9 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
-                kp_1 = Object.assign({},kp);
+                kp_1 = Object.assign({}, kp);
                 Captured_ManInTheMirror = true;
-            }else{      // prediction is low = Out of field
+            } else {      // prediction is low = Out of field
                 Captured_ManInTheMirror = false;
 
             }
@@ -577,9 +578,9 @@ function predictWebcam2() {
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
                 var kp = predictions2[n].keypoints;
-                kp_2 = Object.assign({},kp);
+                kp_2 = Object.assign({}, kp);
                 Captured_ManInFrontOfTheMirror = true;
-            }else{      // prediction is low = Out of field
+            } else {      // prediction is low = Out of field
                 Captured_ManInFrontOfTheMirror = false;
             }
         }
@@ -595,43 +596,43 @@ function predictWebcam2() {
 function getDeviceList() {
     clearDeviceList();
     navigator.mediaDevices.enumerateDevices()
-      .then(function (devices) {
-        devices.forEach(function (device) {
-          console.log(device.kind + ": " + device.label +
-            " id = " + device.deviceId);
-          addDevice(device);
+        .then(function (devices) {
+            devices.forEach(function (device) {
+                console.log(device.kind + ": " + device.label +
+                    " id = " + device.deviceId);
+                addDevice(device);
+            });
+        })
+        .catch(function (err) {
+            console.error('enumerateDevide ERROR:', err);
         });
-      })
-      .catch(function (err) {
-        console.error('enumerateDevide ERROR:', err);
-      });
-  }
+}
 
-  function clearDeviceList() {
+function clearDeviceList() {
     while (cameraList.lastChild) {
-      cameraList.removeChild(cameraList.lastChild);
+        cameraList.removeChild(cameraList.lastChild);
     }
-  }
+}
 
-  function addDevice(device) {
+function addDevice(device) {
     if (device.kind === 'videoinput') {
-      var id = device.deviceId;
-      var label = device.label || 'camera'; // label is available for https 
+        var id = device.deviceId;
+        var label = device.label || 'camera'; // label is available for https 
 
-      var option = document.createElement('option');
-      option.setAttribute('value', id);
-      option.innerHTML = label;
-      cameraList.appendChild(option);
+        var option = document.createElement('option');
+        option.setAttribute('value', id);
+        option.innerHTML = label;
+        cameraList.appendChild(option);
     }
     else {
-      console.log('UNKNOWN Device kind:' + device.kind);
+        console.log('UNKNOWN Device kind:' + device.kind);
     }
-  }
+}
 
-  function getSelectedVideo() {
+function getSelectedVideo() {
     var id = cameraList.options[cameraList.selectedIndex].value;
     return id;
-  }
+}
 
 
 
@@ -640,57 +641,57 @@ function getDeviceList() {
 // bgm
 
 const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3']
-const sound_num = Object.freeze({Etude_Plus_Op10No1_MSumi: 0});
+const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0 });
 var mirror_sound = new Array(1);
 
 //  document.getElementById('play').addEventListener('click', function () {
 //    initBGM();
 //  });
 
-  function getDeviceList_SoundOn(){
+function getDeviceList_SoundOn() {
     getDeviceList();
     initBGM();
     sound_on = true;
-  }
+}
 
-  function initBGM(){
-    for (let i = 0; i < sound_name.length; i++){
-        if(mirror_sound[i]==null){
+function initBGM() {
+    for (let i = 0; i < sound_name.length; i++) {
+        if (mirror_sound[i] == null) {
             mirror_sound[i] = new Audio('./music/sound_' + sound_name[i]);
             mirror_sound[i].load();
         }
     }
-  }
+}
 
-  function bgm_pause(){
-    for (let i = 0; i < sound_name.length; i++){
-        if(mirror_sound[i]!=null) { mirror_sound[i].pause(); }
+function bgm_pause() {
+    for (let i = 0; i < sound_name.length; i++) {
+        if (mirror_sound[i] != null) { mirror_sound[i].pause(); }
     }
-  }
+}
 
-  function bgm_stop(){
-    for (let i = 0; i < sound_name.length; i++){
-        if(mirror_sound[i]!=null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0;}
+function bgm_stop() {
+    for (let i = 0; i < sound_name.length; i++) {
+        if (mirror_sound[i] != null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0; }
     }
-  }
+}
 
-function bgm_control(){
-    if(mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null){
-        if(window.speechSynthesis.speaking){
+function bgm_control() {
+    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
+        if (window.speechSynthesis.speaking) {
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-        }else{
+        } else {
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
         }
 
-        if(pre_bgm_playing && !bgm_playing){  // Play -> Pause
+        if (pre_bgm_playing && !bgm_playing) {  // Play -> Pause
             bgm_pause();
         }
 
-        if(!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing){  // Pause -> Play
+        if (!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing) {  // Pause -> Play
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
         }
 
-        if(bgm_stopping){
+        if (bgm_stopping) {
             bgm_stop();
             bgm_stopping = false;
         }
@@ -720,13 +721,13 @@ const speech_text = Object.freeze({
 var speech_string = [];
 var pre_speech_string = "";
 
-function speech_push(string){
-    if(string==pre_speech_string){
+function speech_push(string) {
+    if (string == pre_speech_string) {
         return;
     }
-    if(string == speech_text.GameStart || string == speech_text.GameEnd){ // Priority high speech
+    if (string == speech_text.GameStart || string == speech_text.GameEnd) { // Priority high speech
         speech_string.splice(0);    // remove all items
-//        window.speechSynthesis.cancel();  // cant control right after cancelling
+        //        window.speechSynthesis.cancel();  // cant control right after cancelling
         console.log("speech cancel");
     }
 
@@ -734,12 +735,12 @@ function speech_push(string){
     pre_speech_string = string;
 }
 
-function speech_controller(){
-    if(!sound_on) return;
-    if(window.speechSynthesis.speaking) return;
-    if(speech_string.length != 0){
+function speech_controller() {
+    if (!sound_on) return;
+    if (window.speechSynthesis.speaking) return;
+    if (speech_string.length != 0) {
         console.log(speech_string[0]);
-        if(speech_string[0]!=""){
+        if (speech_string[0] != "") {
             const uttr = new SpeechSynthesisUtterance(speech_string[0])
             window.speechSynthesis.speak(uttr);
         }
@@ -749,50 +750,50 @@ function speech_controller(){
 
 // Game Status
 
-  function update_game_status(){
+function update_game_status() {
     switch (game_status) {
         case game_mode.WaitingForPlayers:
-            if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Play Status
+            if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
                 game_status = game_mode.Playing;
                 bgm_playing = true;
                 syncro_percent = 100;
                 speech_push(speech_text.GameStart);
-            }else{
+            } else {
                 speech_push(speech_text.Setup);
             }
-          break
+            break
 
         case game_mode.Playing:
-            if(!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror){    // Play Status -> End
+            if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
-            }else if(!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror){    // Play Status -> Pause
+            } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
                 game_status = game_mode.Pause;
             }
-          break
+            break
 
         case game_mode.Pause:
-            if(!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror){    // Play Status -> End
+            if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
-            }else if(inField_ManInFrontOfTheMirror && inField_ManInTheMirror){    // Pause Status -> Play Status
+            } else if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Pause Status -> Play Status
                 game_status = game_mode.Playing;
             }
-          break
+            break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
             speech_push(speech_text.GameEnd);
             game_status = game_mode.WaitingForPlayers;
             bgm_stopping = true;
-          break
+            break
 
         default:
-      }
-  }
+    }
+}
 
-  function mirror_loop(){
+function mirror_loop() {
     update_man_status();
-    if(joint_degree1 && joint_degree2){
+    if (joint_degree1 && joint_degree2) {
         compare_joint_degree();
     }
     draw_man();
@@ -804,15 +805,15 @@ function speech_controller(){
     handle_syncro_percent();
     bgm_control();
     speech_controller();
-  }
+}
 
-  var move = function() {
+var move = function () {
     mirror_loop();
 
     clearTimeout(timer);
     timer = setTimeout(move, interval);
-  };
+};
 
-  window.onload = function() {
+window.onload = function () {
     move();
-  };
+};
