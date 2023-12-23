@@ -269,7 +269,7 @@ function drawStatus(ctx){
 
     ctx.beginPath()
     ctx.font = "20pt 'Times New Roman'";
-    ctx.fillText(game_status_disp, 20, 45);
+    ctx.fillText(game_status_disp, 20, 20);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
