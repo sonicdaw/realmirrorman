@@ -203,6 +203,7 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     drawLine(ctx, kp[rightKnee], kp[rightAnkle], mirror);
 
     ctx.font = "20pt 'Times New Roman'";
+    ctx.fillStyle = 'black';
     if(mirror){
         ctx.fillText(joint_degree[leftShoulder] + "°", WIDTH - kp[leftShoulder].position.x, kp[leftShoulder].position.y);
         ctx.fillText(joint_degree[rightShoulder] + "°", WIDTH - kp[rightShoulder].position.x, kp[rightShoulder].position.y);
