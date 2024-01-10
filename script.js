@@ -19,6 +19,7 @@ var interval = 10;
 const VOLUME_DEFAULT = 0.5;
 const VOLUME_LOW = 0.1;
 var sound_on = false;
+var game_score = 0;
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -270,8 +271,8 @@ function drawStatus(ctx) {
     ctx.clearRect(0, 0, 320, 50);
 
     ctx.beginPath()
-    ctx.font = "20pt 'Times New Roman'";
-    ctx.fillText(game_status_disp, 20, 20);
+    ctx.font = "18pt 'Times New Roman'";
+    ctx.fillText("Score:"+ game_score + "." + game_status_disp, 20, 20);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
@@ -512,6 +513,7 @@ function update_man_status() {
 }
 
 function handle_syncro_percent() {
+    if(game_status != game_mode.Playing) return;
     if (synchro_counter != 0) {
         synchro_counter++;  // Skip to update synchro result for a while
         if (synchro_counter > synchro_counter_max) {
@@ -529,13 +531,16 @@ function handle_syncro_percent() {
             speech_push(speech_text.synchronized_alert);
         }
         bgm_playing = false;
+        game_score--;
     } else if (syncro_percent < 80) {
         if (game_status == game_mode.Playing) {
             speech_push(speech_text.not_synchronized);
         }
         bgm_playing = false;
+        game_score--;
     } else {
         bgm_playing = true;
+        game_score = game_score + 10;
     }
 }
 
@@ -757,6 +762,7 @@ function update_game_status() {
                 game_status = game_mode.Playing;
                 bgm_playing = true;
                 syncro_percent = 100;
+                game_score = 0;
                 speech_push(speech_text.GameStart);
             } else {
                 speech_push(speech_text.Setup);
