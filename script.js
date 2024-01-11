@@ -43,6 +43,9 @@ const numOfJoint = 17
 
 var kp_1 = new Array(numOfJoint);
 var kp_2 = new Array(numOfJoint);
+var kp_1_move = 0;
+var kp_2_move = 0;
+
 
 var synchro_counter = 0;
 const synchro_counter_max = 100;
@@ -230,6 +233,23 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     }
 }
 
+function analyze_pose_move(kp_before, kp_after) {
+    var move = 0;
+
+    console.log(kp_before);
+    move += Math.pow(kp_before[leftElbow].position.x - kp_after[leftElbow].position.x, 2) + Math.pow(kp_before[leftElbow].position.y - kp_after[leftElbow].position.y, 2);
+    move += Math.pow(kp_before[leftWrist].position.x - kp_after[leftWrist].position.x, 2) + Math.pow(kp_before[leftWrist].position.y - kp_after[leftWrist].position.y, 2);
+    move += Math.pow(kp_before[leftKnee].position.x - kp_after[leftKnee].position.x, 2)   + Math.pow(kp_before[leftKnee].position.y - kp_after[leftKnee].position.y, 2);
+    move += Math.pow(kp_before[leftAnkle].position.x - kp_after[leftAnkle].position.x, 2) + Math.pow(kp_before[leftAnkle].position.y - kp_after[leftAnkle].position.y, 2);
+
+    move += Math.pow(kp_before[rightElbow].position.x - kp_after[rightElbow].position.x, 2) + Math.pow(kp_before[rightElbow].position.y - kp_after[rightElbow].position.y, 2);
+    move += Math.pow(kp_before[rightWrist].position.x - kp_after[rightWrist].position.x, 2) + Math.pow(kp_before[rightWrist].position.y - kp_after[rightWrist].position.y, 2);
+    move += Math.pow(kp_before[rightKnee].position.x - kp_after[rightKnee].position.x, 2)   + Math.pow(kp_before[rightKnee].position.y - kp_after[rightKnee].position.y, 2);
+    move += Math.pow(kp_before[rightAnkle].position.x - kp_after[rightAnkle].position.x, 2) + Math.pow(kp_before[rightAnkle].position.y - kp_after[rightAnkle].position.y, 2);
+
+    return move;
+}
+
 function drawSignal(ctx) {
     ctx.clearRect(0, 0, 320, 50);
     ctx.beginPath()
@@ -310,6 +330,19 @@ function draw_man_in_out() {
     }
 }
 
+function draw_move(){
+    ctx.beginPath()
+    ctx.font = "50pt 'Times New Roman'";
+    ctx.fillStyle = "#000000";
+    ctx.fillText(kp_1_move, 20, 50);
+    ctx.stroke();
+
+    ctx2.beginPath()
+    ctx2.font = "50pt 'Times New Roman'";
+    ctx2.fillStyle = "#000000";
+    ctx2.fillText(kp_2_move, 20, 50);
+    ctx2.stroke();
+}
 
 // Pose Analyze
 
@@ -559,6 +592,8 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
+                if(kp_1 != null){kp_1 = Object.assign({}, kp);}
+                kp_1_move = analyze_pose_move(kp_1, kp);
                 kp_1 = Object.assign({}, kp);
                 Captured_ManInTheMirror = true;
             } else {      // prediction is low = Out of field
@@ -583,6 +618,8 @@ function predictWebcam2() {
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
                 var kp = predictions2[n].keypoints;
+                if(kp_2 != null){kp_2 = Object.assign({}, kp);}
+                kp_2_move = analyze_pose_move(kp_2, kp);
                 kp_2 = Object.assign({}, kp);
                 Captured_ManInFrontOfTheMirror = true;
             } else {      // prediction is low = Out of field
@@ -763,6 +800,8 @@ function update_game_status() {
                 bgm_playing = true;
                 syncro_percent = 100;
                 game_score = 0;
+                kp_1_move = 0;
+                kp_2_move = 0;
                 speech_push(speech_text.GameStart);
             } else {
                 speech_push(speech_text.Setup);
@@ -807,6 +846,7 @@ function mirror_loop() {
     draw_man_in_out();
     drawSignal(ctx3);
     drawStatus(ctx3_status);
+    draw_move();
     update_game_status();
     handle_syncro_percent();
     bgm_control();
