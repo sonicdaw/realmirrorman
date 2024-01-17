@@ -43,8 +43,12 @@ const numOfJoint = 17
 
 var kp_1 = new Array(numOfJoint);
 var kp_2 = new Array(numOfJoint);
+var kp_1_temp = new Array(numOfJoint);
+var kp_2_temp = new Array(numOfJoint);
 var kp_1_move = 0;
 var kp_2_move = 0;
+var kp_1_time = Date.now();
+var kp_2_time = Date.now();
 
 
 var synchro_counter = 0;
@@ -236,7 +240,6 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
 function analyze_pose_move(kp_before, kp_after) {
     var move = 0;
 
-    console.log(kp_before);
     move += Math.pow(kp_before[leftElbow].position.x - kp_after[leftElbow].position.x, 2) + Math.pow(kp_before[leftElbow].position.y - kp_after[leftElbow].position.y, 2);
     move += Math.pow(kp_before[leftWrist].position.x - kp_after[leftWrist].position.x, 2) + Math.pow(kp_before[leftWrist].position.y - kp_after[leftWrist].position.y, 2);
     move += Math.pow(kp_before[leftKnee].position.x - kp_after[leftKnee].position.x, 2)   + Math.pow(kp_before[leftKnee].position.y - kp_after[leftKnee].position.y, 2);
@@ -334,13 +337,13 @@ function draw_move(){
     ctx.beginPath()
     ctx.font = "50pt 'Times New Roman'";
     ctx.fillStyle = "#000000";
-    ctx.fillText(kp_1_move, 20, 50);
+    ctx.fillText(Math.round(kp_1_move), 20, 50);
     ctx.stroke();
 
     ctx2.beginPath()
     ctx2.font = "50pt 'Times New Roman'";
     ctx2.fillStyle = "#000000";
-    ctx2.fillText(kp_2_move, 20, 50);
+    ctx2.fillText(Math.round(kp_2_move), 20, 50);
     ctx2.stroke();
 }
 
@@ -592,9 +595,14 @@ function predictWebcam() {
         for (let n = 0; n < predictions.length; n++) {
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
-                if(kp_1 != null){kp_1 = Object.assign({}, kp);}
-                kp_1_move = analyze_pose_move(kp_1, kp);
-                kp_1 = Object.assign({}, kp);
+                if(Date.now() - kp_1_time > 100){    // count 100 msec
+                    if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
+                    kp_1_move = analyze_pose_move(kp_1_temp, kp);
+                    kp_1_temp = Object.assign({}, kp);
+                    kp_1_time = Date.now();
+                }
+                if(kp_1[0] == null){kp_1 = Object.assign({}, kp);}
+                kp_1 = Object.assign({}, kp);                   // latest pose
                 Captured_ManInTheMirror = true;
             } else {      // prediction is low = Out of field
                 Captured_ManInTheMirror = false;
@@ -618,8 +626,13 @@ function predictWebcam2() {
         for (let n = 0; n < predictions2.length; n++) {
             if (predictions2[n].score > 0.3) {
                 var kp = predictions2[n].keypoints;
-                if(kp_2 != null){kp_2 = Object.assign({}, kp);}
-                kp_2_move = analyze_pose_move(kp_2, kp);
+                if(Date.now() - kp_2_time > 100){    // count 100 msec
+                    if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
+                    kp_2_move = analyze_pose_move(kp_2_temp, kp);
+                    kp_2_temp = Object.assign({}, kp);
+                    kp_2_time = Date.now();
+                }
+                if(kp_2[0] == null){kp_2 = Object.assign({}, kp);}
                 kp_2 = Object.assign({}, kp);
                 Captured_ManInFrontOfTheMirror = true;
             } else {      // prediction is low = Out of field
@@ -802,6 +815,8 @@ function update_game_status() {
                 game_score = 0;
                 kp_1_move = 0;
                 kp_2_move = 0;
+                kp_1_time = Date.now();
+                kp_2_time = Date.now();
                 speech_push(speech_text.GameStart);
             } else {
                 speech_push(speech_text.Setup);
