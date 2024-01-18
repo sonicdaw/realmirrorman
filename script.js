@@ -21,6 +21,7 @@ const VOLUME_LOW = 0.1;
 var sound_on = false;
 var game_score = 0;
 var game_score_read_time = Date.now();
+var game_time = Date.now();
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -763,6 +764,7 @@ const speech_text = Object.freeze({
     Setup: "かがみのまえとなかにたってください",
     GameStart: "げーむをかいしします",
     GameEnd: "げーむしゅうりょうです",
+    GameComplete: "よくできました。げーむかんりょうです",
     not_synchronized: "ずれています",
     synchronized_alert: "まったくあっていませんよ",
     FoundManInTheMirror: "かがみのなかのひとをみつけました",
@@ -811,6 +813,7 @@ function speech_controller() {
 }
 
 function read_score_controller(){
+    if(game_mode != game_mode.Playing) return;
     if(Date.now()-game_score_read_time > 10000){
         speech_push(speech_text.ReadScore);
         game_score_read_time = Date.now();
@@ -833,6 +836,7 @@ function update_game_status() {
                 kp_1_time = Date.now();
                 kp_2_time = Date.now();
                 game_score_read_time = Date.now();
+                game_time = Date.now();
                 speech_push(speech_text.GameStart);
             } else {
                 speech_push(speech_text.Setup);
@@ -845,6 +849,11 @@ function update_game_status() {
                 speech_push(speech_text.LostPlayers);
             } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
                 game_status = game_mode.Pause;
+            }
+
+            if(Date.now() - game_time > 60000){     // 60 sec play
+                game_status = game_mode.End;
+                speech_push(speech_text.GameComplete);
             }
             break
 
