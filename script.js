@@ -20,6 +20,7 @@ const VOLUME_DEFAULT = 0.5;
 const VOLUME_LOW = 0.1;
 var sound_on = false;
 var game_score = 0;
+var game_score_read_time = Date.now();
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -770,7 +771,8 @@ const speech_text = Object.freeze({
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
     LostManInTheMirror: "かがみのなかのひとをみうしないました",
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
-    LostPlayers: "ぷれーやーがいなくなりました"
+    LostPlayers: "ぷれーやーがいなくなりました",
+    ReadScore: "てんです"
 });
 
 var speech_string = [];
@@ -796,11 +798,24 @@ function speech_controller() {
     if (speech_string.length != 0) {
         console.log(speech_string[0]);
         if (speech_string[0] != "") {
-            const uttr = new SpeechSynthesisUtterance(speech_string[0])
-            window.speechSynthesis.speak(uttr);
+            if( speech_string[0] == speech_text.ReadScore){
+                const uttr = new SpeechSynthesisUtterance(game_score + speech_string[0])
+                window.speechSynthesis.speak(uttr);
+            }else{
+                const uttr = new SpeechSynthesisUtterance(speech_string[0])
+                window.speechSynthesis.speak(uttr);
+            }
         }
         speech_string.shift();
     }
+}
+
+function read_score_controller(){
+    if(Date.now()-game_score_read_time > 10000){
+        speech_push(speech_text.ReadScore);
+        game_score_read_time = Date.now();
+    }
+
 }
 
 // Game Status
@@ -817,6 +832,7 @@ function update_game_status() {
                 kp_2_move = 0;
                 kp_1_time = Date.now();
                 kp_2_time = Date.now();
+                game_score_read_time = Date.now();
                 speech_push(speech_text.GameStart);
             } else {
                 speech_push(speech_text.Setup);
@@ -866,6 +882,7 @@ function mirror_loop() {
     handle_syncro_percent();
     bgm_control();
     speech_controller();
+    read_score_controller();
 }
 
 var move = function () {
