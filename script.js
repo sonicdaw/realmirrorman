@@ -508,6 +508,7 @@ function update_man_status() {
     if (!inField_ManInTheMirror && ResultInField) {      // out of field to in field
         inField_ManInTheMirror = true;
         speech_push(speech_text.FoundManInTheMirror);
+//        mirror_sound[sound_num.FoundManInTheMirror].play();
         FilterinField_ManInTheMirror = 0;
     }
 
@@ -519,6 +520,7 @@ function update_man_status() {
         if (FilterinField_ManInTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInTheMirror = false;
             speech_push(speech_text.LostManInTheMirror);
+//        mirror_sound[sound_num.LostManInTheMirror].play();
         }
     }
     joint_degree1 = calculate_joint_degree(kp_1);
@@ -534,6 +536,7 @@ function update_man_status() {
     if (!inField_ManInFrontOfTheMirror && ResultInField) {      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
         speech_push(speech_text.FoundManInFrontOfTheMirror);
+//        mirror_sound[sound_num.FoundManInFrontOfTheMirror].play();
         FilterinField_ManInFrontOfTheMirror = 0;
     }
 
@@ -545,6 +548,7 @@ function update_man_status() {
         if (FilterinField_ManInFrontOfTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInFrontOfTheMirror = false;
             speech_push(speech_text.LostManInFrontOfTheMirror);
+//        mirror_sound[sound_num.LostManInFrontOfTheMirror].play();
         }
     }
     joint_degree2 = calculate_joint_degree(kp_2);
@@ -567,12 +571,14 @@ function handle_syncro_percent() {
     if (syncro_percent < 60) {
         if (game_status == game_mode.Playing) {
             speech_push(speech_text.synchronized_alert);
+//        mirror_sound[sound_num.Synchronized_alert].play();
         }
         bgm_playing = false;
         game_score--;
     } else if (syncro_percent < 80) {
         if (game_status == game_mode.Playing) {
             speech_push(speech_text.not_synchronized);
+//        mirror_sound[sound_num.Not_synchronized].play();
         }
         bgm_playing = false;
         game_score--;
@@ -697,9 +703,37 @@ function getSelectedVideo() {
 
 // bgm
 
-const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3']
-const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0 });
-var mirror_sound = new Array(1);
+const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
+"Setup.mp3",
+"GameStart.mp3",
+"GameEnd.mp3",
+"GameComplete.mp3",
+"Not_synchronized.mp3",
+"Synchronized_alert.mp3",
+"FoundManInTheMirror.mp3",
+"LostManInTheMirror.mp3",
+"FoundManInFrontOfTheMirror.mp3",
+"LostManInFrontOfTheMirror.mp3",
+"LostManInTheMirror.mp3",
+"LostManInFrontOfTheMirror.mp3",
+"LostPlayers.mp3"
+]
+const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
+    Setup: 1,
+    GameStart: 2,
+    GameEnd: 3,
+    GameComplete: 4,
+    Not_synchronized: 5,
+    Synchronized_alert: 6,
+    FoundManInTheMirror: 7,
+    LostManInTheMirror: 8,
+    FoundManInFrontOfTheMirror: 9,
+    LostManInFrontOfTheMirror: 10,
+    LostManInTheMirror: 11,
+    LostManInFrontOfTheMirror: 12,
+    LostPlayers: 13
+});
+var mirror_sound = new Array(14);
 
 function getDeviceList_SoundOn() {
     getDeviceList();
@@ -767,8 +801,6 @@ const speech_text = Object.freeze({
     LostManInTheMirror: "かがみのなかのひとをみうしないました",
     FoundManInFrontOfTheMirror: "かがみのまえのひとをみつけました",
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
-    LostManInTheMirror: "かがみのなかのひとをみうしないました",
-    LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
     LostPlayers: "ぷれーやーがいなくなりました",
     ReadScore: "てんです"
 });
@@ -834,8 +866,10 @@ function update_game_status() {
                 game_score_read_time = Date.now();
                 game_time = Date.now();
                 speech_push(speech_text.GameStart);
+//        mirror_sound[sound_num.GameStart].play();
             } else {
                 speech_push(speech_text.Setup);
+//        mirror_sound[sound_num.Setup].play();
             }
             break
 
@@ -843,6 +877,7 @@ function update_game_status() {
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
+//        mirror_sound[sound_num.LostPlayers].play();
             } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
                 game_status = game_mode.Pause;
             }
@@ -850,6 +885,7 @@ function update_game_status() {
             if(Date.now() - game_time > 60000){     // 60 sec play
                 game_status = game_mode.End;
                 speech_push(speech_text.GameComplete);
+//        mirror_sound[sound_num.GameComplete].play();
             }
             break
 
@@ -857,6 +893,7 @@ function update_game_status() {
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
                 speech_push(speech_text.LostPlayers);
+//        mirror_sound[sound_num.LostPlayers].play();
             } else if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Pause Status -> Play Status
                 game_status = game_mode.Playing;
             }
@@ -864,6 +901,7 @@ function update_game_status() {
 
         case game_mode.End:     // BGM End (Play all time or out of field)
             speech_push(speech_text.GameEnd);
+//        mirror_sound[sound_num.GameEnd].play();
             game_status = game_mode.WaitingForPlayers;
             bgm_stopping = true;
             break
