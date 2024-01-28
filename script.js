@@ -584,8 +584,9 @@ function handle_syncro_percent() {
         game_score--;
     } else {
         bgm_playing = true;
-        game_score = game_score + 10;
+        game_score = game_score + 10 + 10 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
     }
+    if(game_score < 0)game_score = 0;
 }
 
 
