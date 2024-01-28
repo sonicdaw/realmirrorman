@@ -701,17 +701,13 @@ const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3']
 const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0 });
 var mirror_sound = new Array(1);
 
-//  document.getElementById('play').addEventListener('click', function () {
-//    initBGM();
-//  });
-
 function getDeviceList_SoundOn() {
     getDeviceList();
-    initBGM();
+    initSound();
     sound_on = true;
 }
 
-function initBGM() {
+function initSound() {
     for (let i = 0; i < sound_name.length; i++) {
         if (mirror_sound[i] == null) {
             mirror_sound[i] = new Audio('./music/sound_' + sound_name[i]);
@@ -720,19 +716,19 @@ function initBGM() {
     }
 }
 
-function bgm_pause() {
+function pauseBgm() {
     for (let i = 0; i < sound_name.length; i++) {
         if (mirror_sound[i] != null) { mirror_sound[i].pause(); }
     }
 }
 
-function bgm_stop() {
+function stopSound() {
     for (let i = 0; i < sound_name.length; i++) {
         if (mirror_sound[i] != null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0; }
     }
 }
 
-function bgm_control() {
+function handle_Sounds() {
     if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
         if (window.speechSynthesis.speaking) {
             mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
@@ -741,7 +737,7 @@ function bgm_control() {
         }
 
         if (pre_bgm_playing && !bgm_playing) {  // Play -> Pause
-            bgm_pause();
+            pauseBgm();
         }
 
         if (!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing) {  // Pause -> Play
@@ -749,7 +745,7 @@ function bgm_control() {
         }
 
         if (bgm_stopping) {
-            bgm_stop();
+            stopSound();
             bgm_stopping = false;
         }
     }
@@ -889,7 +885,7 @@ function mirror_loop() {
     draw_move();
     update_game_status();
     handle_syncro_percent();
-    bgm_control();
+    handle_Sounds();
     speech_controller();
     read_score_controller();
 }
