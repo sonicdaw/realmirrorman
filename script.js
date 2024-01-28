@@ -337,15 +337,15 @@ function draw_man_in_out() {
 
 function draw_move(){
     ctx.beginPath()
-    ctx.font = "50pt 'Times New Roman'";
+    ctx.font = "30pt 'Times New Roman'";
     ctx.fillStyle = "#000000";
-    ctx.fillText(Math.round(kp_1_move), 20, 50);
+    ctx.fillText("Move:" + Math.round(kp_1_move/10000), 20, 50);
     ctx.stroke();
 
     ctx2.beginPath()
-    ctx2.font = "50pt 'Times New Roman'";
+    ctx2.font = "30pt 'Times New Roman'";
     ctx2.fillStyle = "#000000";
-    ctx2.fillText(Math.round(kp_2_move), 20, 50);
+    ctx2.fillText("Move:" + Math.round(kp_2_move/10000), 20, 50);
     ctx2.stroke();
 }
 
