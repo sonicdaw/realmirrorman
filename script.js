@@ -16,7 +16,7 @@ const cameraOptions = document.querySelector('.video-options>select');
 
 var timer;
 var interval = 10;
-const VOLUME_DEFAULT = 0.5;
+const VOLUME_DEFAULT = 1.0;
 const VOLUME_LOW = 0.1;
 var sound_on = false;
 var game_score = 0;
@@ -507,8 +507,8 @@ function update_man_status() {
     }
     if (!inField_ManInTheMirror && ResultInField) {      // out of field to in field
         inField_ManInTheMirror = true;
-        speech_push(speech_text.FoundManInTheMirror);
-//        mirror_sound[sound_num.FoundManInTheMirror].play();
+//        speech_push(speech_text.FoundManInTheMirror);
+        playSound(sound_num.FoundManInTheMirror, VOLUME_DEFAULT);
         FilterinField_ManInTheMirror = 0;
     }
 
@@ -519,8 +519,8 @@ function update_man_status() {
         FilterinField_ManInTheMirror++;
         if (FilterinField_ManInTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInTheMirror = false;
-            speech_push(speech_text.LostManInTheMirror);
-//        mirror_sound[sound_num.LostManInTheMirror].play();
+//            speech_push(speech_text.LostManInTheMirror);
+            playSound(sound_num.LostManInTheMirror, VOLUME_DEFAULT);
         }
     }
     joint_degree1 = calculate_joint_degree(kp_1);
@@ -535,8 +535,8 @@ function update_man_status() {
     }
     if (!inField_ManInFrontOfTheMirror && ResultInField) {      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
-        speech_push(speech_text.FoundManInFrontOfTheMirror);
-//        mirror_sound[sound_num.FoundManInFrontOfTheMirror].play();
+//        speech_push(speech_text.FoundManInFrontOfTheMirror);
+        playSound(sound_num.FoundManInFrontOfTheMirror, VOLUME_DEFAULT);
         FilterinField_ManInFrontOfTheMirror = 0;
     }
 
@@ -547,8 +547,8 @@ function update_man_status() {
         FilterinField_ManInFrontOfTheMirror++;
         if (FilterinField_ManInFrontOfTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInFrontOfTheMirror = false;
-            speech_push(speech_text.LostManInFrontOfTheMirror);
-//        mirror_sound[sound_num.LostManInFrontOfTheMirror].play();
+//            speech_push(speech_text.LostManInFrontOfTheMirror);
+            playSound(sound_num.LostManInFrontOfTheMirror, VOLUME_DEFAULT);
         }
     }
     joint_degree2 = calculate_joint_degree(kp_2);
@@ -570,15 +570,15 @@ function handle_syncro_percent() {
 
     if (syncro_percent < 60) {
         if (game_status == game_mode.Playing) {
-            speech_push(speech_text.synchronized_alert);
-//        mirror_sound[sound_num.Synchronized_alert].play();
+//            speech_push(speech_text.synchronized_alert);
+          playSound(sound_num.Synchronized_alert, VOLUME_DEFAULT);
         }
         bgm_playing = false;
         game_score--;
     } else if (syncro_percent < 80) {
         if (game_status == game_mode.Playing) {
-            speech_push(speech_text.not_synchronized);
-//        mirror_sound[sound_num.Not_synchronized].play();
+//            speech_push(speech_text.not_synchronized);
+          playSound(sound_num.Not_synchronized, VOLUME_DEFAULT);
         }
         bgm_playing = false;
         game_score--;
@@ -715,8 +715,6 @@ const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
 "LostManInTheMirror.mp3",
 "FoundManInFrontOfTheMirror.mp3",
 "LostManInFrontOfTheMirror.mp3",
-"LostManInTheMirror.mp3",
-"LostManInFrontOfTheMirror.mp3",
 "LostPlayers.mp3"
 ]
 const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
@@ -730,11 +728,10 @@ const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     LostManInTheMirror: 8,
     FoundManInFrontOfTheMirror: 9,
     LostManInFrontOfTheMirror: 10,
-    LostManInTheMirror: 11,
-    LostManInFrontOfTheMirror: 12,
-    LostPlayers: 13
+    LostPlayers: 11
 });
-var mirror_sound = new Array(14);
+var mirror_sound = new Array(12);
+var pre_play_sound = -1;
 
 function getDeviceList_SoundOn() {
     getDeviceList();
@@ -749,6 +746,15 @@ function initSound() {
             mirror_sound[i].load();
         }
     }
+}
+
+function playSound(num, volume){
+    if(pre_play_sound == num) return;   // avoid duplicate play
+    if (mirror_sound[num] != null) {
+        mirror_sound[num].play();
+        mirror_sound[num].volume = volume;
+    }
+    pre_play_sound = num;
 }
 
 function pauseBgm() {
@@ -776,7 +782,7 @@ function handle_Sounds() {
         }
 
         if (!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing) {  // Pause -> Play
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
+//            playSound(sound_num.Etude_Plus_Op10No1_MSumi, VOLUME_DEFAULT);
         }
 
         if (bgm_stopping) {
@@ -866,43 +872,43 @@ function update_game_status() {
                 kp_2_time = Date.now();
                 game_score_read_time = Date.now();
                 game_time = Date.now();
-                speech_push(speech_text.GameStart);
-//        mirror_sound[sound_num.GameStart].play();
+//                speech_push(speech_text.GameStart);
+                playSound(sound_num.GameStart, VOLUME_DEFAULT);
             } else {
-                speech_push(speech_text.Setup);
-//        mirror_sound[sound_num.Setup].play();
+//                speech_push(speech_text.Setup);
+                playSound(sound_num.Setup, VOLUME_DEFAULT);
             }
             break
 
         case game_mode.Playing:
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
-                speech_push(speech_text.LostPlayers);
-//        mirror_sound[sound_num.LostPlayers].play();
+//                speech_push(speech_text.LostPlayers);
+                playSound(sound_num.LostPlayers, VOLUME_DEFAULT);
             } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
                 game_status = game_mode.Pause;
             }
 
             if(Date.now() - game_time > 60000){     // 60 sec play
                 game_status = game_mode.End;
-                speech_push(speech_text.GameComplete);
-//        mirror_sound[sound_num.GameComplete].play();
+//                speech_push(speech_text.GameComplete);
+                playSound(sound_num.GameComplete, VOLUME_DEFAULT);
             }
             break
 
         case game_mode.Pause:
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
-                speech_push(speech_text.LostPlayers);
-//        mirror_sound[sound_num.LostPlayers].play();
+//                speech_push(speech_text.LostPlayers);
+                playSound(sound_num.LostPlayers, VOLUME_DEFAULT);
             } else if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Pause Status -> Play Status
                 game_status = game_mode.Playing;
             }
             break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
-            speech_push(speech_text.GameEnd);
-//        mirror_sound[sound_num.GameEnd].play();
+//            speech_push(speech_text.GameEnd);
+            playSound(sound_num.GameEnd, VOLUME_DEFAULT);
             game_status = game_mode.WaitingForPlayers;
             bgm_stopping = true;
             break
