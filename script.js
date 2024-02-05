@@ -732,6 +732,9 @@ const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
 });
 var mirror_sound = new Array(12);
 var pre_play_sound = -1;
+var sound_play_time = Date.now();
+var sound_queue = [];
+const sound_sleeptime = 1000;
 
 function getDeviceList_SoundOn() {
     getDeviceList();
@@ -750,11 +753,23 @@ function initSound() {
 
 function playSound(num, volume){
     if(pre_play_sound == num) return;   // avoid duplicate play
-    if (mirror_sound[num] != null) {
-        mirror_sound[num].play();
-        mirror_sound[num].volume = volume;
-    }
+    sound_queue.push(num);
     pre_play_sound = num;
+    playQueue();
+}
+
+function playQueue(){
+    if(Date.now() - sound_play_time < sound_sleeptime) return;
+    if(sound_queue.length != 0){
+        if (mirror_sound[sound_queue[0]] != null) {
+            mirror_sound[sound_queue[0]].play();
+//            mirror_sound[sound_queue[0]].volume = volume;
+            sound_queue.shift();
+            sound_play_time = Date.now();
+            return true;    // Played
+        }
+    }
+    return false;   // not played
 }
 
 function pauseBgm() {
@@ -788,6 +803,10 @@ function handle_Sounds() {
         if (bgm_stopping) {
             stopSound();
             bgm_stopping = false;
+        }
+
+        if (sound_queue.length != 0) {
+            playQueue();
         }
     }
 
@@ -933,6 +952,7 @@ function mirror_loop() {
     handle_Sounds();
     speech_controller();
     read_score_controller();
+    playQueue();
 }
 
 var move = function () {
