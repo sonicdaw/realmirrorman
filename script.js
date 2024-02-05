@@ -17,6 +17,7 @@ const cameraOptions = document.querySelector('.video-options>select');
 var timer;
 var interval = 10;
 const VOLUME_DEFAULT = 1.0;
+const VOLUME_BGM = 0.5;
 const VOLUME_LOW = 0.1;
 var sound_on = false;
 var game_score = 0;
@@ -573,17 +574,20 @@ function handle_syncro_percent() {
 //            speech_push(speech_text.synchronized_alert);
           playSound(sound_num.Synchronized_alert, VOLUME_DEFAULT);
         }
-        bgm_playing = false;
+//        bgm_playing = false;
+        SetBGMVolume(VOLUME_LOW);
         game_score--;
     } else if (syncro_percent < 80) {
         if (game_status == game_mode.Playing) {
 //            speech_push(speech_text.not_synchronized);
           playSound(sound_num.Not_synchronized, VOLUME_DEFAULT);
         }
-        bgm_playing = false;
+//        bgm_playing = false;
+        SetBGMVolume(VOLUME_LOW);
         game_score--;
     } else {
-        bgm_playing = true;
+//        bgm_playing = true;
+        SetBGMVolume(VOLUME_BGM);
         game_score = game_score + 10 + 10 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
     }
     if(game_score < 0)game_score = 0;
@@ -752,6 +756,19 @@ function initSound() {
     }
 }
 
+function playBGM(){
+    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
+        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
+        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_BGM;
+    }
+}
+
+function SetBGMVolume(volume){
+    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
+        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = volume;
+    }
+}
+
 function playSound(num, volume){
     if(pre_play_sound == num) return;   // avoid duplicate play
     sound_queue.push(num);
@@ -793,20 +810,20 @@ function stopSound() {
 }
 
 function handle_Sounds() {
-    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
-        if (window.speechSynthesis.speaking) {
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-        } else {
-            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
-        }
+//    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
+//        if (window.speechSynthesis.speaking) {
+//            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+//        } else {
+//            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+//        }
 
-        if (pre_bgm_playing && !bgm_playing) {  // Play -> Pause
-            pauseBgm();
-        }
+//        if (pre_bgm_playing && !bgm_playing) {  // Play -> Pause
+//            pauseBgm();
+//        }
 
-        if (!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing) {  // Pause -> Play
-//            playSound(sound_num.Etude_Plus_Op10No1_MSumi, VOLUME_DEFAULT);
-        }
+//        if (!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing) {  // Pause -> Play
+//            playBGM();
+//        }
 
         if (bgm_stopping) {
             stopSound();
@@ -816,9 +833,9 @@ function handle_Sounds() {
         if (sound_queue.length != 0) {
             playQueue();
         }
-    }
+//    }
 
-    pre_bgm_playing = bgm_playing;
+//    pre_bgm_playing = bgm_playing;
 }
 
 
@@ -901,6 +918,7 @@ function update_game_status() {
                 game_time = Date.now();
 //                speech_push(speech_text.GameStart);
                 playSound(sound_num.GameStart, VOLUME_DEFAULT);
+                playBGM();
             } else {
 //                speech_push(speech_text.Setup);
                 repeatSound(sound_num.Setup, 10000/*msec*/);
