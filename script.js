@@ -733,8 +733,9 @@ const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
 var mirror_sound = new Array(12);
 var pre_play_sound = -1;
 var sound_play_time = Date.now();
+var sound_repeat_time = Date.now();
 var sound_queue = [];
-const sound_sleeptime = 1000;
+const sound_sleeptime = 1500;
 
 function getDeviceList_SoundOn() {
     getDeviceList();
@@ -756,6 +757,13 @@ function playSound(num, volume){
     sound_queue.push(num);
     pre_play_sound = num;
     playQueue();
+}
+
+function repeatSound(num, timer_msec){
+    if(Date.now() - sound_repeat_time < timer_msec) return;
+    sound_queue.push(num);
+    playQueue();
+    sound_repeat_time = Date.now();
 }
 
 function playQueue(){
@@ -895,7 +903,7 @@ function update_game_status() {
                 playSound(sound_num.GameStart, VOLUME_DEFAULT);
             } else {
 //                speech_push(speech_text.Setup);
-                playSound(sound_num.Setup, VOLUME_DEFAULT);
+                repeatSound(sound_num.Setup, 10000/*msec*/);
             }
             break
 
