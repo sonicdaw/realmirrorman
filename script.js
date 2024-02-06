@@ -17,7 +17,7 @@ const cameraOptions = document.querySelector('.video-options>select');
 var timer;
 var interval = 10;
 const VOLUME_DEFAULT = 1.0;
-const VOLUME_BGM = 0.5;
+const VOLUME_BGM = 0.3;
 const VOLUME_LOW = 0.1;
 var sound_on = false;
 var game_score = 0;
@@ -764,6 +764,13 @@ function playBGM(){
     }
 }
 
+function stopBGM() {
+    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
+        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
+        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].currentTime = 0;
+    }
+}
+
 function SetBGMVolume(volume){
     if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
         mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = volume;
@@ -804,11 +811,6 @@ function pauseBgm() {
     }
 }
 
-function stopSound() {
-    for (let i = 0; i < sound_name.length; i++) {
-        if (mirror_sound[i] != null) { mirror_sound[i].pause(); mirror_sound[i].currentTime = 0; }
-    }
-}
 
 function handle_Sounds() {
 //    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
@@ -827,7 +829,7 @@ function handle_Sounds() {
 //        }
 
         if (bgm_stopping) {
-            stopSound();
+            stopBGM();
             bgm_stopping = false;
         }
 
