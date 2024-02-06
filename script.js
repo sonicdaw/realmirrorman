@@ -758,6 +758,7 @@ function initSound() {
 }
 
 function playBGM(){
+    return;
     if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
         mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
         mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_BGM;
@@ -895,12 +896,11 @@ function speech_controller() {
 }
 
 function read_score_controller(){
-    if(game_mode != game_mode.Playing) return;
+    if(game_status != game_mode.Playing) return;
     if(Date.now()-game_score_read_time > 10000){
-        speech_push(speech_text.ReadScore);
+        speech_push(game_score + speech_text.ReadScore);
         game_score_read_time = Date.now();
     }
-
 }
 
 // Game Status
