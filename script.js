@@ -23,6 +23,7 @@ var sound_on = false;
 var game_score = 0;
 var game_score_read_time = Date.now();
 var game_time = Date.now();
+var game_end_timer = Date.now();
 
 // reference https://note.com/npaka/n/n839066c1f23a
 const nose = 0
@@ -930,6 +931,7 @@ function update_game_status() {
                 game_status = game_mode.End;
 //                speech_push(speech_text.LostPlayers);
                 playSound(sound_num.LostPlayers, VOLUME_DEFAULT);
+                game_end_timer = Date.now();
             } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
                 game_status = game_mode.Pause;
             }
@@ -938,6 +940,7 @@ function update_game_status() {
                 game_status = game_mode.End;
 //                speech_push(speech_text.GameComplete);
                 playSound(sound_num.GameComplete, VOLUME_DEFAULT);
+                game_end_timer = Date.now();
             }
             break
 
@@ -946,6 +949,7 @@ function update_game_status() {
                 game_status = game_mode.End;
 //                speech_push(speech_text.LostPlayers);
                 playSound(sound_num.LostPlayers, VOLUME_DEFAULT);
+                game_end_timer = Date.now();
             } else if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Pause Status -> Play Status
                 game_status = game_mode.Playing;
             }
@@ -954,7 +958,9 @@ function update_game_status() {
         case game_mode.End:     // BGM End (Play all time or out of field)
 //            speech_push(speech_text.GameEnd);
             playSound(sound_num.GameEnd, VOLUME_DEFAULT);
-            game_status = game_mode.WaitingForPlayers;
+            if(Date.now() - game_end_timer > 10000){    // keep end status for 10sec
+                game_status = game_mode.WaitingForPlayers;
+            }
             bgm_stopping = true;
             break
 
