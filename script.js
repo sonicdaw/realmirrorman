@@ -628,6 +628,7 @@ function predictWebcam() {
     }).then(function (predictions) {
 
         for (let n = 0; n < predictions.length; n++) {
+//            console.log("prediction:" + predictions[n].score);
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
                 if(Date.now() - kp_1_time > 100){    // count 100 msec
@@ -639,10 +640,9 @@ function predictWebcam() {
                 if(kp_1[0] == null){kp_1 = Object.assign({}, kp);}
                 kp_1 = Object.assign({}, kp);                   // latest pose
                 Captured_ManInTheMirror = true;
-            } else {      // prediction is low = Out of field
-                Captured_ManInTheMirror = false;
-
-            }
+            }// else {      // prediction is low = Out of field
+//                Captured_ManInTheMirror = false;      // KEEP STATUS IN PREDICTION LOW CASE. OR Capture the low prediction(noise) in quick move
+//            }
         }
 
         window.requestAnimationFrame(predictWebcam);
@@ -670,9 +670,9 @@ function predictWebcam2() {
                 if(kp_2[0] == null){kp_2 = Object.assign({}, kp);}
                 kp_2 = Object.assign({}, kp);
                 Captured_ManInFrontOfTheMirror = true;
-            } else {      // prediction is low = Out of field
-                Captured_ManInFrontOfTheMirror = false;
-            }
+            }// else {      // prediction is low = Out of field
+//                Captured_ManInFrontOfTheMirror = false;      // KEEP STATUS IN PREDICTION LOW CASE. OR Capture the low prediction(noise) in quick move
+//            }
         }
 
         window.requestAnimationFrame(predictWebcam2);
