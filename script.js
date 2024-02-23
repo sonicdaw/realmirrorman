@@ -71,6 +71,7 @@ const FilterinField_Max = 500;
 
 const game_mode = Object.freeze({ WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3 });
 var game_status = game_mode.WaitingForPlayers;
+var areamode = 0;   // 0: Full body mode, 1: Upper body mode
 
 const WIDTH = 320;
 const HEIGHT = 320;
@@ -125,6 +126,14 @@ function enableCam2(event) {
         video2.srcObject = stream;
         video2.addEventListener('loadeddata', predictWebcam2);
     });
+}
+
+function change_areamode(event){
+    if(areamode == 0){
+        areamode = 1;
+    }else{
+        areamode = 0;
+    }
 }
 
 var model = undefined;
@@ -295,11 +304,18 @@ function drawStatus(ctx) {
             break
         default:
     }
-    ctx.clearRect(0, 0, 320, 50);
+    ctx.clearRect(0, 0, 500, 50);
+
+    var area_mode;
+    if(areamode == 0){
+        area_mode = "Full Body Mode";
+    }else{
+        area_mode = "Upper Body Mode";
+    }
 
     ctx.beginPath()
     ctx.font = "18pt 'Times New Roman'";
-    ctx.fillText("Score:"+ game_score + "." + game_status_disp, 20, 20);
+    ctx.fillText("Score:"+ game_score + " / " + game_status_disp + " / " + area_mode, 20, 20);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
@@ -420,12 +436,14 @@ function isInField(kp) {
     if (kp[rightElbow].position.x < 0 || kp[rightElbow].position.x > WIDTH) result = false;
     if (kp[leftWrist].position.x < 0 || kp[leftWrist].position.x > WIDTH) result = false;
     if (kp[rightWrist].position.x < 0 || kp[rightWrist].position.x > WIDTH) result = false;
-    if (kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
-    if (kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
-    //    if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
-    //    if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
-    //    if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
-    //    if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
+    if(areamode == 0){  // Check only on Full Body Mode. Ignore if the area mode is not full
+        if (kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
+        if (kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
+        if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
+        if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
+        if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
+        if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
+    }
 
     if (kp[leftShoulder].position.y < 0 || kp[leftShoulder].position.y > HEIGHT) result = false;
     if (kp[rightShoulder].position.y < 0 || kp[rightShoulder].position.y > HEIGHT) result = false;
@@ -433,12 +451,14 @@ function isInField(kp) {
     if (kp[rightElbow].position.y < 0 || kp[rightElbow].position.y > HEIGHT) result = false;
     if (kp[leftWrist].position.y < 0 || kp[leftWrist].position.y > HEIGHT) result = false;
     if (kp[rightWrist].position.y < 0 || kp[rightWrist].position.y > HEIGHT) result = false;
-    if (kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
-    if (kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
-    //    if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
-    //    if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
-    //    if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
-    //    if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
+    if(areamode == 0){  // Check only on Full Body Mode
+        if (kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
+        if (kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
+        if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
+        if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
+        if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
+        if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
+    }
 
     return result;
 }
@@ -487,6 +507,7 @@ function compare_joint_degree() {
     var sync_confidence = 0;
     var mirror_joint_degree2 = mirror_joint_degree(joint_degree2);
     for (var i = 0; i < numOfJoint; i++) {
+        if(areamode == 1 && numOfJoint >= leftHip) continue;  // Ignore if the area mode is upper body and not upper body
         var diff = Math.abs(joint_degree1[i] - mirror_joint_degree2[i]);
         if (diff > 30) {
             sync_confidence = sync_confidence + diff;

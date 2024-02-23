@@ -14,7 +14,7 @@
               <table align="center"><tr><td><canvas id="canvas3" width="320" height="50"></canvas></td></tr></table>
           </td></tr>
           <tr><td>
-              <table align="center"><tr><td><canvas id="canvas3_status" width="320" height="30"></canvas></td></tr></table>
+              <table align="center"><tr><td><canvas id="canvas3_status" width="500" height="30"></canvas></td></tr></table>
           </td></tr>
           <tr><td>
               <table border=1 align="center"><tr><td><canvas id="canvas" width="320" height="320"></canvas></td></tr></table>
@@ -31,9 +31,10 @@
               <button id="webcamButton1">Set Cam in the mirror</button>
               <button id="webcamButton2">Set Cam in front of the mirror</button>
               <select id="camera_list" size="1" style="width:160pt;">
-                <option>(video)</option>
+                <option>(video)</option><BR>
               </select><br>
-          </td></tr>
+              <button id="area_mode_change_button" onclick="change_areamode()">Full/Upper</button><br>
+            </td></tr>
         </table>
       </div>
     </section>
