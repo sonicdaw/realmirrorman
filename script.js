@@ -14,6 +14,8 @@ var canvas3 = document.getElementById('canvas3_status');
 const ctx3_status = canvas3.getContext('2d')
 var canvas_score = document.getElementById('canvas_score');
 const ctx_score = canvas_score.getContext('2d')
+var canvas_gametime = document.getElementById('canvas_time');
+const ctx_gametime = canvas_gametime.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
 
 var timer;
@@ -21,6 +23,7 @@ var interval = 10;
 const VOLUME_DEFAULT = 1.0;
 const VOLUME_BGM = 0.3;
 const VOLUME_LOW = 0.1;
+const GAME_TIME = 60000;
 var sound_on = false;
 var game_score = 0;
 var game_score_read_time = Date.now();
@@ -330,6 +333,17 @@ function drawScore(ctx){
     ctx.fillText("Score: "+ game_score, 20, 80);
     ctx.fillStyle = "#000000";
     ctx.stroke();
+}
+
+function drawGametime(ctx){
+    if(game_status == game_mode.Playing){
+        ctx.clearRect(0, 0, 500, 100);
+        ctx.beginPath()
+        ctx.font = "50pt 'Times New Roman'";
+        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, 80);
+        ctx.fillStyle = "#000000";
+        ctx.stroke();
+    }
 }
 
 function draw_man() {
@@ -970,7 +984,7 @@ function update_game_status() {
                 game_status = game_mode.Pause;
             }
 
-            if(Date.now() - game_time > 60000){     // 60 sec play
+            if(Date.now() - game_time > GAME_TIME){     // 60 sec play
                 game_status = game_mode.End;
 //                speech_push(speech_text.GameComplete);
                 playSound(sound_num.GameComplete, VOLUME_DEFAULT);
@@ -1013,6 +1027,7 @@ function mirror_loop() {
     drawSignal(ctx3);
     drawStatus(ctx3_status);
     drawScore(ctx_score);
+    drawGametime(ctx_gametime);
     draw_move();
     update_game_status();
     handle_syncro_percent();
