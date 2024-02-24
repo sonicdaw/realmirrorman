@@ -12,6 +12,8 @@ var canvas3 = document.getElementById('canvas3');
 const ctx3 = canvas3.getContext('2d')
 var canvas3 = document.getElementById('canvas3_status');
 const ctx3_status = canvas3.getContext('2d')
+var canvas_score = document.getElementById('canvas_score');
+const ctx_score = canvas_score.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
 
 var timer;
@@ -315,10 +317,19 @@ function drawStatus(ctx) {
 
     ctx.beginPath()
     ctx.font = "18pt 'Times New Roman'";
-    ctx.fillText("Score:"+ game_score + " / " + game_status_disp + " / " + area_mode, 20, 20);
+    ctx.fillText(game_status_disp + " / " + area_mode, 20, 20);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
+}
+
+function drawScore(ctx){
+    ctx.clearRect(0, 0, 500, 100);
+    ctx.beginPath()
+    ctx.font = "50pt 'Times New Roman'";
+    ctx.fillText("Score: "+ game_score, 20, 80);
+    ctx.fillStyle = "#000000";
+    ctx.stroke();
 }
 
 function draw_man() {
@@ -1001,6 +1012,7 @@ function mirror_loop() {
     draw_man_in_out();
     drawSignal(ctx3);
     drawStatus(ctx3_status);
+    drawScore(ctx_score);
     draw_move();
     update_game_status();
     handle_syncro_percent();
