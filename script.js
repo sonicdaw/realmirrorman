@@ -272,9 +272,9 @@ function analyze_pose_move(kp_before, kp_after) {
 }
 
 function drawSignal(ctx) {
-    ctx.clearRect(0, 0, 320, 50);
+    ctx.clearRect(0, 0, 500, 100);
     ctx.beginPath()
-    ctx.font = "30pt 'Times New Roman'";
+    ctx.font = "50pt 'Times New Roman'";
 
     if (syncro_percent < 60) {
         ctx.fillStyle = "#FF0000";
@@ -284,7 +284,7 @@ function drawSignal(ctx) {
         ctx.fillStyle = "#118B11";
     }
 
-    ctx.fillText("Syncro: " + syncro_percent + "%", 50, 40);
+    ctx.fillText("Syncro: " + syncro_percent + "%", 20, 80);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 }
