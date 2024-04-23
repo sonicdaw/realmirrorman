@@ -635,7 +635,7 @@ function handle_syncro_percent() {
     } else {
 //        bgm_playing = true;
         SetBGMVolume(VOLUME_BGM);
-        game_score = game_score + 10 + 10 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
+        game_score = game_score + 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
     }
     if(game_score < 0)game_score = 0;
 }
