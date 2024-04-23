@@ -233,7 +233,7 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
 
     ctx.font = "20pt 'Times New Roman'";
     ctx.fillStyle = 'black';
-    if (mirror) {
+/*    if (mirror) {
         ctx.fillText(joint_degree[leftShoulder] + "°", WIDTH - kp[leftShoulder].position.x, kp[leftShoulder].position.y);
         ctx.fillText(joint_degree[rightShoulder] + "°", WIDTH - kp[rightShoulder].position.x, kp[rightShoulder].position.y);
         ctx.fillText(joint_degree[leftElbow] + "°", WIDTH - kp[leftElbow].position.x, kp[leftElbow].position.y);
@@ -252,7 +252,7 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
         ctx.fillText(joint_degree[rightHip] + "°", kp[rightHip].position.x, kp[rightHip].position.y);
         ctx.fillText(joint_degree[rightKnee] + "°", kp[rightKnee].position.x, kp[rightKnee].position.y);
         ctx.fillText(joint_degree[leftKnee] + "°", kp[leftKnee].position.x, kp[leftKnee].position.y);
-    }
+    }*/
 }
 
 function analyze_pose_move(kp_before, kp_after) {
@@ -1028,7 +1028,7 @@ function mirror_loop() {
     drawStatus(ctx3_status);
     drawScore(ctx_score);
     drawGametime(ctx_gametime);
-    draw_move();
+//    draw_move();
     update_game_status();
     handle_syncro_percent();
     handle_Sounds();
