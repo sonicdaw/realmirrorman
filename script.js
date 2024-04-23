@@ -347,8 +347,8 @@ function drawGametime(ctx){
 }
 
 function draw_man() {
-    drawPose(ctx, kp_1, joint_degree1, true/*mirror draw*/);
-    drawPose(ctx2, kp_2, joint_degree2, false/*mirror draw*/);
+    drawPose(ctx, kp_1, joint_degree1, false/*true*//*mirror draw*/);
+    drawPose(ctx2, kp_2, joint_degree2, true/*false*//*mirror draw*/);
 }
 
 function draw_mirror_out_gauge() {
