@@ -190,7 +190,7 @@ function degree(theta) {
 var joint_degree1 = new Array(numOfJoint);
 var joint_degree2 = new Array(numOfJoint);
 var synchro = 0;
-var syncro_percent = 0;
+var synchro_percent = 0;
 
 // draw
 
@@ -263,15 +263,15 @@ function drawSignal(ctx) {
     ctx.beginPath()
     ctx.font = "50pt 'Times New Roman'";
 
-    if (syncro_percent < 60) {
+    if (synchro_percent < 60) {
         ctx.fillStyle = "#FF0000";
-    } else if (syncro_percent < 80) {
+    } else if (synchro_percent < 80) {
         ctx.fillStyle = "#FFA500";
     } else {
         ctx.fillStyle = "#118B11";
     }
 
-    ctx.fillText("Syncro: " + syncro_percent + "%", 20, 80);
+    ctx.fillText("Synchro: " + synchro_percent + "%", 20, 80);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 }
@@ -589,7 +589,7 @@ function update_man_status() {
     joint_degree2 = calculate_joint_degree(kp_2);
 }
 
-function handle_syncro_percent() {
+function handle_synchro_percent() {
     if(game_status != game_mode.Playing) return;
     if (synchro_counter != 0) {
         synchro_counter++;  // Skip to update synchro result for a while
@@ -600,10 +600,10 @@ function handle_syncro_percent() {
     }
     synchro_counter++;
 
-    syncro_percent = Math.round((1000 - synchro) / 10);
-    if (syncro_percent < 0) syncro_percent = 0;
+    synchro_percent = Math.round((1000 - synchro) / 10);
+    if (synchro_percent < 0) synchro_percent = 0;
 
-    if (syncro_percent < 60) {
+    if (synchro_percent < 60) {
         if (game_status == game_mode.Playing) {
 //            speech_push(speech_text.synchronized_alert);
           playSound(sound_num.Synchronized_alert, VOLUME_DEFAULT);
@@ -611,7 +611,7 @@ function handle_syncro_percent() {
 //        bgm_playing = false;
         SetBGMVolume(VOLUME_LOW);
         game_score--;
-    } else if (syncro_percent < 80) {
+    } else if (synchro_percent < 80) {
         if (game_status == game_mode.Playing) {
 //            speech_push(speech_text.not_synchronized);
           playSound(sound_num.Not_synchronized, VOLUME_DEFAULT);
@@ -944,7 +944,7 @@ function update_game_status() {
             if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
                 game_status = game_mode.Playing;
                 bgm_playing = true;
-                syncro_percent = 100;
+                synchro_percent = 100;
                 game_score = 0;
                 kp_1_move = 0;
                 kp_2_move = 0;
@@ -1017,7 +1017,7 @@ function mirror_loop() {
     drawGametime(ctx_gametime);
 //    draw_move();
     update_game_status();
-    handle_syncro_percent();
+    handle_synchro_percent();
     handle_Sounds();
     speech_controller();
     read_score_controller();
