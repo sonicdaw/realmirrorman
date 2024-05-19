@@ -630,9 +630,8 @@ function handle_synchro_percent() {
 
 // Cam Pose Capture
 
-// in the mirror
-function predictWebcam() {
-    model.estimateMultiplePoses(video, {
+function predictWebcam_common(predictVideo, predictFunc) {
+    model.estimateMultiplePoses(predictVideo, {
         flipHorizontal: false,
         maxDetections: 5,
         scoreThreshold: 0.5,
@@ -640,55 +639,48 @@ function predictWebcam() {
     }).then(function (predictions) {
 
         for (let n = 0; n < predictions.length; n++) {
-//            console.log("prediction:" + predictions[n].score);
             if (predictions[n].score > 0.3) {
                 var kp = predictions[n].keypoints;
-                if(Date.now() - kp_1_time > 100){    // count 100 msec
-                    if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
-                    kp_1_move = analyze_pose_move(kp_1_temp, kp);
-                    kp_1_temp = Object.assign({}, kp);
-                    kp_1_time = Date.now();
+                if (predictVideo === video) {
+                    if(Date.now() - kp_1_time > 100){    // count 100 msec
+                        if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
+                        kp_1_move = analyze_pose_move(kp_1_temp, kp);
+                        kp_1_temp = Object.assign({}, kp);
+                        kp_1_time = Date.now();
+                    }
+                    if(kp_1[0] == null){kp_1 = Object.assign({}, kp);}
+                    kp_1 = Object.assign({}, kp);                   // latest pose
+                    Captured_ManInTheMirror = true;
                 }
-                if(kp_1[0] == null){kp_1 = Object.assign({}, kp);}
-                kp_1 = Object.assign({}, kp);                   // latest pose
-                Captured_ManInTheMirror = true;
-            }// else {      // prediction is low = Out of field
-//                Captured_ManInTheMirror = false;      // KEEP STATUS IN PREDICTION LOW CASE. OR Capture the low prediction(noise) in quick move
-//            }
+
+                if (predictVideo === video2) {
+                    if(Date.now() - kp_2_time > 100){    // count 100 msec
+                        if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
+                        kp_2_move = analyze_pose_move(kp_2_temp, kp);
+                        kp_2_temp = Object.assign({}, kp);
+                        kp_2_time = Date.now();
+                    }
+                    if(kp_2[0] == null){kp_2 = Object.assign({}, kp);}
+                    kp_2 = Object.assign({}, kp);                   // latest pose
+                    Captured_ManInFrontOfTheMirror = true;
+                }
+
+            }
         }
 
-        window.requestAnimationFrame(predictWebcam);
+        window.requestAnimationFrame(predictFunc);
     });
+}
+
+
+// in the mirror
+function predictWebcam() {
+    predictWebcam_common(video, predictWebcam);
 }
 
 // in front of the mirror
 function predictWebcam2() {
-    model.estimateMultiplePoses(video2, {
-        flipHorizontal: false,
-        maxDetections: 5,
-        scoreThreshold: 0.5,
-        nmsRadius: 20
-    }).then(function (predictions2) {
-
-        for (let n = 0; n < predictions2.length; n++) {
-            if (predictions2[n].score > 0.3) {
-                var kp = predictions2[n].keypoints;
-                if(Date.now() - kp_2_time > 100){    // count 100 msec
-                    if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
-                    kp_2_move = analyze_pose_move(kp_2_temp, kp);
-                    kp_2_temp = Object.assign({}, kp);
-                    kp_2_time = Date.now();
-                }
-                if(kp_2[0] == null){kp_2 = Object.assign({}, kp);}
-                kp_2 = Object.assign({}, kp);
-                Captured_ManInFrontOfTheMirror = true;
-            }// else {      // prediction is low = Out of field
-//                Captured_ManInFrontOfTheMirror = false;      // KEEP STATUS IN PREDICTION LOW CASE. OR Capture the low prediction(noise) in quick move
-//            }
-        }
-
-        window.requestAnimationFrame(predictWebcam2);
-    });
+    predictWebcam_common(video2, predictWebcam2);
 }
 
 
