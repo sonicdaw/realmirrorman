@@ -92,46 +92,33 @@ if (getUserMediaSupported()) {
     console.warn('getUserMedia() is not supported by your browser');
 }
 
-function enableCam1(event) {
+function enableCam(event, video, predictFunc) {
     if (!model) {
-        return;
+      return;
     }
     event.target.classList.add('removed');
     // need on https to detect deviceid
     var deviceId = getSelectedVideo();
     var constraints = {
-        video: {
-            deviceId: deviceId
-        }
+      video: {
+        deviceId: deviceId
+      }
     };
 
-    var cameras = navigator.mediaDevices.getUserMedia(constraints);
-    cameras.then(function (stream) {
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(function (stream) {
         video.srcObject = stream;
-        video.addEventListener('loadeddata', predictWebcam);
-    });
-}
+        video.addEventListener('loadeddata', predictFunc);
+      });
+  }
 
-function enableCam2(event) {
-    if (!model) {
-        return;
-    }
-    event.target.classList.add('removed');
-    // need on https to detect deviceid
-    var deviceId = getSelectedVideo();
-    var constraints = {
-        video: {
-            deviceId: deviceId
-        }
-    };
+  function enableCam1(event) {
+    enableCam(event, video, predictWebcam);
+  }
 
-    var cameras = navigator.mediaDevices.getUserMedia(constraints);
-    cameras.then(function (stream) {
-        ;
-        video2.srcObject = stream;
-        video2.addEventListener('loadeddata', predictWebcam2);
-    });
-}
+  function enableCam2(event) {
+    enableCam(event, video2, predictWebcam2);
+  }
 
 function change_areamode(event){
     if(areamode == 0){
