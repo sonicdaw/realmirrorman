@@ -18,12 +18,15 @@ var canvas_gametime = document.getElementById('canvas_time');
 const ctx_gametime = canvas_gametime.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
 
-var timer;
-var interval = 10;
+const WIDTH = 320;
+const HEIGHT = 320;
 const VOLUME_DEFAULT = 1.0;
 const VOLUME_BGM = 0.3;
 const VOLUME_LOW = 0.1;
 const GAME_TIME = 60000;
+
+var timer;
+var interval = 10;
 var sound_on = false;
 var game_score = 0;
 var game_score_read_time = Date.now();
@@ -77,9 +80,6 @@ const FilterinField_Max = 500;
 const game_mode = Object.freeze({ WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3 });
 var game_status = game_mode.WaitingForPlayers;
 var areamode = 0;   // 0: Full body mode, 1: Upper body mode
-
-const WIDTH = 320;
-const HEIGHT = 320;
 
 function getUserMediaSupported() {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -173,7 +173,7 @@ const drawHead = (ctx, kp, kp2, mirror) => {
     ctx.stroke()
 }
 
-function vecotr_theta(x1, y1, x2, y2) {
+function vector_theta(x1, y1, x2, y2) {
     var dot = x1 * x2 + y1 * y2;
 
     var absA = Math.sqrt(x1 * x1 + y1 * y1);
@@ -397,42 +397,42 @@ function calculate_joint_degree(kp) {
 
     const leftShoulder_x = kp[leftShoulder].position.x;
     const leftShoulder_y = kp[leftShoulder].position.y;
-    joint_degree[leftShoulder] = Math.round(degree(vecotr_theta(leftShoulder_x - kp[leftElbow].position.x, leftShoulder_y - kp[leftElbow].position.y,
+    joint_degree[leftShoulder] = Math.round(degree(vector_theta(leftShoulder_x - kp[leftElbow].position.x, leftShoulder_y - kp[leftElbow].position.y,
         leftShoulder_x - kp[leftHip].position.x, leftShoulder_y - kp[leftHip].position.y)));
 
     const rightShoulder_x = kp[rightShoulder].position.x;
     const rightShoulder_y = kp[rightShoulder].position.y;
-    joint_degree[rightShoulder] = Math.round(degree(vecotr_theta(rightShoulder_x - kp[rightElbow].position.x, rightShoulder_y - kp[rightElbow].position.y,
+    joint_degree[rightShoulder] = Math.round(degree(vector_theta(rightShoulder_x - kp[rightElbow].position.x, rightShoulder_y - kp[rightElbow].position.y,
         rightShoulder_x - kp[rightHip].position.x, rightShoulder_y - kp[rightHip].position.y)));
 
     const leftElbow_x = kp[leftElbow].position.x;
     const leftElbow_y = kp[leftElbow].position.y;
-    joint_degree[leftElbow] = Math.round(degree(vecotr_theta(leftElbow_x - kp[leftShoulder].position.x, leftElbow_y - kp[leftShoulder].position.y,
+    joint_degree[leftElbow] = Math.round(degree(vector_theta(leftElbow_x - kp[leftShoulder].position.x, leftElbow_y - kp[leftShoulder].position.y,
         leftElbow_x - kp[leftWrist].position.x, leftElbow_y - kp[leftWrist].position.y)));
 
     const rightElbow_x = kp[rightElbow].position.x;
     const rightElbow_y = kp[rightElbow].position.y;
-    joint_degree[rightElbow] = Math.round(degree(vecotr_theta(rightElbow_x - kp[rightShoulder].position.x, rightElbow_y - kp[rightShoulder].position.y,
+    joint_degree[rightElbow] = Math.round(degree(vector_theta(rightElbow_x - kp[rightShoulder].position.x, rightElbow_y - kp[rightShoulder].position.y,
         rightElbow_x - kp[rightWrist].position.x, rightElbow_y - kp[rightWrist].position.y)));
 
     const leftHip_x = kp[leftHip].position.x;
     const leftHip_y = kp[leftHip].position.y;
-    joint_degree[leftHip] = Math.round(degree(vecotr_theta(leftHip_x - kp[leftKnee].position.x, leftHip_y - kp[leftKnee].position.y,
+    joint_degree[leftHip] = Math.round(degree(vector_theta(leftHip_x - kp[leftKnee].position.x, leftHip_y - kp[leftKnee].position.y,
         leftHip_x - kp[leftShoulder].position.x, leftHip_y - kp[leftShoulder].position.y)));
 
     const rightHip_x = kp[rightHip].position.x;
     const rightHip_y = kp[rightHip].position.y;
-    joint_degree[rightHip] = Math.round(degree(vecotr_theta(rightHip_x - kp[rightKnee].position.x, rightHip_y - kp[rightKnee].position.y,
+    joint_degree[rightHip] = Math.round(degree(vector_theta(rightHip_x - kp[rightKnee].position.x, rightHip_y - kp[rightKnee].position.y,
         rightHip_x - kp[rightShoulder].position.x, rightHip_y - kp[rightShoulder].position.y)));
 
     const rightKnee_x = kp[rightKnee].position.x;
     const rightKnee_y = kp[rightKnee].position.y;
-    joint_degree[rightKnee] = Math.round(degree(vecotr_theta(rightKnee_x - kp[rightHip].position.x, rightKnee_y - kp[rightHip].position.y,
+    joint_degree[rightKnee] = Math.round(degree(vector_theta(rightKnee_x - kp[rightHip].position.x, rightKnee_y - kp[rightHip].position.y,
         rightKnee_x - kp[rightAnkle].position.x, rightKnee_y - kp[rightAnkle].position.y)));
 
     const leftKnee_x = kp[leftKnee].position.x;
     const leftKnee_y = kp[leftKnee].position.y;
-    joint_degree[leftKnee] = Math.round(degree(vecotr_theta(leftKnee_x - kp[leftHip].position.x, leftKnee_y - kp[leftHip].position.y,
+    joint_degree[leftKnee] = Math.round(degree(vector_theta(leftKnee_x - kp[leftHip].position.x, leftKnee_y - kp[leftHip].position.y,
         leftKnee_x - kp[leftAnkle].position.x, leftKnee_y - kp[leftAnkle].position.y)));
 
     return joint_degree;
