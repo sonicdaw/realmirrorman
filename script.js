@@ -68,6 +68,7 @@ const synchro_counter_max = 100;
 var pre_bgm_playing = false;
 var bgm_playing = false;
 var bgm_stopping = false;
+var gameend_sound_played = false;
 
 var inField_ManInFrontOfTheMirror = false;
 var inField_ManInTheMirror = false;
@@ -748,7 +749,9 @@ const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
 "LostManInTheMirror.mp3",
 "FoundManInFrontOfTheMirror.mp3",
 "LostManInFrontOfTheMirror.mp3",
-"LostPlayers.mp3"
+"LostPlayers.mp3",
+"se_Shining_soundeffectlab.mp3",
+"se_GoblinShout_soundeffectlab.mp3"
 ]
 const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     Setup: 1,
@@ -761,7 +764,9 @@ const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     LostManInTheMirror: 8,
     FoundManInFrontOfTheMirror: 9,
     LostManInFrontOfTheMirror: 10,
-    LostPlayers: 11
+    LostPlayers: 11,
+    se_Shining_soundeffectlab: 12,
+    se_GoblinShout_soundeffectlab: 13
 });
 var mirror_sound = new Array(12);
 var pre_play_sound = -1;
@@ -939,6 +944,7 @@ function update_game_status() {
             if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
                 game_status = game_mode.Playing;
                 bgm_playing = true;
+                gameend_sound_played = false;
                 synchro_percent = 100;
                 game_score = 0;
                 kp_1_move = 0;
@@ -988,6 +994,14 @@ function update_game_status() {
         case game_mode.End:     // BGM End (Play all time or out of field)
 //            speech_push(speech_text.GameEnd);
             playSound(sound_num.GameEnd, VOLUME_DEFAULT);
+            if(gameend_sound_played == false){
+                if(game_score > 1000){   // save the mirrory
+                    mirror_sound[sound_num.se_Shining_soundeffectlab].play();
+                }else{
+                    mirror_sound[sound_num.se_GoblinShout_soundeffectlab].play();
+                }
+                gameend_sound_played = true;
+            }
             if(Date.now() - game_end_timer > 10000){    // keep end status for 10sec
                 game_status = game_mode.WaitingForPlayers;
             }
