@@ -69,6 +69,8 @@ var pre_bgm_playing = false;
 var bgm_playing = false;
 var bgm_stopping = false;
 var gameend_sound_played = false;
+var swing_se_sound_count = 0;
+var swing_se_sound_count_time = Date.now();
 
 var inField_ManInFrontOfTheMirror = false;
 var inField_ManInTheMirror = false;
@@ -352,7 +354,18 @@ function handle_move(){
     ctx2.stroke();
 
     if((kp_1_move/10000 > 1 || kp_2_move/10000 > 1) && game_status == game_mode.Playing){
-        mirror_sound[sound_num.se_Punch_soundeffectlab].play();
+        if(Date.now() - swing_se_sound_count_time > 100){
+            swing_se_sound_count++;
+            if(swing_se_sound_count == 3 || swing_se_sound_count == 6 || swing_se_sound_count == 9){
+                mirror_sound[sound_num.se_MagicCharge1_soundeffectlab].play();
+            }else if(swing_se_sound_count == 12){
+                mirror_sound[sound_num.se_MagicCharge2_soundeffectlab].play();
+                swing_se_sound_count = 0;
+            }else{
+                mirror_sound[sound_num.se_Punch_soundeffectlab].play();
+            }
+            swing_se_sound_count_time = Date.now();
+        }
     }
 }
 
@@ -756,7 +769,9 @@ const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
 "LostPlayers.mp3",
 "se_Shining_soundeffectlab.mp3",
 "se_GoblinShout_soundeffectlab.mp3",
-"se_Punch_soundeffectlab.mp3"
+"se_Punch_soundeffectlab.mp3",
+"se_MagicCharge1_soundeffectlab.mp3",
+"se_MagicCharge2_soundeffectlab.mp3"
 ]
 const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     Setup: 1,
@@ -772,7 +787,9 @@ const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     LostPlayers: 11,
     se_Shining_soundeffectlab: 12,
     se_GoblinShout_soundeffectlab: 13,
-    se_Punch_soundeffectlab: 14
+    se_Punch_soundeffectlab: 14,
+    se_MagicCharge1_soundeffectlab: 15,
+    se_MagicCharge2_soundeffectlab: 16
 });
 var mirror_sound = new Array(12);
 var pre_play_sound = -1;
@@ -951,6 +968,8 @@ function update_game_status() {
                 game_status = game_mode.Playing;
                 bgm_playing = true;
                 gameend_sound_played = false;
+                swing_se_sound_count = 0;
+                swing_se_sound_count_time = Date.now();
                 synchro_percent = 100;
                 game_score = 0;
                 kp_1_move = 0;
