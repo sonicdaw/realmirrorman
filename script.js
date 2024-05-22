@@ -338,7 +338,7 @@ function draw_man_in_out() {
     }
 }
 
-function draw_move(){
+function handle_move(){
     ctx.beginPath()
     ctx.font = "30pt 'Times New Roman'";
     ctx.fillStyle = "#000000";
@@ -350,6 +350,10 @@ function draw_move(){
     ctx2.fillStyle = "#000000";
     ctx2.fillText("Move:" + Math.round(kp_2_move/10000), 20, 50);
     ctx2.stroke();
+
+    if((kp_1_move/10000 > 1 || kp_2_move/10000 > 1) && game_status == game_mode.Playing){
+        mirror_sound[sound_num.se_Punch_soundeffectlab].play();
+    }
 }
 
 // Pose Analyze
@@ -751,7 +755,8 @@ const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
 "LostManInFrontOfTheMirror.mp3",
 "LostPlayers.mp3",
 "se_Shining_soundeffectlab.mp3",
-"se_GoblinShout_soundeffectlab.mp3"
+"se_GoblinShout_soundeffectlab.mp3",
+"se_Punch_soundeffectlab.mp3"
 ]
 const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     Setup: 1,
@@ -766,7 +771,8 @@ const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
     LostManInFrontOfTheMirror: 10,
     LostPlayers: 11,
     se_Shining_soundeffectlab: 12,
-    se_GoblinShout_soundeffectlab: 13
+    se_GoblinShout_soundeffectlab: 13,
+    se_Punch_soundeffectlab: 14
 });
 var mirror_sound = new Array(12);
 var pre_play_sound = -1;
@@ -1024,7 +1030,7 @@ function mirror_loop() {
     drawStatus(ctx3_status);
     drawScore(ctx_score);
     drawGametime(ctx_gametime);
-//    draw_move();
+    handle_move();
     update_game_status();
     handle_synchro_percent();
     handle_Sounds();
