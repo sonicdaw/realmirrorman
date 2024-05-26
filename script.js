@@ -219,9 +219,9 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
 }
 
 function drawSignal(ctx) {
-    ctx.clearRect(0, 0, 500, 100);
+    ctx.clearRect(0, 0, 1000, 150);
     ctx.beginPath()
-    ctx.font = "50pt 'Times New Roman'";
+    ctx.font = "100pt 'Times New Roman'";
 
     if (synchro_percent < 60) {
         ctx.fillStyle = "#FF0000";
@@ -231,7 +231,7 @@ function drawSignal(ctx) {
         ctx.fillStyle = "#118B11";
     }
 
-    ctx.fillText("Synchro: " + synchro_percent + "%", 20, 80);
+    ctx.fillText("Synchro: " + synchro_percent + "%", 20, 120);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 }
@@ -274,20 +274,20 @@ function drawStatus(ctx) {
 }
 
 function drawScore(ctx){
-    ctx.clearRect(0, 0, 500, 100);
+    ctx.clearRect(0, 0, 1000, 150);
     ctx.beginPath()
-    ctx.font = "50pt 'Times New Roman'";
-    ctx.fillText("Score: "+ game_score, 20, 80);
+    ctx.font = "100pt 'Times New Roman'";
+    ctx.fillText("Score: "+ game_score, 20, 120);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 }
 
 function drawGametime(ctx){
     if(game_status == game_mode.Playing){
-        ctx.clearRect(0, 0, 500, 100);
+        ctx.clearRect(0, 0, 1000, 150);
         ctx.beginPath()
-        ctx.font = "50pt 'Times New Roman'";
-        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, 80);
+        ctx.font = "100pt 'Times New Roman'";
+        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, 120);
         ctx.fillStyle = "#000000";
         ctx.stroke();
     }
