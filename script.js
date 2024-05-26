@@ -109,6 +109,28 @@ posenet.load().then(function (loadedModel) {
     model = loadedModel;
 });
 
+function vector_theta(x1, y1, x2, y2) {
+    var dot = x1 * x2 + y1 * y2;
+
+    var absA = Math.sqrt(x1 * x1 + y1 * y1);
+    var absB = Math.sqrt(x2 * x2 + y2 * y2);
+    var cosTheta = dot / (absA * absB);
+
+    return theta = Math.acos(cosTheta);
+}
+
+function degree(theta) {
+    return theta / (Math.PI / 180);
+}
+
+var joint_degree1 = new Array(numOfJoint);
+var joint_degree2 = new Array(numOfJoint);
+var synchro = 0;
+var synchro_percent = 0;
+
+
+// Draw -----------------------------------------------------------------------------------------
+
 const drawLine = (ctx, kp0, kp1, mirror) => {
     if (kp0.score < 0.3 || kp1.score < 0.3) return
     ctx.strokeStyle = 'black'
@@ -147,27 +169,6 @@ const drawHead = (ctx, kp, kp2, mirror) => {
     }
     ctx.stroke()
 }
-
-function vector_theta(x1, y1, x2, y2) {
-    var dot = x1 * x2 + y1 * y2;
-
-    var absA = Math.sqrt(x1 * x1 + y1 * y1);
-    var absB = Math.sqrt(x2 * x2 + y2 * y2);
-    var cosTheta = dot / (absA * absB);
-
-    return theta = Math.acos(cosTheta);
-}
-
-function degree(theta) {
-    return theta / (Math.PI / 180);
-}
-
-var joint_degree1 = new Array(numOfJoint);
-var joint_degree2 = new Array(numOfJoint);
-var synchro = 0;
-var synchro_percent = 0;
-
-// draw
 
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     if (kp[leftShoulder] == null) return false;
@@ -215,22 +216,6 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
         ctx.fillText(joint_degree[rightKnee] + "°", kp[rightKnee].position.x, kp[rightKnee].position.y);
         ctx.fillText(joint_degree[leftKnee] + "°", kp[leftKnee].position.x, kp[leftKnee].position.y);
     }*/
-}
-
-function analyze_pose_move(kp_before, kp_after) {
-    var move = 0;
-
-    move += Math.pow(kp_before[leftElbow].position.x - kp_after[leftElbow].position.x, 2) + Math.pow(kp_before[leftElbow].position.y - kp_after[leftElbow].position.y, 2);
-    move += Math.pow(kp_before[leftWrist].position.x - kp_after[leftWrist].position.x, 2) + Math.pow(kp_before[leftWrist].position.y - kp_after[leftWrist].position.y, 2);
-    move += Math.pow(kp_before[leftKnee].position.x - kp_after[leftKnee].position.x, 2)   + Math.pow(kp_before[leftKnee].position.y - kp_after[leftKnee].position.y, 2);
-    move += Math.pow(kp_before[leftAnkle].position.x - kp_after[leftAnkle].position.x, 2) + Math.pow(kp_before[leftAnkle].position.y - kp_after[leftAnkle].position.y, 2);
-
-    move += Math.pow(kp_before[rightElbow].position.x - kp_after[rightElbow].position.x, 2) + Math.pow(kp_before[rightElbow].position.y - kp_after[rightElbow].position.y, 2);
-    move += Math.pow(kp_before[rightWrist].position.x - kp_after[rightWrist].position.x, 2) + Math.pow(kp_before[rightWrist].position.y - kp_after[rightWrist].position.y, 2);
-    move += Math.pow(kp_before[rightKnee].position.x - kp_after[rightKnee].position.x, 2)   + Math.pow(kp_before[rightKnee].position.y - kp_after[rightKnee].position.y, 2);
-    move += Math.pow(kp_before[rightAnkle].position.x - kp_after[rightAnkle].position.x, 2) + Math.pow(kp_before[rightAnkle].position.y - kp_after[rightAnkle].position.y, 2);
-
-    return move;
 }
 
 function drawSignal(ctx) {
@@ -369,7 +354,25 @@ function handle_move(){
     }
 }
 
-// Pose Analyze
+
+
+// Pose Analyze -----------------------------------------------------------------------------------------
+
+function analyze_pose_move(kp_before, kp_after) {
+    var move = 0;
+
+    move += Math.pow(kp_before[leftElbow].position.x - kp_after[leftElbow].position.x, 2) + Math.pow(kp_before[leftElbow].position.y - kp_after[leftElbow].position.y, 2);
+    move += Math.pow(kp_before[leftWrist].position.x - kp_after[leftWrist].position.x, 2) + Math.pow(kp_before[leftWrist].position.y - kp_after[leftWrist].position.y, 2);
+    move += Math.pow(kp_before[leftKnee].position.x - kp_after[leftKnee].position.x, 2)   + Math.pow(kp_before[leftKnee].position.y - kp_after[leftKnee].position.y, 2);
+    move += Math.pow(kp_before[leftAnkle].position.x - kp_after[leftAnkle].position.x, 2) + Math.pow(kp_before[leftAnkle].position.y - kp_after[leftAnkle].position.y, 2);
+
+    move += Math.pow(kp_before[rightElbow].position.x - kp_after[rightElbow].position.x, 2) + Math.pow(kp_before[rightElbow].position.y - kp_after[rightElbow].position.y, 2);
+    move += Math.pow(kp_before[rightWrist].position.x - kp_after[rightWrist].position.x, 2) + Math.pow(kp_before[rightWrist].position.y - kp_after[rightWrist].position.y, 2);
+    move += Math.pow(kp_before[rightKnee].position.x - kp_after[rightKnee].position.x, 2)   + Math.pow(kp_before[rightKnee].position.y - kp_after[rightKnee].position.y, 2);
+    move += Math.pow(kp_before[rightAnkle].position.x - kp_after[rightAnkle].position.x, 2) + Math.pow(kp_before[rightAnkle].position.y - kp_after[rightAnkle].position.y, 2);
+
+    return move;
+}
 
 function calculate_joint_degree(kp) {
     if (kp[leftShoulder] == null) return false;
@@ -505,6 +508,9 @@ function mirror_joint_degree(joint_degree) {
     return mirror_joint_degree;
 }
 
+
+// Compare Pose -----------------------------------------------------------------------------------------
+
 function compare_joint_degree() {
     var sync_confidence = 0;
     var mirror_joint_degree2 = mirror_joint_degree(joint_degree2);
@@ -520,7 +526,47 @@ function compare_joint_degree() {
     return;
 }
 
-// Man Status
+function handle_synchro_percent() {
+    if(game_status != game_mode.Playing) return;
+    if (synchro_counter != 0) {
+        synchro_counter++;  // Skip to update synchro result for a while
+        if (synchro_counter > synchro_counter_max) {
+            synchro_counter = 0;
+        }
+        return;
+    }
+    synchro_counter++;
+
+    synchro_percent = Math.round((1000 - synchro) / 10);
+    if (synchro_percent < 0) synchro_percent = 0;
+
+    if (synchro_percent < 60) {
+        if (game_status == game_mode.Playing) {
+//            speech_push(speech_text.synchronized_alert);
+          playSound(sound_num.Synchronized_alert, VOLUME_DEFAULT);
+        }
+//        bgm_playing = false;
+        SetBGMVolume(VOLUME_LOW);
+        game_score--;
+    } else if (synchro_percent < 80) {
+        if (game_status == game_mode.Playing) {
+//            speech_push(speech_text.not_synchronized);
+          playSound(sound_num.Not_synchronized, VOLUME_DEFAULT);
+        }
+//        bgm_playing = false;
+        SetBGMVolume(VOLUME_LOW);
+        game_score--;
+    } else {
+//        bgm_playing = true;
+        SetBGMVolume(VOLUME_BGM);
+        game_score = game_score + 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
+    }
+    if(game_score < 0)game_score = 0;
+}
+
+
+
+// Man Status -----------------------------------------------------------------------------------------
 
 function update_man_status() {
     // Calc Man1 in the mirror
@@ -579,46 +625,9 @@ function update_man_status() {
     joint_degree2 = calculate_joint_degree(kp_2);
 }
 
-function handle_synchro_percent() {
-    if(game_status != game_mode.Playing) return;
-    if (synchro_counter != 0) {
-        synchro_counter++;  // Skip to update synchro result for a while
-        if (synchro_counter > synchro_counter_max) {
-            synchro_counter = 0;
-        }
-        return;
-    }
-    synchro_counter++;
-
-    synchro_percent = Math.round((1000 - synchro) / 10);
-    if (synchro_percent < 0) synchro_percent = 0;
-
-    if (synchro_percent < 60) {
-        if (game_status == game_mode.Playing) {
-//            speech_push(speech_text.synchronized_alert);
-          playSound(sound_num.Synchronized_alert, VOLUME_DEFAULT);
-        }
-//        bgm_playing = false;
-        SetBGMVolume(VOLUME_LOW);
-        game_score--;
-    } else if (synchro_percent < 80) {
-        if (game_status == game_mode.Playing) {
-//            speech_push(speech_text.not_synchronized);
-          playSound(sound_num.Not_synchronized, VOLUME_DEFAULT);
-        }
-//        bgm_playing = false;
-        SetBGMVolume(VOLUME_LOW);
-        game_score--;
-    } else {
-//        bgm_playing = true;
-        SetBGMVolume(VOLUME_BGM);
-        game_score = game_score + 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
-    }
-    if(game_score < 0)game_score = 0;
-}
 
 
-// Cam Pose Capture
+// Cam Pose Capture -----------------------------------------------------------------------------------------
 
 function predictWebcam_common(predictVideo, predictFunc) {
     model.estimateMultiplePoses(predictVideo, {
@@ -674,7 +683,7 @@ function predictWebcam2() {
 }
 
 
-// Cam Device
+// Cam Device -----------------------------------------------------------------------------------------
 
 // Cam Device List
 // https://qiita.com/massie_g/items/b9863e4366cfed339528
@@ -753,7 +762,7 @@ function enableCam(event, video, predictFunc) {
 
 
 
-// bgm
+// BGM / Sound -----------------------------------------------------------------------------------------
 
 const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
 "Setup.mp3",
@@ -899,7 +908,8 @@ function handle_Sounds() {
 }
 
 
-// Speech
+// Speech -----------------------------------------------------------------------------------------
+
 
 const speech_text = Object.freeze({
     Setup: "かがみのまえとなかにたってください",
@@ -959,7 +969,7 @@ function read_score_controller(){
     }
 }
 
-// Game Status
+// Game Status -----------------------------------------------------------------------------------------
 
 function update_game_status() {
     switch (game_status) {
@@ -1036,6 +1046,9 @@ function update_game_status() {
         default:
     }
 }
+
+
+// Loop -----------------------------------------------------------------------------------------
 
 function mirror_loop() {
     update_man_status();
