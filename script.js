@@ -8,14 +8,10 @@ var canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d')
 var canvas2 = document.getElementById('canvas2');
 const ctx2 = canvas2.getContext('2d')
-var canvas3 = document.getElementById('canvas3');
-const ctx3 = canvas3.getContext('2d')
 var canvas3 = document.getElementById('canvas3_status');
 const ctx3_status = canvas3.getContext('2d')
 var canvas_score = document.getElementById('canvas_score');
 const ctx_score = canvas_score.getContext('2d')
-var canvas_gametime = document.getElementById('canvas_time');
-const ctx_gametime = canvas_gametime.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
 
 const WIDTH = 320;
@@ -217,30 +213,30 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
         ctx.fillText(joint_degree[leftKnee] + "°", kp[leftKnee].position.x, kp[leftKnee].position.y);
     }*/
 }
-function drawScore(ctx){
-    ctx.clearRect(0, 0, 1000, 150);
+function drawScoreTimeSynchro(ctx){
+    ctx.clearRect(0, 0, 1700, 700);
+    var offset = 180;
+    var height_diff = 200;
+
+    //  Draw Score
     ctx.beginPath()
-    ctx.font = "100pt 'Times New Roman'";
-    ctx.fillText("Score: "+ game_score, 20, 120);
+    ctx.font = "150pt 'Times New Roman'";
+    ctx.fillText("Score: "+ game_score, 20, offset);
     ctx.fillStyle = "#000000";
     ctx.stroke();
-}
 
-function drawGametime(ctx){
+    //  Draw Time
     if(game_status == game_mode.Playing){
-        ctx.clearRect(0, 0, 1000, 150);
         ctx.beginPath()
-        ctx.font = "100pt 'Times New Roman'";
-        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, 120);
+        ctx.font = "150pt 'Times New Roman'";
+        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, offset + height_diff);
         ctx.fillStyle = "#000000";
         ctx.stroke();
     }
-}
 
-function drawSignal(ctx) {
-    ctx.clearRect(0, 0, 1000, 150);
+    //  Draw Synchro
     ctx.beginPath()
-    ctx.font = "100pt 'Times New Roman'";
+    ctx.font = "150pt 'Times New Roman'";
 
     if (synchro_percent < 60) {
         ctx.fillStyle = "#FF0000";
@@ -250,7 +246,7 @@ function drawSignal(ctx) {
         ctx.fillStyle = "#118B11";
     }
 
-    ctx.fillText("Synchro: " + synchro_percent + "%", 20, 120);
+    ctx.fillText("Synchro: " + synchro_percent + "%", 20, offset + height_diff * 2);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 }
@@ -1064,10 +1060,8 @@ function mirror_loop() {
     draw_man();
     draw_mirror_out_gauge();
     draw_man_in_out();
-    drawSignal(ctx3);
+    drawScoreTimeSynchro(ctx_score);
     drawStatus(ctx3_status);
-    drawScore(ctx_score);
-    drawGametime(ctx_gametime);
     handle_move();
     update_game_status();
     handle_synchro_percent();
