@@ -217,6 +217,25 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
         ctx.fillText(joint_degree[leftKnee] + "°", kp[leftKnee].position.x, kp[leftKnee].position.y);
     }*/
 }
+function drawScore(ctx){
+    ctx.clearRect(0, 0, 1000, 150);
+    ctx.beginPath()
+    ctx.font = "100pt 'Times New Roman'";
+    ctx.fillText("Score: "+ game_score, 20, 120);
+    ctx.fillStyle = "#000000";
+    ctx.stroke();
+}
+
+function drawGametime(ctx){
+    if(game_status == game_mode.Playing){
+        ctx.clearRect(0, 0, 1000, 150);
+        ctx.beginPath()
+        ctx.font = "100pt 'Times New Roman'";
+        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, 120);
+        ctx.fillStyle = "#000000";
+        ctx.stroke();
+    }
+}
 
 function drawSignal(ctx) {
     ctx.clearRect(0, 0, 1000, 150);
@@ -271,26 +290,6 @@ function drawStatus(ctx) {
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
-}
-
-function drawScore(ctx){
-    ctx.clearRect(0, 0, 1000, 150);
-    ctx.beginPath()
-    ctx.font = "100pt 'Times New Roman'";
-    ctx.fillText("Score: "+ game_score, 20, 120);
-    ctx.fillStyle = "#000000";
-    ctx.stroke();
-}
-
-function drawGametime(ctx){
-    if(game_status == game_mode.Playing){
-        ctx.clearRect(0, 0, 1000, 150);
-        ctx.beginPath()
-        ctx.font = "100pt 'Times New Roman'";
-        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, 120);
-        ctx.fillStyle = "#000000";
-        ctx.stroke();
-    }
 }
 
 function draw_man() {
