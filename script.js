@@ -339,16 +339,16 @@ function handle_move(){
     ctx2.stroke();
 
     if((kp_1_move/10000 > 1 || kp_2_move/10000 > 1) && game_status == game_mode.Playing){
-        if(Date.now() - swing_se_sound_count_time > 100){
-            swing_se_sound_count++;
-            if(swing_se_sound_count == 3 || swing_se_sound_count == 6 || swing_se_sound_count == 9){
-                mirror_sound[sound_num.se_MagicCharge1_soundeffectlab].play();
-            }else if(swing_se_sound_count == 12){
-                mirror_sound[sound_num.se_MagicCharge2_soundeffectlab].play();
-                swing_se_sound_count = 0;
-            }else{
+        if(Date.now() - swing_se_sound_count_time > 50){
+//            swing_se_sound_count++;
+//            if(swing_se_sound_count == 3 || swing_se_sound_count == 6 || swing_se_sound_count == 9){
+//                mirror_sound[sound_num.se_MagicCharge1_soundeffectlab].play();
+//            }else if(swing_se_sound_count == 12){
+//                mirror_sound[sound_num.se_MagicCharge2_soundeffectlab].play();
+//                swing_se_sound_count = 0;
+//            }else{
                 mirror_sound[sound_num.se_Punch_soundeffectlab].play();
-            }
+//            }
             swing_se_sound_count_time = Date.now();
         }
     }
@@ -559,7 +559,14 @@ function handle_synchro_percent() {
     } else {
 //        bgm_playing = true;
         SetBGMVolume(VOLUME_BGM);
-        game_score = game_score + 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
+        var add_point = 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
+        game_score = game_score + add_point;
+        console.log("Point" + add_point)
+        if(add_point > 100){
+            mirror_sound[sound_num.se_MagicCharge1_soundeffectlab].play();  // Power Point
+        }else if(add_point > 30){
+            mirror_sound[sound_num.se_MagicCharge2_soundeffectlab].play();  // Super Power Point
+        }
     }
     if(game_score < 0)game_score = 0;
 }
@@ -1033,7 +1040,7 @@ function update_game_status() {
                 if(game_score > 1000){   // save the mirrory
                     mirror_sound[sound_num.se_Shining_soundeffectlab].play();
                 }else{
-                    mirror_sound[sound_num.se_GoblinShout_soundeffectlab].play();
+//                    mirror_sound[sound_num.se_GoblinShout_soundeffectlab].play();
                 }
                 gameend_sound_played = true;
             }
