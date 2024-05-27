@@ -638,14 +638,30 @@ function predictWebcam_common(predictVideo, predictFunc) {
         scoreThreshold: 0.5,
         nmsRadius: 20
     }).then(function (predictions) {
+        // Detect frontmost person
+        let frontmostPose = null;
+        let frontmostY = Infinity;
 
-        for (let n = 0; n < predictions.length; n++) {
-            if (predictions[n].score > 0.3) {
-                var kp = predictions[n].keypoints;
+        for (const pose of predictions) {
+            const pose_leftShoulder = pose.keypoints[leftShoulder];
+            const pose_rightShoulder = pose.keypoints[rightShoulder];
+
+            if (pose_leftShoulder.score > 0.5 && pose_rightShoulder.score > 0.5) {
+                const shoulderY = (pose_leftShoulder.position.y + pose_rightShoulder.position.y) / 2;   // frontmost
+                if (shoulderY < frontmostY) {
+                    frontmostY = shoulderY;
+                    frontmostPose = pose;
+                }
+            }
+        }
+
+        if (frontmostPose) {
+            if (frontmostPose.score > 0.3) {
+                var kp = frontmostPose.keypoints;
                 if (predictVideo === video) {
                     if(Date.now() - kp_1_time > 100){    // count 100 msec
                         if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
-                        kp_1_move = analyze_pose_move(kp_1_temp, kp);
+                        kp_1_move = analyze_pose_move(kp_1_temp, kp);           // detect amount of movement
                         kp_1_temp = Object.assign({}, kp);
                         kp_1_time = Date.now();
                     }
@@ -657,7 +673,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
                 if (predictVideo === video2) {
                     if(Date.now() - kp_2_time > 100){    // count 100 msec
                         if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
-                        kp_2_move = analyze_pose_move(kp_2_temp, kp);
+                        kp_2_move = analyze_pose_move(kp_2_temp, kp);           // detect amount of movement
                         kp_2_temp = Object.assign({}, kp);
                         kp_2_time = Date.now();
                     }
