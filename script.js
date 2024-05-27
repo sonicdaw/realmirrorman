@@ -337,12 +337,12 @@ function handle_move(){
         if(Date.now() - swing_se_sound_count_time > 50){
 //            swing_se_sound_count++;
 //            if(swing_se_sound_count == 3 || swing_se_sound_count == 6 || swing_se_sound_count == 9){
-//                mirror_sound[sound_num.se_MagicCharge1_soundeffectlab].play();
+//                mirror_sound_se[sound_se_num.se_MagicCharge1_soundeffectlab].play();
 //            }else if(swing_se_sound_count == 12){
-//                mirror_sound[sound_num.se_MagicCharge2_soundeffectlab].play();
+//                mirror_sound_se[sound_se_num.se_MagicCharge2_soundeffectlab].play();
 //                swing_se_sound_count = 0;
 //            }else{
-                mirror_sound[sound_num.se_Punch_soundeffectlab].play();
+                mirror_sound_se[sound_se_num.se_Punch_soundeffectlab].play();
 //            }
             swing_se_sound_count_time = Date.now();
         }
@@ -538,7 +538,7 @@ function handle_synchro_percent() {
     if (synchro_percent < 60) {
         if (game_status == game_mode.Playing) {
 //            speech_push(speech_text.synchronized_alert);
-          playSound(sound_num.Synchronized_alert, VOLUME_DEFAULT);
+          playNavigationSound(sound_navigation_num.Synchronized_alert, VOLUME_DEFAULT);
         }
 //        bgm_playing = false;
         SetBGMVolume(VOLUME_LOW);
@@ -546,7 +546,7 @@ function handle_synchro_percent() {
     } else if (synchro_percent < 80) {
         if (game_status == game_mode.Playing) {
 //            speech_push(speech_text.not_synchronized);
-          playSound(sound_num.Not_synchronized, VOLUME_DEFAULT);
+          playNavigationSound(sound_navigation_num.Not_synchronized, VOLUME_DEFAULT);
         }
 //        bgm_playing = false;
         SetBGMVolume(VOLUME_LOW);
@@ -558,9 +558,9 @@ function handle_synchro_percent() {
         game_score = game_score + add_point;
         console.log("Point" + add_point)
         if(add_point > 100){
-            mirror_sound[sound_num.se_MagicCharge1_soundeffectlab].play();  // Power Point
+            mirror_sound_se[sound_se_num.se_MagicCharge1_soundeffectlab].play();  // Power Point
         }else if(add_point > 30){
-            mirror_sound[sound_num.se_MagicCharge2_soundeffectlab].play();  // Super Power Point
+            mirror_sound_se[sound_se_num.se_MagicCharge2_soundeffectlab].play();  // Super Power Point
         }
     }
     if(game_score < 0)game_score = 0;
@@ -581,7 +581,7 @@ function update_man_status() {
     if (!inField_ManInTheMirror && ResultInField) {      // out of field to in field
         inField_ManInTheMirror = true;
 //        speech_push(speech_text.FoundManInTheMirror);
-        playSound(sound_num.FoundManInTheMirror, VOLUME_DEFAULT);
+        playNavigationSound(sound_navigation_num.FoundManInTheMirror, VOLUME_DEFAULT);
         FilterinField_ManInTheMirror = 0;
     }
 
@@ -593,7 +593,7 @@ function update_man_status() {
         if (FilterinField_ManInTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInTheMirror = false;
 //            speech_push(speech_text.LostManInTheMirror);
-            playSound(sound_num.LostManInTheMirror, VOLUME_DEFAULT);
+            playNavigationSound(sound_navigation_num.LostManInTheMirror, VOLUME_DEFAULT);
         }
     }
     joint_degree1 = calculate_joint_degree(kp_1);
@@ -609,7 +609,7 @@ function update_man_status() {
     if (!inField_ManInFrontOfTheMirror && ResultInField) {      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
 //        speech_push(speech_text.FoundManInFrontOfTheMirror);
-        playSound(sound_num.FoundManInFrontOfTheMirror, VOLUME_DEFAULT);
+        playNavigationSound(sound_navigation_num.FoundManInFrontOfTheMirror, VOLUME_DEFAULT);
         FilterinField_ManInFrontOfTheMirror = 0;
     }
 
@@ -621,7 +621,7 @@ function update_man_status() {
         if (FilterinField_ManInFrontOfTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInFrontOfTheMirror = false;
 //            speech_push(speech_text.LostManInFrontOfTheMirror);
-            playSound(sound_num.LostManInFrontOfTheMirror, VOLUME_DEFAULT);
+            playNavigationSound(sound_navigation_num.LostManInFrontOfTheMirror, VOLUME_DEFAULT);
         }
     }
     joint_degree2 = calculate_joint_degree(kp_2);
@@ -780,46 +780,12 @@ function enableCam(event, video, predictFunc) {
 
 
 
-// BGM / Sound -----------------------------------------------------------------------------------------
+// BGM(loop) -----------------------------------------------------------------------------------------
 
-const sound_name = ['Etude_Plus_Op10No1_MSumi.mp3',
-"Setup.mp3",
-"GameStart.mp3",
-"GameEnd.mp3",
-"GameComplete.mp3",
-"Not_synchronized.mp3",
-"Synchronized_alert.mp3",
-"FoundManInTheMirror.mp3",
-"LostManInTheMirror.mp3",
-"FoundManInFrontOfTheMirror.mp3",
-"LostManInFrontOfTheMirror.mp3",
-"LostPlayers.mp3",
-"se_Shining_soundeffectlab.mp3",
-"se_GoblinShout_soundeffectlab.mp3",
-"se_Punch_soundeffectlab.mp3",
-"se_MagicCharge1_soundeffectlab.mp3",
-"se_MagicCharge2_soundeffectlab.mp3"
-]
-const sound_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0,
-    Setup: 1,
-    GameStart: 2,
-    GameEnd: 3,
-    GameComplete: 4,
-    Not_synchronized: 5,
-    Synchronized_alert: 6,
-    FoundManInTheMirror: 7,
-    LostManInTheMirror: 8,
-    FoundManInFrontOfTheMirror: 9,
-    LostManInFrontOfTheMirror: 10,
-    LostPlayers: 11,
-    se_Shining_soundeffectlab: 12,
-    se_GoblinShout_soundeffectlab: 13,
-    se_Punch_soundeffectlab: 14,
-    se_MagicCharge1_soundeffectlab: 15,
-    se_MagicCharge2_soundeffectlab: 16
-});
-var mirror_sound = new Array(12);
-var pre_play_sound = -1;
+const sound_bgm_name = ['Etude_Plus_Op10No1_MSumi.mp3']
+const sound_bgm_num = Object.freeze({ Etude_Plus_Op10No1_MSumi: 0});
+var mirror_sound_bgm = new Array(1);
+
 var sound_play_time = Date.now();
 var sound_repeat_time = Date.now();
 var sound_queue = [];
@@ -827,81 +793,55 @@ const sound_sleeptime = 1500;
 
 function getDeviceList_SoundOn() {
     getDeviceList();
-    initSound();
+    initSound_bgm();
+    initSound_se();
+    initSound_navigation();
     sound_on = true;
 }
 
-function initSound() {
-    for (let i = 0; i < sound_name.length; i++) {
-        if (mirror_sound[i] == null) {
-            mirror_sound[i] = new Audio('./music/sound_' + sound_name[i]);
-            mirror_sound[i].load();
+function initSound_bgm() {
+    for (let i = 0; i < sound_bgm_name.length; i++) {
+        if (mirror_sound_bgm[i] == null) {
+            mirror_sound_bgm[i] = new Audio('./music/sound_' + sound_bgm_name[i]);
+            mirror_sound_bgm[i].load();
         }
     }
 }
 
 function playBGM(){
-    return;
-    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
-        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].play();
-        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_BGM;
+//    return;
+    if (mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi] != null) {
+        mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].play();
+        mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_BGM;
     }
 }
 
 function stopBGM() {
-    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
-        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].pause();
-        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].currentTime = 0;
+    if (mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi] != null) {
+        mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].pause();
+        mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].currentTime = 0;
     }
 }
 
 function SetBGMVolume(volume){
-    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
-        mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = volume;
+    if (mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi] != null) {
+        mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].volume = volume;
     }
-}
-
-function playSound(num, volume){
-    if(pre_play_sound == num) return;   // avoid duplicate play
-    sound_queue.push(num);
-    pre_play_sound = num;
-    playQueue();
-}
-
-function repeatSound(num, timer_msec){
-    if(Date.now() - sound_repeat_time < timer_msec) return;
-    sound_queue.push(num);
-    playQueue();
-    sound_repeat_time = Date.now();
-}
-
-function playQueue(){
-    if(Date.now() - sound_play_time < sound_sleeptime) return;
-    if(sound_queue.length != 0){
-        if (mirror_sound[sound_queue[0]] != null) {
-            mirror_sound[sound_queue[0]].play();
-//            mirror_sound[sound_queue[0]].volume = volume;
-            sound_queue.shift();
-            sound_play_time = Date.now();
-            return true;    // Played
-        }
-    }
-    return false;   // not played
 }
 
 function pauseBgm() {
     for (let i = 0; i < sound_name.length; i++) {
-        if (mirror_sound[i] != null) { mirror_sound[i].pause(); }
+        if (mirror_sound_bgm[i] != null) { mirror_sound_bgm[i].pause(); }
     }
 }
 
 
 function handle_Sounds() {
-//    if (mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi] != null) {
+//    if (mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi] != null) {
 //        if (window.speechSynthesis.speaking) {
-//            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+//            mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
 //        } else {
-//            mirror_sound[sound_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
+//            mirror_sound_bgm[sound_bgm_num.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
 //        }
 
 //        if (pre_bgm_playing && !bgm_playing) {  // Play -> Pause
@@ -916,18 +856,109 @@ function handle_Sounds() {
             stopBGM();
             bgm_stopping = false;
         }
-
-        if (sound_queue.length != 0) {
-            playQueue();
-        }
 //    }
 
 //    pre_bgm_playing = bgm_playing;
 }
 
+// Sound (Sound Effect): play as soon as possible  -----------------------------------------------------------------------------------------
+const sound_se_name = [
+"se_Shining_soundeffectlab.mp3",
+"se_GoblinShout_soundeffectlab.mp3",
+"se_Punch_soundeffectlab.mp3",
+"se_MagicCharge1_soundeffectlab.mp3",
+"se_MagicCharge2_soundeffectlab.mp3"
+]
+const sound_se_num = Object.freeze({
+    se_Shining_soundeffectlab: 0,
+    se_GoblinShout_soundeffectlab: 1,
+    se_Punch_soundeffectlab: 2,
+    se_MagicCharge1_soundeffectlab: 3,
+    se_MagicCharge2_soundeffectlab: 4
+});
+var mirror_sound_se = new Array(5);
 
-// Speech -----------------------------------------------------------------------------------------
+function initSound_se() {
+    for (let i = 0; i < sound_se_name.length; i++) {
+        if (mirror_sound_se[i] == null) {
+            mirror_sound_se[i] = new Audio('./music/sound_' + sound_se_name[i]);
+            mirror_sound_se[i].load();
+        }
+    }
+}
 
+// Sound (Navigation): waits for a while after previous navigation -----------------------------------------------------------------------------------------
+const sound_navigation_name = [
+    "Setup.mp3",
+    "GameStart.mp3",
+    "GameEnd.mp3",
+    "GameComplete.mp3",
+    "Not_synchronized.mp3",
+    "Synchronized_alert.mp3",
+    "FoundManInTheMirror.mp3",
+    "LostManInTheMirror.mp3",
+    "FoundManInFrontOfTheMirror.mp3",
+    "LostManInFrontOfTheMirror.mp3",
+    "LostPlayers.mp3"
+]
+const sound_navigation_num = Object.freeze({
+    Setup: 0,
+    GameStart: 1,
+    GameEnd: 2,
+    GameComplete: 3,
+    Not_synchronized: 4,
+    Synchronized_alert: 5,
+    FoundManInTheMirror: 6,
+    LostManInTheMirror: 7,
+    FoundManInFrontOfTheMirror: 8,
+    LostManInFrontOfTheMirror: 9,
+    LostPlayers: 10
+});
+var mirror_sound_navigation = new Array(11);
+var pre_play_navigation_sound = -1;
+
+var navigation_sound_play_time = Date.now();
+var navigation_sound_repeat_time = Date.now();
+var navigation_sound_queue = [];
+const navigation_sound_sleeptime = 1500;
+
+
+function initSound_navigation() {
+    for (let i = 0; i < sound_navigation_name.length; i++) {
+        if (mirror_sound_navigation[i] == null) {
+            mirror_sound_navigation[i] = new Audio('./music/sound_' + sound_navigation_name[i]);
+            mirror_sound_navigation[i].load();
+        }
+    }
+}
+function playNavigationSound(num, volume){
+    if(pre_play_navigation_sound == num) return;   // avoid duplicate play
+    navigation_sound_queue.push(num);
+    pre_play_navigation_sound = num;
+    playNavigationQueue();
+}
+
+function repeatNavigationSound(num, timer_msec){
+    if(Date.now() - navigation_sound_repeat_time < timer_msec) return;
+    navigation_sound_queue.push(num);
+    playNavigationQueue();
+    navigation_sound_repeat_time = Date.now();
+}
+
+function playNavigationQueue(){
+    if(Date.now() - navigation_sound_play_time < navigation_sound_sleeptime) return;
+    if(navigation_sound_queue.length != 0){
+        if (mirror_sound_navigation[navigation_sound_queue[0]] != null) {
+            mirror_sound_navigation[navigation_sound_queue[0]].play();
+            navigation_sound_queue.shift();
+            navigation_sound_play_time = Date.now();
+            return true;    // Played
+        }
+    }
+    return false;   // not played
+}
+
+// Speech(PC) -----------------------------------------------------------------------------------------
 
 const speech_text = Object.freeze({
     Setup: "かがみのまえとなかにたってください",
@@ -1007,11 +1038,11 @@ function update_game_status() {
                 game_score_read_time = Date.now();
                 game_time = Date.now();
 //                speech_push(speech_text.GameStart);
-                playSound(sound_num.GameStart, VOLUME_DEFAULT);
+                playNavigationSound(sound_navigation_num.GameStart, VOLUME_DEFAULT);
                 playBGM();
             } else {
 //                speech_push(speech_text.Setup);
-                repeatSound(sound_num.Setup, 10000/*msec*/);
+                repeatNavigationSound(sound_navigation_num.Setup, 10000/*msec*/);
             }
             break
 
@@ -1019,7 +1050,7 @@ function update_game_status() {
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
 //                speech_push(speech_text.LostPlayers);
-                playSound(sound_num.LostPlayers, VOLUME_DEFAULT);
+                playNavigationSound(sound_navigation_num.LostPlayers, VOLUME_DEFAULT);
                 game_end_timer = Date.now();
             } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
                 game_status = game_mode.Pause;
@@ -1028,7 +1059,7 @@ function update_game_status() {
             if(Date.now() - game_time > GAME_TIME){     // 60 sec play
                 game_status = game_mode.End;
 //                speech_push(speech_text.GameComplete);
-                playSound(sound_num.GameComplete, VOLUME_DEFAULT);
+                playNavigationSound(sound_navigation_num.GameComplete, VOLUME_DEFAULT);
                 game_end_timer = Date.now();
             }
             break
@@ -1037,7 +1068,7 @@ function update_game_status() {
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
 //                speech_push(speech_text.LostPlayers);
-                playSound(sound_num.LostPlayers, VOLUME_DEFAULT);
+                playNavigationSound(sound_navigation_num.LostPlayers, VOLUME_DEFAULT);
                 game_end_timer = Date.now();
             } else if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Pause Status -> Play Status
                 game_status = game_mode.Playing;
@@ -1046,12 +1077,12 @@ function update_game_status() {
 
         case game_mode.End:     // BGM End (Play all time or out of field)
 //            speech_push(speech_text.GameEnd);
-            playSound(sound_num.GameEnd, VOLUME_DEFAULT);
+            playNavigationSound(sound_navigation_num.GameEnd, VOLUME_DEFAULT);
             if(gameend_sound_played == false){
                 if(game_score > 1000){   // save the mirrory
-                    mirror_sound[sound_num.se_Shining_soundeffectlab].play();
+                    mirror_sound_se[sound_se_num.se_Shining_soundeffectlab].play();
                 }else{
-//                    mirror_sound[sound_num.se_GoblinShout_soundeffectlab].play();
+//                    mirror_sound_se[sound_navigation_num.se_GoblinShout_soundeffectlab].play();
                 }
                 gameend_sound_played = true;
             }
@@ -1082,9 +1113,9 @@ function mirror_loop() {
     update_game_status();
     handle_synchro_percent();
     handle_Sounds();
+    playNavigationQueue();
     speech_controller();
     read_score_controller();
-    playQueue();
 }
 
 var move = function () {
