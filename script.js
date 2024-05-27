@@ -353,7 +353,7 @@ function handle_move(){
 
 // Pose Analyze -----------------------------------------------------------------------------------------
 
-function analyze_pose_move(kp_before, kp_after) {
+function calc_pose_move_total_diff(kp_before, kp_after) {
     var move = 0;
 
     move += Math.pow(kp_before[leftElbow].position.x - kp_after[leftElbow].position.x, 2) + Math.pow(kp_before[leftElbow].position.y - kp_after[leftElbow].position.y, 2);
@@ -661,7 +661,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
                 if (predictVideo === video) {
                     if(Date.now() - kp_1_time > 100){    // count 100 msec
                         if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
-                        kp_1_move = analyze_pose_move(kp_1_temp, kp);           // detect amount of movement
+                        kp_1_move = calc_pose_move_total_diff(kp_1_temp, kp);           // detect amount of movement
                         kp_1_temp = Object.assign({}, kp);
                         kp_1_time = Date.now();
                     }
@@ -673,7 +673,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
                 if (predictVideo === video2) {
                     if(Date.now() - kp_2_time > 100){    // count 100 msec
                         if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
-                        kp_2_move = analyze_pose_move(kp_2_temp, kp);           // detect amount of movement
+                        kp_2_move = calc_pose_move_total_diff(kp_2_temp, kp);           // detect amount of movement
                         kp_2_temp = Object.assign({}, kp);
                         kp_2_time = Date.now();
                     }
