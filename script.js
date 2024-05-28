@@ -797,6 +797,23 @@ function getDeviceList_SoundOn() {
     initSound_se();
     initSound_navigation();
     sound_on = true;
+
+    // Camera Auto Set
+    setTimeout(function() {
+        var videoDevices = cameraList.options;
+        if (videoDevices.length === 1) {
+            // Set 1 cam
+            cameraList.selectedIndex = 0;
+            enableWebcamButton1.click();
+            enableWebcamButton2.click();
+        } else if (videoDevices.length >= 2) {
+            // Set 2 cam
+            cameraList.selectedIndex = 0;
+            enableWebcamButton1.click();
+            cameraList.selectedIndex = 1;
+            enableWebcamButton2.click();
+        }
+    }, 500); // 500msec delay to set cam
 }
 
 function initSound_bgm() {
