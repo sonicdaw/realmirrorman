@@ -17,8 +17,8 @@ const cameraOptions = document.querySelector('.video-options>select');
 const WIDTH = 320;
 const HEIGHT = 320;
 const VOLUME_DEFAULT = 1.0;
-const VOLUME_BGM = 0.3;
-const VOLUME_LOW = 0.1;
+const VOLUME_BGM = 0.1;
+const VOLUME_LOW = 0.01;
 const GAME_TIME = 60000;
 
 var timer;
@@ -537,16 +537,13 @@ function handle_synchro_percent() {
         if (game_status == game_mode.Playing) {
           playNavigationSound(sound_navigation_list.Synchronized_alert, VOLUME_DEFAULT);
         }
-        SetBGMVolume(VOLUME_LOW);
         game_score--;
     } else if (synchro_percent < 80) {
         if (game_status == game_mode.Playing) {
           playNavigationSound(sound_navigation_list.Not_synchronized, VOLUME_DEFAULT);
         }
-        SetBGMVolume(VOLUME_LOW);
         game_score--;
     } else {
-        SetBGMVolume(VOLUME_BGM);
         var add_point = 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
         game_score = game_score + add_point;
         console.log("Point" + add_point)
@@ -821,7 +818,7 @@ function initSound_bgm() {
 function playBGM(){
     if (mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi] != null) {
         mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].play();
-        mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_BGM;
+        mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
     }
 }
 
