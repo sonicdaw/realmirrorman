@@ -61,8 +61,6 @@ var kp_2_time = Date.now();
 
 var synchro_counter = 0;
 const synchro_counter_max = 100;
-var pre_bgm_playing = false;
-var bgm_playing = false;
 var bgm_stopping = false;
 var gameend_sound_played = false;
 var swing_se_sound_count = 0;
@@ -537,22 +535,17 @@ function handle_synchro_percent() {
 
     if (synchro_percent < 60) {
         if (game_status == game_mode.Playing) {
-//            speech_push(speech_text.synchronized_alert);
           playNavigationSound(sound_navigation_list.Synchronized_alert, VOLUME_DEFAULT);
         }
-//        bgm_playing = false;
         SetBGMVolume(VOLUME_LOW);
         game_score--;
     } else if (synchro_percent < 80) {
         if (game_status == game_mode.Playing) {
-//            speech_push(speech_text.not_synchronized);
           playNavigationSound(sound_navigation_list.Not_synchronized, VOLUME_DEFAULT);
         }
-//        bgm_playing = false;
         SetBGMVolume(VOLUME_LOW);
         game_score--;
     } else {
-//        bgm_playing = true;
         SetBGMVolume(VOLUME_BGM);
         var add_point = 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
         game_score = game_score + add_point;
@@ -580,7 +573,6 @@ function update_man_status() {
     }
     if (!inField_ManInTheMirror && ResultInField) {      // out of field to in field
         inField_ManInTheMirror = true;
-//        speech_push(speech_text.FoundManInTheMirror);
         playNavigationSound(sound_navigation_list.FoundManInTheMirror, VOLUME_DEFAULT);
         FilterinField_ManInTheMirror = 0;
     }
@@ -592,7 +584,6 @@ function update_man_status() {
         FilterinField_ManInTheMirror++;
         if (FilterinField_ManInTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInTheMirror = false;
-//            speech_push(speech_text.LostManInTheMirror);
             playNavigationSound(sound_navigation_list.LostManInTheMirror, VOLUME_DEFAULT);
         }
     }
@@ -608,7 +599,6 @@ function update_man_status() {
     }
     if (!inField_ManInFrontOfTheMirror && ResultInField) {      // out of field to in field
         inField_ManInFrontOfTheMirror = true;
-//        speech_push(speech_text.FoundManInFrontOfTheMirror);
         playNavigationSound(sound_navigation_list.FoundManInFrontOfTheMirror, VOLUME_DEFAULT);
         FilterinField_ManInFrontOfTheMirror = 0;
     }
@@ -620,7 +610,6 @@ function update_man_status() {
         FilterinField_ManInFrontOfTheMirror++;
         if (FilterinField_ManInFrontOfTheMirror > FilterinField_Max) {         // Detect filter
             inField_ManInFrontOfTheMirror = false;
-//            speech_push(speech_text.LostManInFrontOfTheMirror);
             playNavigationSound(sound_navigation_list.LostManInFrontOfTheMirror, VOLUME_DEFAULT);
         }
     }
@@ -864,21 +853,11 @@ function handle_Sounds() {
 //            mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
 //        }
 
-//        if (pre_bgm_playing && !bgm_playing) {  // Play -> Pause
-//            pauseBgm();
-//        }
-
-//        if (!pre_bgm_playing && bgm_playing && game_status == game_mode.Playing) {  // Pause -> Play
-//            playBGM();
-//        }
-
         if (bgm_stopping) {
             stopBGM();
             bgm_stopping = false;
         }
 //    }
-
-//    pre_bgm_playing = bgm_playing;
 }
 
 // Sound (Sound Effect): play as soon as possible  -----------------------------------------------------------------------------------------
@@ -1032,7 +1011,6 @@ function update_game_status() {
         case game_mode.WaitingForPlayers:
             if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
                 game_status = game_mode.Playing;
-                bgm_playing = true;
                 gameend_sound_played = false;
                 swing_se_sound_count = 0;
                 swing_se_sound_count_time = Date.now();
@@ -1044,11 +1022,9 @@ function update_game_status() {
                 kp_2_time = Date.now();
                 game_score_read_time = Date.now();
                 game_time = Date.now();
-//                speech_push(speech_text.GameStart);
                 playNavigationSound(sound_navigation_list.GameStart, VOLUME_DEFAULT);
                 playBGM();
             } else {
-//                speech_push(speech_text.Setup);
                 repeatNavigationSound(sound_navigation_list.Setup, 10000/*msec*/);
             }
             break
@@ -1056,7 +1032,6 @@ function update_game_status() {
         case game_mode.Playing:
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
-//                speech_push(speech_text.LostPlayers);
                 playNavigationSound(sound_navigation_list.LostPlayers, VOLUME_DEFAULT);
                 game_end_timer = Date.now();
             } else if (!inField_ManInFrontOfTheMirror || !inField_ManInTheMirror) {    // Play Status -> Pause
@@ -1065,7 +1040,6 @@ function update_game_status() {
 
             if(Date.now() - game_time > GAME_TIME){     // 60 sec play
                 game_status = game_mode.End;
-//                speech_push(speech_text.GameComplete);
                 playNavigationSound(sound_navigation_list.GameComplete, VOLUME_DEFAULT);
                 game_end_timer = Date.now();
             }
@@ -1074,7 +1048,6 @@ function update_game_status() {
         case game_mode.Pause:
             if (!inField_ManInFrontOfTheMirror && !inField_ManInTheMirror) {    // Play Status -> End
                 game_status = game_mode.End;
-//                speech_push(speech_text.LostPlayers);
                 playNavigationSound(sound_navigation_list.LostPlayers, VOLUME_DEFAULT);
                 game_end_timer = Date.now();
             } else if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Pause Status -> Play Status
@@ -1083,7 +1056,6 @@ function update_game_status() {
             break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
-//            speech_push(speech_text.GameEnd);
             playNavigationSound(sound_navigation_list.GameEnd, VOLUME_DEFAULT);
             if(gameend_sound_played == false){
                 if(game_score > 1000){   // save the mirrory
