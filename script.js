@@ -18,6 +18,8 @@ const WIDTH = 320;
 const HEIGHT = 320;
 const VOLUME_DEFAULT = 1.0;
 const VOLUME_BGM = 0.4;
+const VOLUME_HI = 0.8;
+const VOLUME_MID = 0.7;
 const VOLUME_LOW = 0.01;
 const GAME_TIME = 60000;
 
@@ -352,12 +354,12 @@ function handle_move(){
         if(Date.now() - swing_se_sound_count_time > 50){
 //            swing_se_sound_count++;
 //            if(swing_se_sound_count == 3 || swing_se_sound_count == 6 || swing_se_sound_count == 9){
-//                playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab);
+//                playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab,VOLUME_MID);
 //            }else if(swing_se_sound_count == 12){
-//                playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab);
+//                playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab,VOLUME_MID);
 //                swing_se_sound_count = 0;
 //            }else{
-                playSound_se(sound_se_list.se_Punch_soundeffectlab);
+                playSound_se(sound_se_list.se_Punch_soundeffectlab,VOLUME_MID);
 //            }
             swing_se_sound_count_time = Date.now();
         }
@@ -565,27 +567,27 @@ function handle_synchro_percent() {
         game_score = game_score + add_point;
         console.log("Point" + add_point)
         if(add_point > 100){
-            playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab);  // Power Point
+            playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab,VOLUME_HI);  // Super Power Point
         }else if(add_point > 30){
-            playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab);  // Super Power Point
+            playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab,VOLUME_MID);  // Power Point
         }
     }
     if(game_score < 0)game_score = 0;
 
     if (game_score >= 500 && game_score < 1000 && !cheers_played[500]) {
-        playSound_se(sound_se_list.se_Cheers_soundeffectlab);
+        playSound_se(sound_se_list.se_Cheers_soundeffectlab, VOLUME_MID);
         read_score();
         cheers_played[500] = true;
     } else if (game_score >= 1000 && game_score < 1500 && !cheers_played[1000]) {
-        playSound_se(sound_se_list.se_Cheers_soundeffectlab);
+        playSound_se(sound_se_list.se_Cheers_soundeffectlab, VOLUME_MID);
         read_score();
         cheers_played[1000] = true;
     } else if (game_score >= 1500 && game_score < 2000 && !cheers_played[1500]) {
-        playSound_se(sound_se_list.se_Cheers_soundeffectlab);
+        playSound_se(sound_se_list.se_Cheers_soundeffectlab, VOLUME_MID);
         read_score();
         cheers_played[1500] = true;
     } else if (game_score >= 2000 && !cheers_played[2000]) {
-        playSound_se(sound_se_list.se_CheersStadium_soundeffectlab);
+        playSound_se(sound_se_list.se_CheersStadium_soundeffectlab, VOLUME_DEFAULT);
         read_score();
         cheers_played[2000] = true;
     }
@@ -917,6 +919,7 @@ function initSound_se() {
 
 function playSound_se(key, volume){
     if (mirror_sound_se[key] != null) {
+        mirror_sound_se[key].volume = volume;
         mirror_sound_se[key].play();
     }
 }
@@ -1148,11 +1151,11 @@ function update_game_status() {
             playNavigationSound(sound_navigation_list.GameEnd, VOLUME_DEFAULT);
             if(gameend_sound_played == false){
                 if(game_score > 1000){   // save the mirrory
-                    playSound_se(sound_se_list.se_Shining_soundeffectlab);
+                    playSound_se(sound_se_list.se_Shining_soundeffectlab, VOLUME_DEFAULT);
                 }else{
 //                    playSound_se(sound_navigation_list.se_GoblinShout_soundeffectlab);
                 }
-                playSound_se(sound_se_list.se_CheersEnding_soundeffectlab);
+                playSound_se(sound_se_list.se_CheersEnding_soundeffectlab, VOLUME_DEFAULT);
                 gameend_sound_played = true;
             }
             if(Date.now() - game_end_timer > 10000){    // keep end status for 10sec
