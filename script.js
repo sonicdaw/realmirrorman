@@ -77,6 +77,15 @@ const FilterinField_Max = 500;
 const game_mode = Object.freeze({ WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3 });
 var game_status = game_mode.WaitingForPlayers;
 var areamode = 0;   // 0: Full body mode, 1: Upper body mode
+var language = "ja";
+
+function toggle_language() {
+  if (language === "ja") {
+    language = "en";
+  } else {
+    language = "ja";
+  }
+}
 
 function getUserMediaSupported() {
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
@@ -278,9 +287,16 @@ function drawStatus(ctx) {
         area_mode = "Upper Body Mode";
     }
 
+    var language_mode;
+    if(language == "ja"){
+        language_mode = "JP";
+    }else{
+        language_mode = "EN";
+    }
+
     ctx.beginPath()
     ctx.font = "18pt 'Times New Roman'";
-    ctx.fillText(game_status_disp + " / " + area_mode, 20, 20);
+    ctx.fillText(game_status_disp + " / " + area_mode + " / " + language_mode, 20, 20);
     ctx.fillStyle = "#000000";
     ctx.stroke();
 
@@ -915,10 +931,14 @@ function initSound_navigation() {
     }
 }
 function playNavigationSound(key, volume){
-    if(pre_play_navigation_sound == key) return;   // avoid duplicate play
-    navigation_sound_queue.push(key);
-    pre_play_navigation_sound = key;
-    playNavigationQueue();
+    if (language === "ja") {
+        if (pre_play_navigation_sound == key) return; // avoid duplicate play
+        navigation_sound_queue.push(key);
+        pre_play_navigation_sound = key;
+        playNavigationQueue();
+      } else {
+        speech_push(get_navigation_en_speech(key));
+      }
 }
 
 function repeatNavigationSound(key, timer_msec){
@@ -941,6 +961,35 @@ function playNavigationQueue(){
     return false;   // not played
 }
 
+function get_navigation_en_speech(key) {
+    switch (key) {
+      case sound_navigation_list.Setup:
+        return speech_text_en.Setup;
+      case sound_navigation_list.GameStart:
+        return speech_text_en.GameStart;
+      case sound_navigation_list.GameEnd:
+        return speech_text_en.GameEnd;
+      case sound_navigation_list.GameComplete:
+        return speech_text_en.GameComplete;
+      case sound_navigation_list.Not_synchronized:
+        return speech_text_en.not_synchronized;
+      case sound_navigation_list.Synchronized_alert:
+        return speech_text_en.synchronized_alert;
+      case sound_navigation_list.FoundManInTheMirror:
+        return speech_text_en.FoundManInTheMirror;
+      case sound_navigation_list.LostManInTheMirror:
+        return speech_text_en.LostManInTheMirror;
+      case sound_navigation_list.FoundManInFrontOfTheMirror:
+        return speech_text_en.FoundManInFrontOfTheMirror;
+      case sound_navigation_list.LostManInFrontOfTheMirror:
+        return speech_text_en.LostManInFrontOfTheMirror;
+      case sound_navigation_list.LostPlayers:
+        return speech_text_en.LostPlayers;
+      default:
+        return "";
+    }
+  }
+
 // Speech(PC) -----------------------------------------------------------------------------------------
 
 const speech_text = Object.freeze({
@@ -948,7 +997,7 @@ const speech_text = Object.freeze({
     GameStart: "げーむをかいしします",
     GameEnd: "げーむしゅうりょうです",
     GameComplete: "よくできました。げーむかんりょうです",
-    not_synchronized: "ずれています",
+    Not_synchronized: "ずれています",
     synchronized_alert: "まったくあっていませんよ",
     FoundManInTheMirror: "かがみのなかのひとをみつけました",
     LostManInTheMirror: "かがみのなかのひとをみうしないました",
@@ -956,6 +1005,21 @@ const speech_text = Object.freeze({
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
     LostPlayers: "ぷれーやーがいなくなりました",
     ReadScore: "てんです"
+});
+
+const speech_text_en = Object.freeze({
+    Setup: "Please stand in front of and inside the mirror",
+    GameStart: "Game will start now",
+    GameEnd: "Game is over",
+    GameComplete: "Well done. Game completed",
+    Not_synchronized: "You are out of sync",
+    synchronized_alert: "You are completely out of sync",
+    FoundManInTheMirror: "Found a person in the mirror",
+    LostManInTheMirror: "Lost the person in the mirror",
+    FoundManInFrontOfTheMirror: "Found a person in front of the mirror",
+    LostManInFrontOfTheMirror: "Lost the person in front of the mirror",
+    LostPlayers: "Players are lost",
+    ReadScore: "points"
 });
 
 var speech_string = [];
@@ -981,14 +1045,16 @@ function speech_controller() {
     if (speech_string.length != 0) {
         console.log(speech_string[0]);
         if (speech_string[0] != "") {
-            if( speech_string[0] == speech_text.ReadScore){
-                const uttr = new SpeechSynthesisUtterance(game_score + speech_string[0])
-                window.speechSynthesis.speak(uttr);
-            }else{
-                const uttr = new SpeechSynthesisUtterance(speech_string[0])
-                window.speechSynthesis.speak(uttr);
+            if (speech_string[0] == speech_text.ReadScore || speech_string[0] == speech_text_en.ReadScore) {
+              const uttr = new SpeechSynthesisUtterance(game_score + speech_string[0])
+              uttr.lang = language;
+              window.speechSynthesis.speak(uttr);
+            } else {
+              const uttr = new SpeechSynthesisUtterance(speech_string[0])
+              uttr.lang = language;
+              window.speechSynthesis.speak(uttr);
             }
-        }
+          }
         speech_string.shift();
     }
 }
