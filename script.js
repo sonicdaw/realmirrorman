@@ -17,7 +17,7 @@ const cameraOptions = document.querySelector('.video-options>select');
 const WIDTH = 320;
 const HEIGHT = 320;
 const VOLUME_DEFAULT = 1.0;
-const VOLUME_BGM = 0.1;
+const VOLUME_BGM = 0.4;
 const VOLUME_LOW = 0.01;
 const GAME_TIME = 60000;
 
@@ -65,6 +65,7 @@ var bgm_stopping = false;
 var gameend_sound_played = false;
 var swing_se_sound_count = 0;
 var swing_se_sound_count_time = Date.now();
+var cheers_played = {};
 
 var inField_ManInFrontOfTheMirror = false;
 var inField_ManInTheMirror = false;
@@ -570,6 +571,24 @@ function handle_synchro_percent() {
         }
     }
     if(game_score < 0)game_score = 0;
+
+    if (game_score >= 500 && game_score < 1000 && !cheers_played[500]) {
+        playSound_se(sound_se_list.se_Cheers_soundeffectlab);
+        read_score();
+        cheers_played[500] = true;
+    } else if (game_score >= 1000 && game_score < 1500 && !cheers_played[1000]) {
+        playSound_se(sound_se_list.se_Cheers_soundeffectlab);
+        read_score();
+        cheers_played[1000] = true;
+    } else if (game_score >= 1500 && game_score < 2000 && !cheers_played[1500]) {
+        playSound_se(sound_se_list.se_Cheers_soundeffectlab);
+        read_score();
+        cheers_played[1500] = true;
+    } else if (game_score >= 2000 && !cheers_played[2000]) {
+        playSound_se(sound_se_list.se_CheersStadium_soundeffectlab);
+        read_score();
+        cheers_played[2000] = true;
+    }
 }
 
 
@@ -834,7 +853,7 @@ function initSound_bgm() {
 function playBGM(){
     if (mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi] != null) {
         mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].play();
-        mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
+        mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_BGM;
     }
 }
 
@@ -879,7 +898,10 @@ const sound_se_list = {
     se_GoblinShout_soundeffectlab: "se_GoblinShout_soundeffectlab",
     se_Punch_soundeffectlab: "se_Punch_soundeffectlab",
     se_MagicCharge1_soundeffectlab: "se_MagicCharge1_soundeffectlab",
-    se_MagicCharge2_soundeffectlab: "se_MagicCharge2_soundeffectlab"
+    se_MagicCharge2_soundeffectlab: "se_MagicCharge2_soundeffectlab",
+    se_Cheers_soundeffectlab: "se_Cheers_soundeffectlab",
+    se_CheersStadium_soundeffectlab: "se_CheersStadium_soundeffectlab",
+    se_CheersEnding_soundeffectlab: "se_CheersEnding_soundeffectlab"
 };
 var mirror_sound_se = {};
 
@@ -893,7 +915,7 @@ function initSound_se() {
     }
 }
 
-function playSound_se(key){
+function playSound_se(key, volume){
     if (mirror_sound_se[key] != null) {
         mirror_sound_se[key].play();
     }
@@ -1062,9 +1084,13 @@ function speech_controller() {
 function read_score_controller(){
     if(game_status != game_mode.Playing) return;
     if(Date.now()-game_score_read_time > 10000){
-        speech_push(game_score + speech_text.ReadScore);
-        game_score_read_time = Date.now();
+        read_score();
     }
+}
+
+function read_score(){
+    speech_push(game_score + speech_text.ReadScore);
+    game_score_read_time = Date.now();
 }
 
 // Game Status -----------------------------------------------------------------------------------------
@@ -1126,6 +1152,7 @@ function update_game_status() {
                 }else{
 //                    playSound_se(sound_navigation_list.se_GoblinShout_soundeffectlab);
                 }
+                playSound_se(sound_se_list.se_CheersEnding_soundeffectlab);
                 gameend_sound_played = true;
             }
             if(Date.now() - game_end_timer > 10000){    // keep end status for 10sec
