@@ -968,8 +968,12 @@ function playNavigationSound(key, volume){
 
 function repeatNavigationSound(key, timer_msec){
     if(Date.now() - navigation_sound_repeat_time < timer_msec) return;
-    navigation_sound_queue.push(key);
-    playNavigationQueue();
+    if (language === "ja") {
+        navigation_sound_queue.push(key);                   // direct read (no duplicate read restriction)
+        playNavigationQueue();
+    }else{
+        speech_string.push(get_navigation_en_speech(key));  // direct read (no duplicate read restriction)
+    }
     navigation_sound_repeat_time = Date.now();
 }
 
