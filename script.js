@@ -188,8 +188,6 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     drawPoint(ctx, kp[nose], mirror);
     drawPoint(ctx, kp[leftEye], mirror);
     drawPoint(ctx, kp[rightEye], mirror);
-    drawPoint(ctx, kp[leftEar], mirror);
-    drawPoint(ctx, kp[rightEar], mirror);
 
     drawLine(ctx, kp[leftShoulder], kp[rightShoulder], mirror);
     drawLine(ctx, kp[leftShoulder], kp[leftElbow], mirror);
@@ -661,7 +659,7 @@ function update_man_status() {
 function predictWebcam_common(predictVideo, predictFunc) {
     model.estimateMultiplePoses(predictVideo, {
         flipHorizontal: false,
-        maxDetections: 5,
+        maxDetections: 3,       // number of person to detect
         scoreThreshold: 0.5,
         nmsRadius: 20
     }).then(function (predictions) {
