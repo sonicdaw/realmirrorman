@@ -16,9 +16,12 @@ const cameraOptions = document.querySelector('.video-options>select');
 
 const WIDTH = 320;
 const HEIGHT = 320;
+
+const VOLUME_BGM = 0.2;
+const VOLUME_NAVIGATION = 0.7;
+const VOLUME_SPEECH = 1.0;
+
 const VOLUME_DEFAULT = 1.0;
-const VOLUME_BGM = 0.4;
-const VOLUME_NAVIGATION = 1.0;
 const VOLUME_HI = 0.8;
 const VOLUME_MID = 0.7;
 const VOLUME_LOW = 0.01;
@@ -1079,10 +1082,12 @@ function speech_controller() {
             if (speech_string[0] == speech_text.ReadScore || speech_string[0] == speech_text_en.ReadScore) {
               const uttr = new SpeechSynthesisUtterance(game_score + speech_string[0])
               uttr.lang = language;
+              uttr.volume = VOLUME_SPEECH;
               window.speechSynthesis.speak(uttr);
             } else {
               const uttr = new SpeechSynthesisUtterance(speech_string[0])
               uttr.lang = language;
+              uttr.volume = VOLUME_SPEECH;
               window.speechSynthesis.speak(uttr);
             }
           }
