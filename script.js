@@ -542,14 +542,9 @@ function compare_joint_degree() {
 
 function handle_synchro_percent() {
     if(game_status != game_mode.Playing) return;
-    if (synchro_counter != 0) {
-        synchro_counter++;  // Skip to update synchro result for a while
-        if (synchro_counter > synchro_counter_max) {
-            synchro_counter = 0;
-        }
-        return;
-    }
     synchro_counter++;
+    if(synchro_counter < synchro_counter_max) return;
+    synchro_counter = 0;
 
     synchro_percent = Math.round((1000 - synchro) / 10);
     if (synchro_percent < 0) synchro_percent = 0;
