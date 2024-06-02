@@ -3,52 +3,119 @@
   <head>
     <title>Real Mirror Man Prototyping</title>
     <meta charset="utf-8">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+        color: black;
+        font-family: 'Arial', sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      #demos {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+      }
+      #canvas_score {
+        flex: 1;
+        width: 100%;
+      }
+      #liveView {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 70%;
+      }
+      .analysisView, .videoView {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+        width: 45%;
+        height: 100%;
+      }
+      .canvasWrapper, .videoWrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      .canvasWrapper canvas, .videoWrapper video {
+        width: 240px;
+        height: 240px;
+      }
+      .buttonWrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      button, select {
+        padding: 5px 10px;
+        margin: 0 5px;
+      }
+      label {
+        margin-right: 10px;
+      }
+      .license {
+        font-size: 12px;
+        text-align: center;
+        margin-top: 10px;
+      }
+    </style>
   </head>  
   <body>
-    <section id="demos" class="invisible">
-      <table align="center"><tr><td><canvas id="canvas_score" width="1700" height=700"></canvas></td></tr></table>
-      <div id="liveView" class="camView">
-            <!-- 
-        <video id="webcam" autoplay muted width="640" height="480"></video> -->
-        <table align="center">
-          <tr><td>
-              <table align="center"><tr><td><canvas id="canvas3_status" width="500" height="30"></canvas></td></tr></table>
-          </td></tr>
-          <tr><td>
-              <table border=1 align="center"><tr><td><canvas id="canvas" width="320" height="320" style="width:160px;"></canvas></td></tr></table>
-              </td><td>
-                <table border=1 align="center"><tr><td><video id="webcam" width="320" height="320" style="width:160px;height:160px;" autoplay playsinline></video></td></tr></table>
-          </td></tr>
-          <tr><td>
-              <table align="center"><tr><td><canvas id="canvas2" width="320" height="320" style="width:160px;"></canvas></td></tr></table>
-            </td><td>
-              <video id="webcam2" width="320" height="320" style="width:160px;height:160px;" autoplay playsinline></video><br>
-          </td></tr>
-          <tr><td>
-              <button id="devices_button" onclick="getDeviceList_SoundOn()">Setup</button><br>
-              <button id="webcamButton1">Set Cam in the mirror</button>
-              <button id="webcamButton2">Set Cam in front of the mirror</button>
-              <select id="camera_list" size="1" style="width:160pt;">
-                <option>(video)</option><BR>
-              </select><br>
-              <button id="area_mode_change_button" onclick="change_areamode()">Full/Upper</button><br>
-              Navigation Voice: らーさん
-              <button id="language_button" onclick="toggle_language()">日本語/English</button>
-            </td></tr>
-            <tr><td>
-              <label for="bgm_volume">BGM Volume:</label>
-              <input type="range" id="bgm_volume" min="0" max="1" step="0.1" value="0.2"><br>
-              <label for="se_volume">SE Volume:</label>
-              <input type="range" id="se_volume" min="0" max="1" step="0.1" value="1.0"><br>
-              <label for="navigation_volume">Navigation Volume:</label>
-              <input type="range" id="navigation_volume" min="0" max="1" step="0.1" value="0.7"><br>
-              <label for="speech_volume">Speech Volume:</label>
-              <input type="range" id="speech_volume" min="0" max="1" step="0.1" value="1.0"><br>
-            </td></tr>
-        </table>
+    <section id="demos">
+      <canvas id="canvas_score" width="1700" height="700"></canvas>
+      <canvas id="canvas3_status" width="500" height="30"></canvas>
+      <div id="liveView">
+        <div class="analysisView">
+          <div class="canvasWrapper">
+            <canvas id="canvas" width="320" height="320"></canvas>
+          </div>
+          <div class="canvasWrapper">
+            <canvas id="canvas2" width="320" height="320"></canvas>
+          </div>
+        </div>
+        <div class="videoView">
+          <div class="videoWrapper">
+            <video id="webcam" width="320" height="320" autoplay playsinline></video>
+          </div>
+          <div class="videoWrapper">
+            <video id="webcam2" width="320" height="320" autoplay playsinline></video>
+          </div>
+        </div>
+      </div>
+      <div class="buttonWrapper">
+        <canvas id="canvas3_status" width="500" height="30"></canvas>
+        <button id="devices_button" onclick="getDeviceList_SoundOn()">Setup</button>
+        <button id="webcamButton1">Set Cam in the mirror</button>
+        <button id="webcamButton2">Set Cam in front of the mirror</button>
+        <select id="camera_list" size="1">
+          <option>(video)</option>
+        </select>
+        <button id="area_mode_change_button" onclick="change_areamode()">Full/Upper</button>
+        <button id="language_button" onclick="toggle_language()">JP/Eng</button>
+      </div>
+      <div>
+        <label for="bgm_volume">BGM:</label>
+        <input type="range" id="bgm_volume" min="0" max="1" step="0.1" value="0.2">
+        <label for="se_volume">SE:</label>
+        <input type="range" id="se_volume" min="0" max="1" step="0.1" value="1.0">
+        <label for="navigation_volume">Navigation(JP):</label>
+        <input type="range" id="navigation_volume" min="0" max="1" step="0.1" value="0.7">
+        <label for="speech_volume">Speech:</label>
+        <input type="range" id="speech_volume" min="0" max="1" step="0.1" value="1.0">
+      </div>
+      <div class="license">
+        Navigation Voice: らーさん<br>
+        This application uses TensorFlow.js, which is licensed under the Apache License 2.0.
       </div>
     </section>
-
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
     <script src="script.js" defer></script>
