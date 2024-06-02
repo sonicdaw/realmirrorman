@@ -3,6 +3,10 @@ const video2 = document.getElementById('webcam2');
 const enableWebcamButton1 = document.getElementById('webcamButton1');
 const enableWebcamButton2 = document.getElementById('webcamButton2');
 var cameraList = document.getElementById("camera_list");
+const bgmVolumeSlider = document.getElementById('bgm_volume');
+const seVolumeSlider = document.getElementById('se_volume');
+const navigationVolumeSlider = document.getElementById('navigation_volume');
+const speechVolumeSlider = document.getElementById('speech_volume');
 
 var canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d')
@@ -18,8 +22,9 @@ const WIDTH = 320;
 const HEIGHT = 320;
 
 const VOLUME_BGM = 0.2;
-const VOLUME_NAVIGATION = 0.7;
-const VOLUME_SPEECH = 1.0;
+var VOLUME_SE = 0.7;
+var VOLUME_NAVIGATION = 0.7;
+var VOLUME_SPEECH = 1.0;
 
 const VOLUME_DEFAULT = 1.0;
 const VOLUME_HI = 0.8;
@@ -828,6 +833,57 @@ function enableCam(event, video, predictFunc) {
 
 
 
+// Sound Volume UI -----------------------------------------------------------------------------------------
+
+bgmVolumeSlider.addEventListener('input', function() {
+    const volume = this.value;
+    SetBGMVolume(volume);
+    localStorage.setItem('bgmVolume', volume);
+});
+
+seVolumeSlider.addEventListener('input', function() {
+    const volume = this.value;
+    localStorage.setItem('seVolume', volume);
+    VOLUME_SE = volume;
+});
+
+navigationVolumeSlider.addEventListener('input', function() {
+   const volume = this.value;
+   localStorage.setItem('navigationVolume', volume);
+   VOLUME_NAVIGATION = volume;
+});
+
+speechVolumeSlider.addEventListener('input', function() {
+  const volume = this.value;
+  localStorage.setItem('speechVolume', volume);
+VOLUME_SPEECH = volume;
+  });
+
+  function loadSavedVolume() {
+    const savedBgmVolume = localStorage.getItem('bgmVolume');
+    if (savedBgmVolume !== null) {
+      bgmVolumeSlider.value = savedBgmVolume;
+      SetBGMVolume(savedBgmVolume);
+    }
+
+    const savedSeVolume = localStorage.getItem('seVolume');
+    if (savedSeVolume !== null) {
+      seVolumeSlider.value = savedSeVolume;
+    }
+
+    const savedNavigationVolume = localStorage.getItem('navigationVolume');
+    if (savedNavigationVolume !== null) {
+      navigationVolumeSlider.value = savedNavigationVolume;
+    }
+
+    const savedSpeechVolume = localStorage.getItem('speechVolume');
+    if (savedSpeechVolume !== null) {
+      speechVolumeSlider.value = savedSpeechVolume;
+    }
+  }
+
+
+
 // BGM(loop) -----------------------------------------------------------------------------------------
 
 const sound_bgm_list = {
@@ -916,7 +972,7 @@ function initSound_se() {
 
 function playSound_se(key, volume){
     if (mirror_sound_se[key] != null) {
-        mirror_sound_se[key].volume = volume;
+        mirror_sound_se[key].volume = VOLUME_SE;
         mirror_sound_se[key].play();
     }
 }
@@ -1202,5 +1258,6 @@ var move = function () {
 };
 
 window.onload = function () {
+    loadSavedVolume();
     move();
 };
