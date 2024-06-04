@@ -243,16 +243,16 @@ function drawScoreTimeSynchro(ctx){
     //  Draw Score
     ctx.beginPath()
     ctx.font = "150pt 'Times New Roman'";
-    ctx.fillText("Score: "+ game_score, 20, offset);
     ctx.fillStyle = "#000000";
+    ctx.fillText("Score: "+ game_score, 20, offset);
     ctx.stroke();
 
     //  Draw Time
     if(game_status == game_mode.Playing){
         ctx.beginPath()
         ctx.font = "150pt 'Times New Roman'";
-        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, offset + height_diff);
         ctx.fillStyle = "#000000";
+        ctx.fillText(Math.round((GAME_TIME - (Date.now() - game_time)) / 1000) + " sec", 20, offset + height_diff);
         ctx.stroke();
     }
 
@@ -269,8 +269,24 @@ function drawScoreTimeSynchro(ctx){
     }
 
     ctx.fillText("Synchro: " + synchro_percent + "%", 20, offset + height_diff * 2);
-    ctx.fillStyle = "#000000";
     ctx.stroke();
+
+    if(game_status == game_mode.End || game_status == game_mode.WaitingForPlayers){
+        ctx.beginPath()
+        var status_text = "";
+        if(game_status == game_mode.End){
+            status_text = "Game End";
+        }
+        if(game_status == game_mode.WaitingForPlayers){
+            status_text = "Ready";
+        }
+        ctx.font = "290pt 'Times New Roman'";
+        ctx.fillStyle = "#000000";
+        ctx.fillText(status_text, 20, 700 / 2);
+        ctx.fillStyle = "#006400";
+        ctx.fillText(status_text, 24, 700 / 2 + 4);
+        ctx.stroke();
+    }
 }
 
 function drawStatus(ctx) {
