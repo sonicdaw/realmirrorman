@@ -66,9 +66,10 @@ var kp_1_temp = new Array(numOfJoint);
 var kp_2_temp = new Array(numOfJoint);
 var kp_1_move = 0;
 var kp_2_move = 0;
+var kp_1_draw = new Array(numOfJoint);
+var kp_2_draw = new Array(numOfJoint);
 var kp_1_time = Date.now();
 var kp_2_time = Date.now();
-
 
 var synchro_counter = 0;
 const synchro_counter_max = 100;
@@ -187,7 +188,6 @@ const drawHead = (ctx, kp, kp2, mirror) => {
 
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
     if (kp[leftShoulder] == null) return false;
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
     drawHead(ctx, kp[nose], kp[leftEye], mirror);
 
     drawPoint(ctx, kp[nose], mirror);
@@ -230,6 +230,11 @@ function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
         ctx.fillText(joint_degree[leftKnee] + "°", kp[leftKnee].position.x, kp[leftKnee].position.y);
     }*/
 }
+
+function clearPoseRect(ctx){
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+}
+
 function drawScoreTimeSynchro(ctx){
     ctx.clearRect(0, 0, 1700, 700);
     var offset = 180;
@@ -313,8 +318,14 @@ function drawStatus(ctx) {
 }
 
 function draw_man() {
-    drawPose(ctx, kp_1, joint_degree1, false/*true*//*mirror draw*/);
-    drawPose(ctx2, kp_2, joint_degree2, true/*false*//*mirror draw*/);
+    clearPoseRect(ctx);
+    if(Captured_ManInTheMirror){
+        drawPose(ctx, kp_1, joint_degree1, false/*true*//*mirror draw*/);
+    }
+    clearPoseRect(ctx2);
+    if(Captured_ManInFrontOfTheMirror){
+        drawPose(ctx2, kp_2, joint_degree2, true/*false*//*mirror draw*/);
+    }
 }
 
 function draw_mirror_out_gauge() {
@@ -680,7 +691,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
             }
         }
 
-        if (frontmostPose) {
+        if (frontmostPose) {                    // found available pose
             if (frontmostPose.score > 0.3) {
                 var kp = frontmostPose.keypoints;
                 if (predictVideo === video) {
@@ -688,6 +699,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
                         if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
                         kp_1_move = calc_pose_move_total_diff(kp_1_temp, kp);           // detect amount of movement
                         kp_1_temp = Object.assign({}, kp);
+                        kp_1_draw = Object.assign({}, kp);
                         kp_1_time = Date.now();
                     }
                     if(kp_1[0] == null){kp_1 = Object.assign({}, kp);}
@@ -700,6 +712,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
                         if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
                         kp_2_move = calc_pose_move_total_diff(kp_2_temp, kp);           // detect amount of movement
                         kp_2_temp = Object.assign({}, kp);
+                        kp_2_draw = Object.assign({}, kp);
                         kp_2_time = Date.now();
                     }
                     if(kp_2[0] == null){kp_2 = Object.assign({}, kp);}
@@ -707,6 +720,24 @@ function predictWebcam_common(predictVideo, predictFunc) {
                     Captured_ManInFrontOfTheMirror = true;
                 }
 
+            }
+        }else{                                  // not found available pose
+            let NotAvailablePose = null;
+            let NotAvailableScore = 0;
+            for (const pose of predictions) {
+                if(NotAvailableScore < pose.score){
+                    NotAvailablePose = pose;
+                    NotAvailableScore = pose.score;
+                }
+                break;
+            }
+            if (predictVideo === video && NotAvailablePose != null) {
+                kp_1_draw = Object.assign({}, NotAvailablePose.keypoints);
+                Captured_ManInTheMirror = false;
+            }
+            if (predictVideo === video2 && NotAvailablePose != null) {
+                kp_2_draw = Object.assign({}, NotAvailablePose.keypoints);
+                Captured_ManInFrontOfTheMirror = false;
             }
         }
 
