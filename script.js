@@ -383,21 +383,6 @@ function handle_move(){
     ctx2.fillStyle = "#000000";
     ctx2.fillText("Move:" + Math.round(kp_2_move/10000), 20, 50);
     ctx2.stroke();
-
-    if((kp_1_move/10000 > 1 || kp_2_move/10000 > 1) && game_status == game_mode.Playing){
-        if(Date.now() - swing_se_sound_count_time > 50){
-//            swing_se_sound_count++;
-//            if(swing_se_sound_count == 3 || swing_se_sound_count == 6 || swing_se_sound_count == 9){
-//                playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab,VOLUME_MID);
-//            }else if(swing_se_sound_count == 12){
-//                playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab,VOLUME_MID);
-//                swing_se_sound_count = 0;
-//            }else{
-                playSound_se(sound_se_list.se_Punch_soundeffectlab,VOLUME_MID);
-//            }
-            swing_se_sound_count_time = Date.now();
-        }
-    }
 }
 
 
@@ -621,6 +606,57 @@ function handle_synchro_percent() {
         cheers_played[2000] = true;
     }
 }
+
+// Punch sound detect -----------------------------------------------------------------------------------------
+let prevLeftWristPos1 = null;
+let prevRightWristPos1 = null;
+let prevLeftWristPos2 = null;
+let prevRightWristPos2 = null;
+let prevLeftWristTime1 = Date.now();
+let prevRightWristTime1 = Date.now();
+let prevLeftWristTime2 = Date.now();
+let prevRightWristTime2 = Date.now();
+let isLeftPunchMoving1 = false;
+let isRightPunchMoving1 = false;
+let isLeftPunchMoving2 = false;
+let isRightPunchMoving2 = false;
+const speedThreshold = 600; // pixel/sec
+const speedThreshold_low = 0.2;
+
+function calc_wrist_speed(wristPos, prevWristPos, prevWristTime) {
+  const currentTime = Date.now();
+  if (prevWristPos === null || currentTime - prevWristTime < 50) {
+    return { speed: 0, currentTime: prevWristTime };
+  }
+
+  const deltaTime = (currentTime - prevWristTime) / 1000;
+  const deltaPos = Math.sqrt(
+    Math.pow(wristPos.x - prevWristPos.x, 2) +
+    Math.pow(wristPos.y - prevWristPos.y, 2)
+  );
+  const speed = deltaPos / deltaTime;
+
+  return speed;
+}
+
+function handle_punch_sound(WristPos, prevWristPos, prevWristTime, isPunchMoving) {
+  const WristSpeed = calc_wrist_speed(WristPos, prevWristPos, prevWristTime);
+
+  if (WristSpeed > speedThreshold && !isPunchMoving) {
+    isPunchMoving = true;
+  } else if (WristSpeed <= speedThreshold_low && isPunchMoving) {
+    playSound_se(sound_se_list.se_Punch_soundeffectlab, VOLUME_MID);
+    isPunchMoving = false;
+  }
+
+  const currentTime = Date.now();
+  if(currentTime - prevWristTime < 100){
+    return {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving};
+  }else{
+    return {prevWristTime: currentTime, isPunchMoving: isPunchMoving};
+  }
+}
+
 
 
 
@@ -1019,6 +1055,7 @@ function initSound_se() {
 
 function playSound_se(key, volume){
     if (mirror_sound_se[key] != null) {
+        mirror_sound_se[key].currentTime = 0;
         mirror_sound_se[key].volume = VOLUME_SE;
         mirror_sound_se[key].play();
     }
@@ -1283,6 +1320,31 @@ function mirror_loop() {
     if (joint_degree1 && joint_degree2) {
         compare_joint_degree();
     }
+    if (kp_1[leftWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_1[leftWrist].position, prevLeftWristPos1, prevLeftWristTime1, isLeftPunchMoving1);
+        prevLeftWristTime1 = prevWristTime;
+        prevLeftWristPos1 = kp_1[leftWrist].position;
+        isLeftPunchMoving1 = isPunchMoving;
+    }
+    if (kp_1[rightWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_1[rightWrist].position, prevRightWristPos1, prevRightWristTime1, isRightPunchMoving1);
+        prevRightWristTime1 = prevWristTime;
+        prevRightWristPos1 = kp_1[rightWrist].position;
+        isRightPunchMoving1 = isPunchMoving;
+    }
+    if (kp_2[leftWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_2[leftWrist].position, prevLeftWristPos2, prevLeftWristTime2, isLeftPunchMoving2);
+        prevLeftWristTime2 = prevWristTime;
+        prevLeftWristPos2 = kp_2[leftWrist].position;
+        isLeftPunchMoving12 = isPunchMoving;
+    }
+    if (kp_2[rightWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_2[rightWrist].position, prevRightWristPos2, prevRightWristTime2, isRightPunchMoving2);
+        prevRightWristTime2 = prevWristTime;
+        prevRightWristPos2 = kp_2[rightWrist].position;
+        isRightPunchMoving2 = isPunchMoving;
+    }
+
     draw_man();
     draw_mirror_out_gauge();
     draw_man_in_out();
