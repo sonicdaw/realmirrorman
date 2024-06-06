@@ -21,7 +21,7 @@ const cameraOptions = document.querySelector('.video-options>select');
 const WIDTH = 320;
 const HEIGHT = 320;
 
-const VOLUME_BGM = 0.2;
+var VOLUME_BGM = 0.2;
 var VOLUME_SE = 0.7;
 var VOLUME_NAVIGATION = 0.7;
 var VOLUME_SPEECH = 1.0;
@@ -919,49 +919,50 @@ function enableCam(event, video, predictFunc) {
 // Sound Volume UI -----------------------------------------------------------------------------------------
 
 bgmVolumeSlider.addEventListener('input', function() {
-    const volume = this.value;
-    SetBGMVolume(volume);
-    localStorage.setItem('bgmVolume', volume);
+    VOLUME_BGM = this.value;
+    SetBGMVolume(VOLUME_BGM);
+    localStorage.setItem('bgmVolume', VOLUME_BGM);
 });
 
 seVolumeSlider.addEventListener('input', function() {
-    const volume = this.value;
-    localStorage.setItem('seVolume', volume);
-    VOLUME_SE = volume;
+    VOLUME_SE = this.value;
+    localStorage.setItem('seVolume', VOLUME_SE);
 });
 
 navigationVolumeSlider.addEventListener('input', function() {
-   const volume = this.value;
-   localStorage.setItem('navigationVolume', volume);
-   VOLUME_NAVIGATION = volume;
+   VOLUME_NAVIGATION = this.value;
+   localStorage.setItem('navigationVolume', VOLUME_NAVIGATION);
 });
 
 speechVolumeSlider.addEventListener('input', function() {
-  const volume = this.value;
-  localStorage.setItem('speechVolume', volume);
-VOLUME_SPEECH = volume;
-  });
+    VOLUME_SPEECH = this.value;
+    localStorage.setItem('speechVolume', volume);
+});
 
   function loadSavedVolume() {
     const savedBgmVolume = localStorage.getItem('bgmVolume');
     if (savedBgmVolume !== null) {
+      VOLUME_BGM = savedBgmVolume;
       bgmVolumeSlider.value = savedBgmVolume;
-      SetBGMVolume(savedBgmVolume);
+      SetBGMVolume(VOLUME_BGM);
     }
 
     const savedSeVolume = localStorage.getItem('seVolume');
     if (savedSeVolume !== null) {
-      seVolumeSlider.value = savedSeVolume;
+        VOLUME_SE = savedSeVolume;
+        seVolumeSlider.value = savedSeVolume;
     }
 
     const savedNavigationVolume = localStorage.getItem('navigationVolume');
     if (savedNavigationVolume !== null) {
-      navigationVolumeSlider.value = savedNavigationVolume;
+        VOLUME_NAVIGATION = savedNavigationVolume;
+        navigationVolumeSlider.value = savedNavigationVolume;
     }
 
     const savedSpeechVolume = localStorage.getItem('speechVolume');
     if (savedSpeechVolume !== null) {
-      speechVolumeSlider.value = savedSpeechVolume;
+        VOLUME_SPEECH = savedSpeechVolume;
+        speechVolumeSlider.value = savedSpeechVolume;
     }
   }
 
@@ -1056,7 +1057,7 @@ function initSound_se() {
 function playSound_se(key, volume){
     if (mirror_sound_se[key] != null) {
         mirror_sound_se[key].currentTime = 0;
-        mirror_sound_se[key].volume = VOLUME_SE;
+        mirror_sound_se[key].volume = VOLUME_SE * volume;
         mirror_sound_se[key].play();
     }
 }
@@ -1118,8 +1119,8 @@ function playNavigationQueue(){
     if(Date.now() - navigation_sound_play_time < navigation_sound_sleeptime) return;
     if(navigation_sound_queue.length != 0){
         if (mirror_sound_navigation[navigation_sound_queue[0]] != null) {
-            mirror_sound_navigation[navigation_sound_queue[0]].play();
             mirror_sound_navigation[navigation_sound_queue[0]].volume = VOLUME_NAVIGATION;
+            mirror_sound_navigation[navigation_sound_queue[0]].play();
             navigation_sound_queue.shift();
             navigation_sound_play_time = Date.now();
             return true;    // Played
