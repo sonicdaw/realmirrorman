@@ -18,8 +18,30 @@ var canvas_score = document.getElementById('canvas_score');
 const ctx_score = canvas_score.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
 
+const topRangeSlider1 = document.getElementById('top_range_1');
+const bottomRangeSlider1 = document.getElementById('bottom_range_1');
+const leftRangeSlider1 = document.getElementById('left_range_1');
+const rightRangeSlider1 = document.getElementById('right_range_1');
+
+const topRangeSlider2 = document.getElementById('top_range_2');
+const bottomRangeSlider2 = document.getElementById('bottom_range_2');
+const leftRangeSlider2 = document.getElementById('left_range_2');
+const rightRangeSlider2 = document.getElementById('right_range_2');
+
 const WIDTH = 320;
 const HEIGHT = 320;
+
+// canvas1 range
+let top_range_1 = 0;
+let bottom_range_1 = 1;
+let left_range_1 = 0;
+let right_range_1 = 1;
+
+// canvas2 range
+let top_range_2 = 0;
+let bottom_range_2 = 1;
+let left_range_2 = 0;
+let right_range_2 = 1;
 
 var VOLUME_BGM = 0.2;
 var VOLUME_SE = 0.7;
@@ -147,9 +169,9 @@ var synchro_percent = 0;
 
 // Draw -----------------------------------------------------------------------------------------
 
-const drawLine = (ctx, kp0, kp1, mirror) => {
+const drawLine = (ctx, kp0, kp1, mirror, color) => {
     if (kp0.score < 0.3 || kp1.score < 0.3) return
-    ctx.strokeStyle = 'black'
+    ctx.strokeStyle = color;
     ctx.lineWidth = 2
     ctx.beginPath()
     if (mirror) {
@@ -162,9 +184,9 @@ const drawLine = (ctx, kp0, kp1, mirror) => {
     ctx.stroke();
 }
 
-const drawPoint = (ctx, kp, mirror) => {
+const drawPoint = (ctx, kp, mirror, color) => {
     if (kp.score < 0.3) return
-    ctx.fillStyle = 'black'
+    ctx.fillStyle = color;
     ctx.beginPath()
     if (mirror) {
         ctx.arc(WIDTH - kp.position.x, kp.position.y, 3, 0, 2 * Math.PI);
@@ -174,9 +196,9 @@ const drawPoint = (ctx, kp, mirror) => {
     ctx.fill()
 }
 
-const drawHead = (ctx, kp, kp2, mirror) => {
+const drawHead = (ctx, kp, kp2, mirror, color) => {
     if (kp.score < 0.3) return
-    ctx.fillStyle = 'black'
+    ctx.fillStyle = color;
     ctx.beginPath()
     if (mirror) {
         ctx.arc(WIDTH - kp.position.x, kp.position.y, Math.abs(kp2.position.x - kp.position.x) * 2, 0, 2 * Math.PI);
@@ -186,26 +208,26 @@ const drawHead = (ctx, kp, kp2, mirror) => {
     ctx.stroke()
 }
 
-function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/) {
+function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/, color) {
     if (kp[leftShoulder] == null) return false;
-    drawHead(ctx, kp[nose], kp[leftEye], mirror);
+    drawHead(ctx, kp[nose], kp[leftEye], mirror, color);
 
-    drawPoint(ctx, kp[nose], mirror);
-    drawPoint(ctx, kp[leftEye], mirror);
-    drawPoint(ctx, kp[rightEye], mirror);
+    drawPoint(ctx, kp[nose], mirror, color);
+    drawPoint(ctx, kp[leftEye], mirror, color);
+    drawPoint(ctx, kp[rightEye], mirror, color);
 
-    drawLine(ctx, kp[leftShoulder], kp[rightShoulder], mirror);
-    drawLine(ctx, kp[leftShoulder], kp[leftElbow], mirror);
-    drawLine(ctx, kp[leftElbow], kp[leftWrist], mirror);
-    drawLine(ctx, kp[rightShoulder], kp[rightElbow], mirror);
-    drawLine(ctx, kp[rightElbow], kp[rightWrist], mirror);
-    drawLine(ctx, kp[leftShoulder], kp[leftHip], mirror);
-    drawLine(ctx, kp[rightShoulder], kp[rightHip], mirror);
-    drawLine(ctx, kp[leftHip], kp[rightHip], mirror);
-    drawLine(ctx, kp[leftHip], kp[leftKnee], mirror);
-    drawLine(ctx, kp[leftKnee], kp[leftAnkle], mirror);
-    drawLine(ctx, kp[rightHip], kp[rightKnee], mirror);
-    drawLine(ctx, kp[rightKnee], kp[rightAnkle], mirror);
+    drawLine(ctx, kp[leftShoulder], kp[rightShoulder], mirror, color);
+    drawLine(ctx, kp[leftShoulder], kp[leftElbow], mirror, color);
+    drawLine(ctx, kp[leftElbow], kp[leftWrist], mirror, color);
+    drawLine(ctx, kp[rightShoulder], kp[rightElbow], mirror, color);
+    drawLine(ctx, kp[rightElbow], kp[rightWrist], mirror, color);
+    drawLine(ctx, kp[leftShoulder], kp[leftHip], mirror, color);
+    drawLine(ctx, kp[rightShoulder], kp[rightHip], mirror, color);
+    drawLine(ctx, kp[leftHip], kp[rightHip], mirror, color);
+    drawLine(ctx, kp[leftHip], kp[leftKnee], mirror, color);
+    drawLine(ctx, kp[leftKnee], kp[leftAnkle], mirror, color);
+    drawLine(ctx, kp[rightHip], kp[rightKnee], mirror, color);
+    drawLine(ctx, kp[rightKnee], kp[rightAnkle], mirror, color);
 
     ctx.font = "20pt 'Times New Roman'";
     ctx.fillStyle = 'black';
@@ -336,12 +358,15 @@ function drawStatus(ctx) {
 function draw_man() {
     clearPoseRect(ctx);
     if(Captured_ManInTheMirror){
-        drawPose(ctx, kp_1, joint_degree1, false/*true*//*mirror draw*/);
+        drawPose(ctx, kp_1, joint_degree1, false/*true*//*mirror draw*/, 'blue');  // pose for analysis
     }
+    drawPose(ctx, kp_1_draw, joint_degree1, false/*true*//*mirror draw*/, 'black');  // pose for draw
+
     clearPoseRect(ctx2);
     if(Captured_ManInFrontOfTheMirror){
-        drawPose(ctx2, kp_2, joint_degree2, true/*false*//*mirror draw*/);
+        drawPose(ctx2, kp_2, joint_degree2, true/*false*//*mirror draw*/, 'blue');  // pose for analysis
     }
+    drawPose(ctx2, kp_2_draw, joint_degree2, true/*false*//*mirror draw*/, 'black');  // pose for draw
 }
 
 function draw_mirror_out_gauge() {
@@ -369,6 +394,22 @@ function draw_man_in_out() {
         ctx2.fillRect(0, 0, WIDTH, HEIGHT);
         ctx2.stroke();
     }
+}
+
+function draw_canvasarea(){
+  // canvas1 out of range
+  ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
+  ctx.fillRect(0, 0, left_range_1 * WIDTH, HEIGHT);
+  ctx.fillRect(right_range_1 * WIDTH, 0, WIDTH - right_range_1 * WIDTH, HEIGHT);
+  ctx.fillRect(left_range_1 * WIDTH, 0, right_range_1 * WIDTH - left_range_1 * WIDTH, top_range_1 * HEIGHT);
+  ctx.fillRect(left_range_1 * WIDTH, bottom_range_1 * HEIGHT, right_range_1 * WIDTH - left_range_1 * WIDTH, HEIGHT - bottom_range_1 * HEIGHT);
+
+  // canvas2 out of range
+  ctx2.fillStyle = 'rgba(128, 128, 128, 0.5)';
+  ctx2.fillRect(0, 0, left_range_2 * WIDTH, HEIGHT);
+  ctx2.fillRect(right_range_2 * WIDTH, 0, WIDTH - right_range_2 * WIDTH, HEIGHT);
+  ctx2.fillRect(left_range_2 * WIDTH, 0, right_range_2 * WIDTH - left_range_2 * WIDTH, top_range_2 * HEIGHT);
+  ctx2.fillRect(left_range_2 * WIDTH, bottom_range_2 * HEIGHT, right_range_2 * WIDTH - left_range_2 * WIDTH, HEIGHT - bottom_range_2 * HEIGHT);
 }
 
 function handle_move(){
@@ -462,38 +503,38 @@ function calculate_joint_degree(kp) {
     return joint_degree;
 }
 
-function isInField(kp) {
+function isInField(kp, x_left, x_right, y_top, y_bottom) {
     if (kp[leftShoulder] == null) return false;
     var result = true;
 
-    if (kp[leftShoulder].position.x < 0 || kp[leftShoulder].position.x > WIDTH) result = false;
-    if (kp[rightShoulder].position.x < 0 || kp[rightShoulder].position.x > WIDTH) result = false;
-    if (kp[leftElbow].position.x < 0 || kp[leftElbow].position.x > WIDTH) result = false;
-    if (kp[rightElbow].position.x < 0 || kp[rightElbow].position.x > WIDTH) result = false;
-    if (kp[leftWrist].position.x < 0 || kp[leftWrist].position.x > WIDTH) result = false;
-    if (kp[rightWrist].position.x < 0 || kp[rightWrist].position.x > WIDTH) result = false;
+    if (kp[leftShoulder].position.x < x_left || kp[leftShoulder].position.x > x_right) result = false;
+    if (kp[rightShoulder].position.x < x_left || kp[rightShoulder].position.x > x_right) result = false;
+    if (kp[leftElbow].position.x < x_left || kp[leftElbow].position.x > x_right) result = false;
+    if (kp[rightElbow].position.x < x_left || kp[rightElbow].position.x > x_right) result = false;
+    if (kp[leftWrist].position.x < x_left || kp[leftWrist].position.x > x_right) result = false;
+    if (kp[rightWrist].position.x < x_left || kp[rightWrist].position.x > x_right) result = false;
     if(areamode == 0){  // Check only on Full Body Mode. Ignore if the area mode is not full
-        if (kp[leftHip].position.x < 0 || kp[leftHip].position.x > WIDTH) result = false;
-        if (kp[rightHip].position.x < 0 || kp[rightHip].position.x > WIDTH) result = false;
-        if( kp[leftKnee].position.x < 0 || kp[leftKnee].position.x > WIDTH) result = false;
-        if( kp[rightKnee].position.x < 0 || kp[rightKnee].position.x > WIDTH) result = false;
-        if( kp[leftAnkle].position.x < 0 || kp[leftAnkle].position.x > WIDTH) result = false;
-        if( kp[rightAnkle].position.x < 0 || kp[rightAnkle].position.x > WIDTH) result = false;
+        if (kp[leftHip].position.x < x_left || kp[leftHip].position.x > x_right) result = false;
+        if (kp[rightHip].position.x < x_left || kp[rightHip].position.x > x_right) result = false;
+        if( kp[leftKnee].position.x < x_left || kp[leftKnee].position.x > x_right) result = false;
+        if( kp[rightKnee].position.x < x_left || kp[rightKnee].position.x > x_right) result = false;
+        if( kp[leftAnkle].position.x < x_left || kp[leftAnkle].position.x > x_right) result = false;
+        if( kp[rightAnkle].position.x < x_left || kp[rightAnkle].position.x > x_right) result = false;
     }
 
-    if (kp[leftShoulder].position.y < 0 || kp[leftShoulder].position.y > HEIGHT) result = false;
-    if (kp[rightShoulder].position.y < 0 || kp[rightShoulder].position.y > HEIGHT) result = false;
-    if (kp[leftElbow].position.y < 0 || kp[leftElbow].position.y > HEIGHT) result = false;
-    if (kp[rightElbow].position.y < 0 || kp[rightElbow].position.y > HEIGHT) result = false;
-    if (kp[leftWrist].position.y < 0 || kp[leftWrist].position.y > HEIGHT) result = false;
-    if (kp[rightWrist].position.y < 0 || kp[rightWrist].position.y > HEIGHT) result = false;
+    if (kp[leftShoulder].position.y < y_top || kp[leftShoulder].position.y > y_bottom) result = false;
+    if (kp[rightShoulder].position.y < y_top || kp[rightShoulder].position.y > y_bottom) result = false;
+    if (kp[leftElbow].position.y < y_top || kp[leftElbow].position.y > y_bottom) result = false;
+    if (kp[rightElbow].position.y < y_top || kp[rightElbow].position.y > y_bottom) result = false;
+    if (kp[leftWrist].position.y < y_top || kp[leftWrist].position.y > y_bottom) result = false;
+    if (kp[rightWrist].position.y < y_top || kp[rightWrist].position.y > y_bottom) result = false;
     if(areamode == 0){  // Check only on Full Body Mode
-        if (kp[leftHip].position.y < 0 || kp[leftHip].position.y > HEIGHT) result = false;
-        if (kp[rightHip].position.y < 0 || kp[rightHip].position.y > HEIGHT) result = false;
-        if( kp[leftKnee].position.y < 0 || kp[leftKnee].position.y > HEIGHT) result = false;
-        if( kp[rightKnee].position.y < 0 || kp[rightKnee].position.y > HEIGHT) result = false;
-        if( kp[leftAnkle].position.y < 0 || kp[leftAnkle].position.y > HEIGHT) result = false;
-        if( kp[rightAnkle].position.y < 0 || kp[rightAnkle].position.y > HEIGHT) result = false;
+        if (kp[leftHip].position.y < y_top || kp[leftHip].position.y > y_bottom) result = false;
+        if (kp[rightHip].position.y < y_top || kp[rightHip].position.y > y_bottom) result = false;
+        if( kp[leftKnee].position.y < y_top || kp[leftKnee].position.y > y_bottom) result = false;
+        if( kp[rightKnee].position.y < y_top || kp[rightKnee].position.y > y_bottom) result = false;
+        if( kp[leftAnkle].position.y < y_top || kp[leftAnkle].position.y > y_bottom) result = false;
+        if( kp[rightAnkle].position.y < y_top || kp[rightAnkle].position.y > y_bottom) result = false;
     }
 
     return result;
@@ -666,7 +707,7 @@ function update_man_status() {
     // Calc Man1 in the mirror
     var ResultInField;
     if (Captured_ManInTheMirror) {
-        ResultInField = isInField(kp_1);
+        ResultInField = isInField(kp_1, left_range_1*WIDTH, right_range_1*WIDTH, top_range_1*HEIGHT, bottom_range_1*HEIGHT);
     } else {
         ResultInField = false;
     }
@@ -692,7 +733,7 @@ function update_man_status() {
 
     // Calc Man1 in front of the mirror
     if (Captured_ManInFrontOfTheMirror) {
-        ResultInField = isInField(kp_2);
+        ResultInField = isInField(kp_2, left_range_2*WIDTH, right_range_2*WIDTH, top_range_2*HEIGHT, bottom_range_2*HEIGHT);
     } else {
         ResultInField = false;
     }
@@ -733,8 +774,16 @@ function predictWebcam_common(predictVideo, predictFunc) {
         for (const pose of predictions) {
             const pose_leftShoulder = pose.keypoints[leftShoulder];
             const pose_rightShoulder = pose.keypoints[rightShoulder];
+            var active_pose = false;
 
-            if (pose_leftShoulder.score > 0.5 && pose_rightShoulder.score > 0.5) {
+            if (predictVideo === video) {
+                active_pose = isInField(pose.keypoints, left_range_1*WIDTH, right_range_1*WIDTH, top_range_1*HEIGHT, bottom_range_1*HEIGHT);
+            }
+            if (predictVideo === video2) {
+                active_pose = isInField(pose.keypoints, left_range_2*WIDTH, right_range_2*WIDTH, top_range_2*HEIGHT, bottom_range_2*HEIGHT);
+            }
+
+            if (active_pose && pose_leftShoulder.score > 0.5 && pose_rightShoulder.score > 0.5) {
                 const shoulderY = (pose_leftShoulder.position.y + pose_rightShoulder.position.y) / 2;   // frontmost
                 if (shoulderY < frontmostY) {
                     frontmostY = shoulderY;
@@ -746,6 +795,8 @@ function predictWebcam_common(predictVideo, predictFunc) {
         if (frontmostPose) {                    // found available pose
             if (frontmostPose.score > 0.3) {
                 var kp = frontmostPose.keypoints;
+                const pose_leftShoulder = kp[leftShoulder];
+                const pose_rightShoulder = kp[rightShoulder];
                 if (predictVideo === video) {
                     if(Date.now() - kp_1_time > 100){    // count 100 msec
                         if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
@@ -914,7 +965,119 @@ function enableCam(event, video, predictFunc) {
   }
 
 
+// Cam area UI -----------------------------------------------------------------------------------------
+topRangeSlider1.addEventListener('input', function() {
+    top_range_1 = parseFloat(this.value);
+  });
+  bottomRangeSlider1.addEventListener('input', function() {
+    bottom_range_1 = parseFloat(this.value);
+  });
+  leftRangeSlider1.addEventListener('input', function() {
+    left_range_1 = parseFloat(this.value);
+  });
+  rightRangeSlider1.addEventListener('input', function() {
+    right_range_1 = parseFloat(this.value);
+  });
 
+topRangeSlider2.addEventListener('input', function() {
+  top_range_2 = parseFloat(this.value);
+});
+bottomRangeSlider2.addEventListener('input', function() {
+  bottom_range_2 = parseFloat(this.value);
+});
+leftRangeSlider2.addEventListener('input', function() {
+  left_range_2 = parseFloat(this.value);
+});
+rightRangeSlider2.addEventListener('input', function() {
+  right_range_2 = parseFloat(this.value);
+});
+
+function saveRangeSettings() {
+    localStorage.setItem('top_range_1', top_range_1);
+    localStorage.setItem('bottom_range_1', bottom_range_1);
+    localStorage.setItem('left_range_1', left_range_1);
+    localStorage.setItem('right_range_1', right_range_1);
+    localStorage.setItem('top_range_2', top_range_2);
+    localStorage.setItem('bottom_range_2', bottom_range_2);
+    localStorage.setItem('left_range_2', left_range_2);
+    localStorage.setItem('right_range_2', right_range_2);
+}
+
+function loadRangeSettings() {
+    const savedTopRange1 = localStorage.getItem('top_range_1');
+    if (savedTopRange1 !== null) {
+      top_range_1 = parseFloat(savedTopRange1);
+      topRangeSlider1.value = savedTopRange1;
+    }
+    const savedBottomRange1 = localStorage.getItem('bottom_range_1');
+    if (savedBottomRange1 !== null) {
+      bottom_range_1 = parseFloat(savedBottomRange1);
+      bottomRangeSlider1.value = savedBottomRange1;
+    }
+    const savedLeftRange1 = localStorage.getItem('left_range_1');
+    if (savedLeftRange1 !== null) {
+      left_range_1 = parseFloat(savedLeftRange1);
+      leftRangeSlider1.value = savedLeftRange1;
+    }
+    const savedRightRange1 = localStorage.getItem('right_range_1');
+    if (savedRightRange1 !== null) {
+      right_range_1 = parseFloat(savedRightRange1);
+      rightRangeSlider1.value = savedRightRange1;
+    }
+    const savedTopRange2 = localStorage.getItem('top_range_2');
+    if (savedTopRange2 !== null) {
+      top_range_2 = parseFloat(savedTopRange2);
+      topRangeSlider2.value = savedTopRange2;
+    }
+    const savedBottomRange2 = localStorage.getItem('bottom_range_2');
+    if (savedBottomRange2 !== null) {
+      bottom_range_2 = parseFloat(savedBottomRange2);
+      bottomRangeSlider2.value = savedBottomRange2;
+    }
+    const savedLeftRange2 = localStorage.getItem('left_range_2');
+    if (savedLeftRange2 !== null) {
+      left_range_2 = parseFloat(savedLeftRange2);
+      leftRangeSlider2.value = savedLeftRange2;
+    }
+    const savedRightRange2 = localStorage.getItem('right_range_2');
+    if (savedRightRange2 !== null) {
+      right_range_2 = parseFloat(savedRightRange2);
+      rightRangeSlider2.value = savedRightRange2;
+    }
+  }
+
+  topRangeSlider1.addEventListener('input', function() {
+    top_range_1 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  bottomRangeSlider1.addEventListener('input', function() {
+    bottom_range_1 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  leftRangeSlider1.addEventListener('input', function() {
+    left_range_1 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  rightRangeSlider1.addEventListener('input', function() {
+    right_range_1 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  topRangeSlider2.addEventListener('input', function() {
+    top_range_2 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  bottomRangeSlider2.addEventListener('input', function() {
+    bottom_range_2 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  leftRangeSlider2.addEventListener('input', function() {
+    left_range_2 = parseFloat(this.value);
+    saveRangeSettings();
+  });
+  rightRangeSlider2.addEventListener('input', function() {
+    right_range_2 = parseFloat(this.value);
+    saveRangeSettings();
+  });
 
 // Sound Volume UI -----------------------------------------------------------------------------------------
 
@@ -1349,6 +1512,7 @@ function mirror_loop() {
     draw_man();
     draw_mirror_out_gauge();
     draw_man_in_out();
+    draw_canvasarea();
     drawScoreTimeSynchro(ctx_score);
     drawStatus(ctx3_status);
     handle_move();
@@ -1369,5 +1533,6 @@ var move = function () {
 
 window.onload = function () {
     loadSavedVolume();
+    loadRangeSettings();
     move();
 };
