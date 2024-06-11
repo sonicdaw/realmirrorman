@@ -82,16 +82,16 @@ const leftAnkle = 15
 const rightAnkle = 16
 const numOfJoint = 17
 
-var kp_1 = new Array(numOfJoint);
-var kp_2 = new Array(numOfJoint);
-var kp_1_temp = new Array(numOfJoint);
-var kp_2_temp = new Array(numOfJoint);
-var kp_1_move = 0;
-var kp_2_move = 0;
-var kp_1_draw = new Array(numOfJoint);
-var kp_2_draw = new Array(numOfJoint);
-var kp_1_time = Date.now();
-var kp_2_time = Date.now();
+var man1pose = new Array(numOfJoint);
+var man2pose = new Array(numOfJoint);
+var man1pose_temp = new Array(numOfJoint);
+var man2pose_temp = new Array(numOfJoint);
+var man1pose_move = 0;
+var man2pose_move = 0;
+var man1pose_draw = new Array(numOfJoint);
+var man2pose_draw = new Array(numOfJoint);
+var man1pose_time = Date.now();
+var man2pose_time = Date.now();
 
 var synchro_counter = 0;
 const synchro_counter_max = 100;
@@ -358,15 +358,15 @@ function drawStatus(ctx) {
 function draw_man() {
     clearPoseRect(ctx);
     if(Captured_ManInTheMirror){
-        drawPose(ctx, kp_1, joint_degree1, false/*true*//*mirror draw*/, 'blue');  // pose for analysis
+        drawPose(ctx, man1pose, joint_degree1, false/*true*//*mirror draw*/, 'blue');  // pose for analysis
     }
-    drawPose(ctx, kp_1_draw, joint_degree1, false/*true*//*mirror draw*/, 'black');  // pose for draw
+    drawPose(ctx, man1pose_draw, joint_degree1, false/*true*//*mirror draw*/, 'black');  // pose for draw
 
     clearPoseRect(ctx2);
     if(Captured_ManInFrontOfTheMirror){
-        drawPose(ctx2, kp_2, joint_degree2, true/*false*//*mirror draw*/, 'blue');  // pose for analysis
+        drawPose(ctx2, man2pose, joint_degree2, true/*false*//*mirror draw*/, 'blue');  // pose for analysis
     }
-    drawPose(ctx2, kp_2_draw, joint_degree2, true/*false*//*mirror draw*/, 'black');  // pose for draw
+    drawPose(ctx2, man2pose_draw, joint_degree2, true/*false*//*mirror draw*/, 'black');  // pose for draw
 }
 
 function draw_mirror_out_gauge() {
@@ -416,13 +416,13 @@ function handle_move(){
     ctx.beginPath()
     ctx.font = "30pt 'Times New Roman'";
     ctx.fillStyle = "#000000";
-    ctx.fillText("Move:" + Math.round(kp_1_move/10000), 20, 50);
+    ctx.fillText("Move:" + Math.round(man1pose_move/10000), 20, 50);
     ctx.stroke();
 
     ctx2.beginPath()
     ctx2.font = "30pt 'Times New Roman'";
     ctx2.fillStyle = "#000000";
-    ctx2.fillText("Move:" + Math.round(kp_2_move/10000), 20, 50);
+    ctx2.fillText("Move:" + Math.round(man2pose_move/10000), 20, 50);
     ctx2.stroke();
 }
 
@@ -618,7 +618,7 @@ function handle_synchro_percent() {
         }
         game_score--;
     } else {
-        var add_point = 10 + 30 * Math.round(kp_1_move/10000) * Math.round(kp_2_move/10000);
+        var add_point = 10 + 30 * Math.round(man1pose_move/10000) * Math.round(man2pose_move/10000);
         game_score = game_score + add_point;
         console.log("Point" + add_point)
         if(add_point > 100){
@@ -707,7 +707,7 @@ function update_man_status() {
     // Calc Man1 in the mirror
     var ResultInField;
     if (Captured_ManInTheMirror) {
-        ResultInField = isInField(kp_1, left_range_1*WIDTH, right_range_1*WIDTH, top_range_1*HEIGHT, bottom_range_1*HEIGHT);
+        ResultInField = isInField(man1pose, left_range_1*WIDTH, right_range_1*WIDTH, top_range_1*HEIGHT, bottom_range_1*HEIGHT);
     } else {
         ResultInField = false;
     }
@@ -727,13 +727,13 @@ function update_man_status() {
             playNavigationSound(sound_navigation_list.LostManInTheMirror);
         }
     }
-    joint_degree1 = calculate_joint_degree(kp_1);
+    joint_degree1 = calculate_joint_degree(man1pose);
 
 
 
     // Calc Man1 in front of the mirror
     if (Captured_ManInFrontOfTheMirror) {
-        ResultInField = isInField(kp_2, left_range_2*WIDTH, right_range_2*WIDTH, top_range_2*HEIGHT, bottom_range_2*HEIGHT);
+        ResultInField = isInField(man2pose, left_range_2*WIDTH, right_range_2*WIDTH, top_range_2*HEIGHT, bottom_range_2*HEIGHT);
     } else {
         ResultInField = false;
     }
@@ -753,7 +753,7 @@ function update_man_status() {
             playNavigationSound(sound_navigation_list.LostManInFrontOfTheMirror);
         }
     }
-    joint_degree2 = calculate_joint_degree(kp_2);
+    joint_degree2 = calculate_joint_degree(man2pose);
 }
 
 
@@ -798,28 +798,28 @@ function predictWebcam_common(predictVideo, predictFunc) {
                 const pose_leftShoulder = kp[leftShoulder];
                 const pose_rightShoulder = kp[rightShoulder];
                 if (predictVideo === video) {
-                    if(Date.now() - kp_1_time > 100){    // count 100 msec
-                        if(kp_1_temp[0] == null){kp_1_temp = Object.assign({}, kp);}
-                        kp_1_move = calc_pose_move_total_diff(kp_1_temp, kp);           // detect amount of movement
-                        kp_1_temp = Object.assign({}, kp);
-                        kp_1_draw = Object.assign({}, kp);
-                        kp_1_time = Date.now();
+                    if(Date.now() - man1pose_time > 100){    // count 100 msec
+                        if(man1pose_temp[0] == null){man1pose_temp = Object.assign({}, kp);}
+                        man1pose_move = calc_pose_move_total_diff(man1pose_temp, kp);           // detect amount of movement
+                        man1pose_temp = Object.assign({}, kp);
+                        man1pose_draw = Object.assign({}, kp);
+                        man1pose_time = Date.now();
                     }
-                    if(kp_1[0] == null){kp_1 = Object.assign({}, kp);}
-                    kp_1 = Object.assign({}, kp);                   // latest pose
+                    if(man1pose[0] == null){man1pose = Object.assign({}, kp);}
+                    man1pose = Object.assign({}, kp);                   // latest pose
                     Captured_ManInTheMirror = true;
                 }
 
                 if (predictVideo === video2) {
-                    if(Date.now() - kp_2_time > 100){    // count 100 msec
-                        if(kp_2_temp[0] == null){kp_2_temp = Object.assign({}, kp);}
-                        kp_2_move = calc_pose_move_total_diff(kp_2_temp, kp);           // detect amount of movement
-                        kp_2_temp = Object.assign({}, kp);
-                        kp_2_draw = Object.assign({}, kp);
-                        kp_2_time = Date.now();
+                    if(Date.now() - man2pose_time > 100){    // count 100 msec
+                        if(man2pose_temp[0] == null){man2pose_temp = Object.assign({}, kp);}
+                        man2pose_move = calc_pose_move_total_diff(man2pose_temp, kp);           // detect amount of movement
+                        man2pose_temp = Object.assign({}, kp);
+                        man2pose_draw = Object.assign({}, kp);
+                        man2pose_time = Date.now();
                     }
-                    if(kp_2[0] == null){kp_2 = Object.assign({}, kp);}
-                    kp_2 = Object.assign({}, kp);                   // latest pose
+                    if(man2pose[0] == null){man2pose = Object.assign({}, kp);}
+                    man2pose = Object.assign({}, kp);                   // latest pose
                     Captured_ManInFrontOfTheMirror = true;
                 }
 
@@ -835,11 +835,11 @@ function predictWebcam_common(predictVideo, predictFunc) {
                 break;
             }
             if (predictVideo === video && NotAvailablePose != null) {
-                kp_1_draw = Object.assign({}, NotAvailablePose.keypoints);
+                man1pose_draw = Object.assign({}, NotAvailablePose.keypoints);
                 Captured_ManInTheMirror = false;
             }
             if (predictVideo === video2 && NotAvailablePose != null) {
-                kp_2_draw = Object.assign({}, NotAvailablePose.keypoints);
+                man2pose_draw = Object.assign({}, NotAvailablePose.keypoints);
                 Captured_ManInFrontOfTheMirror = false;
             }
         }
@@ -1416,10 +1416,10 @@ function update_game_status() {
                 swing_se_sound_count_time = Date.now();
                 synchro_percent = 100;
                 game_score = 0;
-                kp_1_move = 0;
-                kp_2_move = 0;
-                kp_1_time = Date.now();
-                kp_2_time = Date.now();
+                man1pose_move = 0;
+                man2pose_move = 0;
+                man1pose_time = Date.now();
+                man2pose_time = Date.now();
                 game_score_read_time = Date.now();
                 game_time = Date.now();
                 playNavigationSound(sound_navigation_list.GameStart);
@@ -1484,28 +1484,28 @@ function mirror_loop() {
     if (joint_degree1 && joint_degree2) {
         compare_joint_degree();
     }
-    if (kp_1[leftWrist]){
-        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_1[leftWrist].position, prevLeftWristPos1, prevLeftWristTime1, isLeftPunchMoving1);
+    if (man1pose[leftWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(man1pose[leftWrist].position, prevLeftWristPos1, prevLeftWristTime1, isLeftPunchMoving1);
         prevLeftWristTime1 = prevWristTime;
-        prevLeftWristPos1 = kp_1[leftWrist].position;
+        prevLeftWristPos1 = man1pose[leftWrist].position;
         isLeftPunchMoving1 = isPunchMoving;
     }
-    if (kp_1[rightWrist]){
-        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_1[rightWrist].position, prevRightWristPos1, prevRightWristTime1, isRightPunchMoving1);
+    if (man1pose[rightWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(man1pose[rightWrist].position, prevRightWristPos1, prevRightWristTime1, isRightPunchMoving1);
         prevRightWristTime1 = prevWristTime;
-        prevRightWristPos1 = kp_1[rightWrist].position;
+        prevRightWristPos1 = man1pose[rightWrist].position;
         isRightPunchMoving1 = isPunchMoving;
     }
-    if (kp_2[leftWrist]){
-        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_2[leftWrist].position, prevLeftWristPos2, prevLeftWristTime2, isLeftPunchMoving2);
+    if (man2pose[leftWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(man2pose[leftWrist].position, prevLeftWristPos2, prevLeftWristTime2, isLeftPunchMoving2);
         prevLeftWristTime2 = prevWristTime;
-        prevLeftWristPos2 = kp_2[leftWrist].position;
+        prevLeftWristPos2 = man2pose[leftWrist].position;
         isLeftPunchMoving12 = isPunchMoving;
     }
-    if (kp_2[rightWrist]){
-        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(kp_2[rightWrist].position, prevRightWristPos2, prevRightWristTime2, isRightPunchMoving2);
+    if (man2pose[rightWrist]){
+        const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(man2pose[rightWrist].position, prevRightWristPos2, prevRightWristTime2, isRightPunchMoving2);
         prevRightWristTime2 = prevWristTime;
-        prevRightWristPos2 = kp_2[rightWrist].position;
+        prevRightWristPos2 = man2pose[rightWrist].position;
         isRightPunchMoving2 = isPunchMoving;
     }
 
