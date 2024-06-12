@@ -1443,7 +1443,7 @@ function update_game_status() {
 
             if(Date.now() - game_time > GAME_TIME){     // 60 sec play
                 game_status = game_mode.End;
-                playNavigationSound(sound_navigation_list.GameComplete);
+//                playNavigationSound(sound_navigation_list.GameComplete);  duplicate with GameEnd
                 game_end_timer = Date.now();
             }
             break
