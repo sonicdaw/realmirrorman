@@ -113,6 +113,7 @@ const game_mode = Object.freeze({ WaitingForPlayers: 0, Playing: 1, Pause: 2, En
 var game_status = game_mode.WaitingForPlayers;
 var areamode = 0;   // 0: Full body mode, 1: Upper body mode
 var language = "ja";
+var language_instruction = "";
 
 function toggle_language() {
   if (language === "ja") {
@@ -868,6 +869,7 @@ function getDeviceList_SoundOn() {
     initSound_se();
     initSound_navigation();
     sound_on = true;
+    navigation_seq = 0;
 
     // Camera Auto Set
     setTimeout(function() {
@@ -1099,7 +1101,7 @@ navigationVolumeSlider.addEventListener('input', function() {
 
 speechVolumeSlider.addEventListener('input', function() {
     VOLUME_SPEECH = this.value;
-    localStorage.setItem('speechVolume', volume);
+    localStorage.setItem('speechVolume', VOLUME_SPEECH);
 });
 
   function loadSavedVolume() {
@@ -1267,14 +1269,39 @@ function playNavigationSound(key){
       }
 }
 
-function repeatNavigationSound(key, timer_msec){
-    if(Date.now() - navigation_sound_repeat_time < timer_msec) return;
-    if (language === "ja") {
-        navigation_sound_queue.push(key);                   // direct read (no duplicate read restriction)
-        playNavigationQueue();
-    }else{
-        speech_string.push(get_navigation_en_speech(key));  // direct read (no duplicate read restriction)
+
+var navigation_seq = 0;
+function repeatNavigationSound(){
+    switch (navigation_seq) {
+        case 0:
+            if(Date.now() - navigation_sound_repeat_time < 10000) return;
+            speech_cancel_all();
+            language_instruction = "ja";
+            speech_string.push(speech_text.GameInstruction1);
+            speech_string.push(speech_text.GameInstruction2);
+            break;
+        case 1:
+            if(Date.now() - navigation_sound_repeat_time < 40000) return;
+            navigation_sound_queue.push(sound_navigation_list.Setup);
+            break;
+        case 2:
+            if(Date.now() - navigation_sound_repeat_time < 10000) return;
+            speech_cancel_all();
+            language_instruction = "en";
+            speech_string.push(speech_text_en.GameInstruction1);
+            speech_string.push(speech_text_en.GameInstruction2);
+            break;
+        case 3:
+            if(Date.now() - navigation_sound_repeat_time < 40000) return;
+            speech_cancel_all();
+            language_instruction = "en";
+            speech_string.push(speech_text_en.Setup);
+            break;
+        default:
     }
+    navigation_seq++;
+    if(navigation_seq == 4) navigation_seq = 0;
+
     navigation_sound_repeat_time = Date.now();
 }
 
@@ -1294,6 +1321,8 @@ function playNavigationQueue(){
 
 function get_navigation_en_speech(key) {
     switch (key) {
+      case sound_navigation_list.GameInstruction:
+        return speech_text_en.GameInstruction;
       case sound_navigation_list.Setup:
         return speech_text_en.Setup;
       case sound_navigation_list.GameStart:
@@ -1324,6 +1353,8 @@ function get_navigation_en_speech(key) {
 // Speech(PC) -----------------------------------------------------------------------------------------
 
 const speech_text = Object.freeze({
+    GameInstruction1: "みらーおぶてらーにようこそ。かがみのせかいにまよいこんでしまったみたいですね。このげーむは、ふたりであそびます。ぽーずをとるひと、それをまねするひとにわかれてください。",
+    GameInstruction2: "ぽーずをとるひとはかがみのまえにたち。まねするひとはかがみのなかにたってください。いっぷんかん かがみになりきることができれば、かがみのせかいからぬけだせます。",
     Setup: "かがみのまえとなかにたってください",
     GameStart: "げーむをかいしします",
     GameEnd: "げーむしゅうりょうです",
@@ -1339,6 +1370,8 @@ const speech_text = Object.freeze({
 });
 
 const speech_text_en = Object.freeze({
+    GameInstruction1: "Welcome to Mirror of Terror. It seems like you've wandered into the world of mirrors. This game is played by two people. Please split into two roles.",
+    GameInstruction2: "The person who poses and the person who imitates. The person who poses should stand in front of the mirror. while the person who imitates should stand inside the mirror. If you can fully become the mirror for one minute. you'll be able to escape from the mirror world.",
     Setup: "Please stand in front of and inside the mirror",
     GameStart: "Game will start now",
     GameEnd: "Game is over",
@@ -1372,7 +1405,6 @@ function speech_push(string) {
 
 function speech_controller() {
     if (!sound_on) return;
-    if (window.speechSynthesis.speaking) return;
     if (speech_string.length != 0) {
         console.log(speech_string[0]);
         if (speech_string[0] != "") {
@@ -1383,13 +1415,22 @@ function speech_controller() {
               window.speechSynthesis.speak(uttr);
             } else {
               const uttr = new SpeechSynthesisUtterance(speech_string[0])
-              uttr.lang = language;
+              if(language_instruction != ""){
+                uttr.lang = language_instruction;
+              }else{
+                uttr.lang = language;
+              }
               uttr.volume = VOLUME_SPEECH;
               window.speechSynthesis.speak(uttr);
             }
           }
         speech_string.shift();
     }
+}
+
+function speech_cancel_all(){
+    speech_string.splice(0);    // remove all items
+    window.speechSynthesis.cancel();
 }
 
 function read_score_controller(){
@@ -1422,10 +1463,12 @@ function update_game_status() {
                 man2pose_time = Date.now();
                 game_score_read_time = Date.now();
                 game_time = Date.now();
+                language_instruction = "";  // for repeat navigation sound
+                speech_cancel_all();
                 playNavigationSound(sound_navigation_list.GameStart);
                 playBGM();
             } else {
-                repeatNavigationSound(sound_navigation_list.Setup, 10000/*msec*/);
+                repeatNavigationSound();
             }
             break
 
