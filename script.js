@@ -313,25 +313,6 @@ function drawScoreTimeSynchro(ctx){
 }
 
 function drawStatus(ctx) {
-    var game_status_disp;
-    switch (game_status) {
-        case game_mode.WaitingForPlayers:
-            game_status_disp = "Waiting for Players";
-            break
-
-        case game_mode.Playing:
-            game_status_disp = "Playing";
-            break
-
-        case game_mode.Pause:
-            game_status_disp = "Pause: ";
-            break
-
-        case game_mode.End:     // BGM End (Play all time or out of field)
-            game_status_disp = "Game End";
-            break
-        default:
-    }
     ctx.clearRect(0, 0, 500, 50);
 
     var area_mode;
@@ -350,10 +331,9 @@ function drawStatus(ctx) {
 
     ctx.beginPath()
     ctx.font = "18pt 'Times New Roman'";
-    ctx.fillText(game_status_disp + " / " + area_mode + " / " + language_mode, 20, 20);
+    ctx.fillText(area_mode + " / " + language_mode, 20, 20);
     ctx.fillStyle = "#000000";
     ctx.stroke();
-
 }
 
 function draw_man() {
@@ -451,15 +431,9 @@ function calculate_joint_degree(kp) {
     if (kp[leftShoulder] == null) return false;
     var joint_degree = new Array(numOfJoint);
 
-    joint_degree[nose] = 0;     // not used
-    joint_degree[leftEye] = 0;   // not used
-    joint_degree[rightEye] = 0;   // not used
-    joint_degree[leftEar] = 0;   // not used
-    joint_degree[rightEar] = 0;   // not used
-    joint_degree[leftWrist] = 0;   // not used
-    joint_degree[rightWrist] = 0;   // not used
-    joint_degree[leftAnkle] = 0;   // not used
-    joint_degree[rightAnkle] = 0;   // not used
+    joint_degree[nose] = 0; joint_degree[leftEye] = 0;  joint_degree[rightEye] = 0;   // not used
+    joint_degree[leftEar] = 0;  joint_degree[rightEar] = 0; joint_degree[leftWrist] = 0;   // not used
+    joint_degree[rightWrist] = 0; joint_degree[leftAnkle] = 0; joint_degree[rightAnkle] = 0;   // not used
 
     const leftShoulder_x = kp[leftShoulder].position.x;
     const leftShoulder_y = kp[leftShoulder].position.y;
@@ -544,15 +518,9 @@ function isInField(kp, x_left, x_right, y_top, y_bottom) {
 function mirror_joint_degree(joint_degree) {
     var mirror_joint_degree = new Array(numOfJoint);
 
-    mirror_joint_degree[nose] = 0;     // not used
-    mirror_joint_degree[leftEye] = 0;   // not used
-    mirror_joint_degree[rightEye] = 0;   // not used
-    mirror_joint_degree[leftEar] = 0;   // not used
-    mirror_joint_degree[rightEar] = 0;   // not used
-    mirror_joint_degree[leftWrist] = 0;   // not used
-    mirror_joint_degree[rightWrist] = 0;   // not used
-    mirror_joint_degree[leftAnkle] = 0;   // not used
-    mirror_joint_degree[rightAnkle] = 0;   // not used
+    mirror_joint_degree[nose] = 0; mirror_joint_degree[leftEye] = 0; mirror_joint_degree[rightEye] = 0;   // not used
+    mirror_joint_degree[leftEar] = 0; mirror_joint_degree[rightEar] = 0; mirror_joint_degree[leftWrist] = 0;   // not used
+    mirror_joint_degree[rightWrist] = 0; mirror_joint_degree[leftAnkle] = 0; mirror_joint_degree[rightAnkle] = 0;   // not used
 
     var temp_degree = joint_degree[leftShoulder];
     mirror_joint_degree[leftShoulder] = joint_degree[rightShoulder];
@@ -1182,18 +1150,10 @@ function pauseBgm() {
 
 
 function handle_Sounds() {
-//    if (mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi] != null) {
-//        if (window.speechSynthesis.speaking) {
-//            mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_LOW;
-//        } else {
-//            mirror_sound_bgm[sound_bgm_list.Etude_Plus_Op10No1_MSumi].volume = VOLUME_DEFAULT;
-//        }
-
-        if (bgm_stopping) {
-            stopBGM();
-            bgm_stopping = false;
-        }
-//    }
+    if (bgm_stopping) {
+        stopBGM();
+        bgm_stopping = false;
+    }
 }
 
 // Sound (Sound Effect): play as soon as possible  -----------------------------------------------------------------------------------------
