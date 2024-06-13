@@ -1407,12 +1407,14 @@ function read_score(){
 
 // Game Status -----------------------------------------------------------------------------------------
 
+var gameend_speech_done = true;
 function update_game_status() {
     switch (game_status) {
         case game_mode.WaitingForPlayers:
             if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
                 game_status = game_mode.Playing;
                 gameend_sound_played = false;
+                gameend_speech_done = false;
                 swing_se_sound_count = 0;
                 swing_se_sound_count_time = Date.now();
                 synchro_percent = 100;
@@ -1459,7 +1461,10 @@ function update_game_status() {
             break
 
         case game_mode.End:     // BGM End (Play all time or out of field)
-            playNavigationSound(sound_navigation_list.GameEnd);
+            if(gameend_speech_done == false){
+                playNavigationSound(sound_navigation_list.GameEnd);
+                gameend_speech_done = true;
+            }
             if(gameend_sound_played == false){
                 if(game_score > 1000){   // save the mirrory
                     playSound_se(sound_se_list.se_Shining_soundeffectlab, VOLUME_DEFAULT);
