@@ -580,9 +580,10 @@ function mirror_joint_degree(joint_degree) {
 }
 
 
-// Compare Pose -----------------------------------------------------------------------------------------
+// Compare Pose (Calc synchro) -----------------------------------------------------------------------------------------
 
 function compare_joint_degree() {
+    if(!inField_ManInTheMirror || !inField_ManInFrontOfTheMirror) return;
     var sync_confidence = 0;
     var mirror_joint_degree2 = mirror_joint_degree(joint_degree2);
     for (var i = 0; i < numOfJoint; i++) {
