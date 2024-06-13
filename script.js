@@ -338,16 +338,16 @@ function drawStatus(ctx) {
 
 function draw_man() {
     clearPoseRect(ctx);
+    drawPose(ctx, man1pose_draw, joint_degree1, false/*true*//*mirror draw*/, 'lightgray');  // pose for draw
     if(Captured_ManInTheMirror){
-        drawPose(ctx, man1pose, joint_degree1, false/*true*//*mirror draw*/, 'blue');  // pose for analysis
+        drawPose(ctx, man1pose, joint_degree1, false/*true*//*mirror draw*/, 'black');  // pose instance for analysis
     }
-    drawPose(ctx, man1pose_draw, joint_degree1, false/*true*//*mirror draw*/, 'black');  // pose for draw
 
     clearPoseRect(ctx2);
+    drawPose(ctx2, man2pose_draw, joint_degree2, true/*false*//*mirror draw*/, 'lightgray');  // pose for draw
     if(Captured_ManInFrontOfTheMirror){
-        drawPose(ctx2, man2pose, joint_degree2, true/*false*//*mirror draw*/, 'blue');  // pose for analysis
+        drawPose(ctx2, man2pose, joint_degree2, true/*false*//*mirror draw*/, 'black');  // pose instance for analysis
     }
-    drawPose(ctx2, man2pose_draw, joint_degree2, true/*false*//*mirror draw*/, 'black');  // pose for draw
 }
 
 function draw_mirror_out_gauge() {
