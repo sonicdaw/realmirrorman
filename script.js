@@ -625,6 +625,8 @@ function handle_synchro_percent() {
         }else if(add_point > 30){
             playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab,VOLUME_MID);  // Power Point
         }
+        man1pose_move = 0;
+        man2pose_move = 0;
     }
     if(game_score < 0)game_score = 0;
 
