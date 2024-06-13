@@ -353,13 +353,29 @@ function draw_man() {
 function draw_mirror_out_gauge() {
     ctx.beginPath();
     ctx.fillStyle = "red";
-    ctx.fillRect(0, 0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx.fillRect(0, 0, (FilterinField_ManInTheMirror / FilterinField_Max) * WIDTH, 20);
     ctx.stroke();
 
     ctx2.beginPath();
     ctx2.fillStyle = "red";
-    ctx2.fillRect(0, 0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 10);
+    ctx2.fillRect(0, 0, (FilterinField_ManInFrontOfTheMirror / FilterinField_Max) * WIDTH, 20);
     ctx2.stroke();
+
+    if(FilterinField_ManInTheMirror > 0){
+        ctx.beginPath()
+        ctx.font = "15pt 'Times New Roman'";
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText("Out Of Field", 10, 17);
+        ctx.stroke();
+    }
+
+    if(FilterinField_ManInFrontOfTheMirror > 0){
+        ctx2.beginPath()
+        ctx2.font = "15pt 'Times New Roman'";
+        ctx2.fillStyle = "#ffffff";
+        ctx2.fillText("Out Of Field", 10, 17);
+        ctx2.stroke();
+    }
 }
 
 function draw_man_in_out() {
@@ -394,17 +410,31 @@ function draw_canvasarea(){
 }
 
 function handle_move(){
-    ctx.beginPath()
-    ctx.font = "30pt 'Times New Roman'";
-    ctx.fillStyle = "#000000";
-    ctx.fillText("Move:" + Math.round(man1pose_move/10000), 20, 50);
+    ctx.beginPath();
+    ctx.fillStyle = "lightblue";
+    ctx.fillRect(0, 21, (man1pose_move / 50000) * WIDTH, 20);
     ctx.stroke();
 
-    ctx2.beginPath()
-    ctx2.font = "30pt 'Times New Roman'";
-    ctx2.fillStyle = "#000000";
-    ctx2.fillText("Move:" + Math.round(man2pose_move/10000), 20, 50);
+    ctx2.beginPath();
+    ctx2.fillStyle = "lightblue";
+    ctx2.fillRect(0, 21, (man2pose_move / 50000) * WIDTH, 20);
     ctx2.stroke();
+
+    if(man1pose_move > 1000){
+        ctx.beginPath()
+        ctx.font = "15pt 'Times New Roman'";
+        ctx.fillStyle = "#000000";
+        ctx.fillText(Math.round(man1pose_move/10000), 0, 37);
+        ctx.stroke();
+    }
+
+    if(man2pose_move > 1000){
+        ctx2.beginPath()
+        ctx2.font = "15pt 'Times New Roman'";
+        ctx2.fillStyle = "#000000";
+        ctx2.fillText(Math.round(man2pose_move/10000), 0, 37);
+        ctx2.stroke();
+    }
 }
 
 
