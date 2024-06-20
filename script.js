@@ -185,18 +185,6 @@ const drawLine = (ctx, kp0, kp1, mirror, color) => {
     ctx.stroke();
 }
 
-const drawPoint = (ctx, kp, mirror, color) => {
-    if (kp.score < 0.3) return
-    ctx.fillStyle = color;
-    ctx.beginPath()
-    if (mirror) {
-        ctx.arc(WIDTH - kp.position.x, kp.position.y, 3, 0, 2 * Math.PI);
-    } else {
-        ctx.arc(kp.position.x, kp.position.y, 3, 0, 2 * Math.PI);
-    }
-    ctx.fill()
-}
-
 const drawHead = (ctx, kp, kp2, mirror, color) => {
     if (kp.score < 0.3) return
     ctx.fillStyle = color;
@@ -209,26 +197,45 @@ const drawHead = (ctx, kp, kp2, mirror, color) => {
     ctx.stroke()
 }
 
+const jointPairs = [
+    [leftShoulder, rightShoulder],
+    [leftShoulder, leftElbow],
+    [leftElbow, leftWrist],
+    [rightShoulder, rightElbow],
+    [rightElbow, rightWrist],
+    [leftShoulder, leftHip],
+    [rightShoulder, rightHip],
+    [leftHip, rightHip],
+    [leftHip, leftKnee],
+    [leftKnee, leftAnkle],
+    [rightHip, rightKnee],
+    [rightKnee, rightAnkle]
+];
+
 function drawPose(ctx, kp, joint_degree, mirror/*true for mirror draw*/, color) {
     if (kp[leftShoulder] == null) return false;
-    drawHead(ctx, kp[nose], kp[leftEye], mirror, color);
 
-    drawPoint(ctx, kp[nose], mirror, color);
-    drawPoint(ctx, kp[leftEye], mirror, color);
-    drawPoint(ctx, kp[rightEye], mirror, color);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
 
-    drawLine(ctx, kp[leftShoulder], kp[rightShoulder], mirror, color);
-    drawLine(ctx, kp[leftShoulder], kp[leftElbow], mirror, color);
-    drawLine(ctx, kp[leftElbow], kp[leftWrist], mirror, color);
-    drawLine(ctx, kp[rightShoulder], kp[rightElbow], mirror, color);
-    drawLine(ctx, kp[rightElbow], kp[rightWrist], mirror, color);
-    drawLine(ctx, kp[leftShoulder], kp[leftHip], mirror, color);
-    drawLine(ctx, kp[rightShoulder], kp[rightHip], mirror, color);
-    drawLine(ctx, kp[leftHip], kp[rightHip], mirror, color);
-    drawLine(ctx, kp[leftHip], kp[leftKnee], mirror, color);
-    drawLine(ctx, kp[leftKnee], kp[leftAnkle], mirror, color);
-    drawLine(ctx, kp[rightHip], kp[rightKnee], mirror, color);
-    drawLine(ctx, kp[rightKnee], kp[rightAnkle], mirror, color);
+    drawHead(ctx, kp[nose], kp[leftEye], mirror);
+
+    ctx.beginPath();
+    for (const [joint1, joint2] of jointPairs) {
+        const [x1, y1] = mirror ? [WIDTH - kp[joint1].position.x, kp[joint1].position.y] : [kp[joint1].position.x, kp[joint1].position.y];
+        const [x2, y2] = mirror ? [WIDTH - kp[joint2].position.x, kp[joint2].position.y] : [kp[joint2].position.x, kp[joint2].position.y];
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+    }
+    ctx.stroke();
+
+    for (const joint of [nose, leftEye, rightEye]) {
+        const [x, y] = mirror ? [WIDTH - kp[joint].position.x, kp[joint].position.y] : [kp[joint].position.x, kp[joint].position.y];
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+    }
 
     ctx.font = "20pt 'Times New Roman'";
     ctx.fillStyle = 'black';
