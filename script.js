@@ -52,7 +52,7 @@ const VOLUME_DEFAULT = 1.0;
 const VOLUME_HI = 0.8;
 const VOLUME_MID = 0.7;
 const VOLUME_LOW = 0.01;
-const GAME_TIME = 60000;
+const GAME_TIME = 90000;
 
 var timer;
 var interval = 10;
@@ -114,6 +114,12 @@ var game_status = game_mode.WaitingForPlayers;
 var areamode = 0;   // 0: Full body mode, 1: Upper body mode
 var language = "ja";
 var language_instruction = "";
+
+let announcementsMade = {
+    tenSeconds: false,
+    thirtySeconds: false,
+    sixtySeconds: false
+};
 
 function toggle_language() {
   if (language === "ja") {
@@ -626,7 +632,12 @@ function handle_synchro_percent() {
         game_score--;
     } else {
         var add_point = 10 + 30 * Math.round(man1pose_move/10000) * Math.round(man2pose_move/10000);
-        game_score = game_score + add_point;
+        var double_point = 1;
+        if(Date.now() - game_time > 60){
+            double_point = 2;
+            console.log("doublePoint time");
+        }
+        game_score = game_score + add_point * double_point;
         console.log("Point" + add_point)
         if(add_point > 100){
             playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab,VOLUME_HI);  // Super Power Point
@@ -1345,6 +1356,13 @@ function get_navigation_en_speech(key) {
         return speech_text_en.LostManInFrontOfTheMirror;
       case sound_navigation_list.LostPlayers:
         return speech_text_en.LostPlayers;
+      case speech_text.Announce_10sec:              // speech en/jp
+        return speech_text_en.Announce_10sec;
+      case speech_text.Announce_30sec:              // speech en/jp
+        return speech_text_en.Announce_30sec;
+      case speech_text.Announce_60sec:              // speech en/jp
+        return speech_text_en.Announce_60sec;
+
       default:
         return "";
     }
@@ -1366,7 +1384,10 @@ const speech_text = Object.freeze({
     FoundManInFrontOfTheMirror: "かがみのまえのひとをみつけました",
     LostManInFrontOfTheMirror: "かがみのまえのひとをみうしないました",
     LostPlayers: "ぷれーやーがいなくなりました",
-    ReadScore: "てんです"
+    ReadScore: "てんです",
+    Announce_10sec: "ぽーずをあわせましょう。あっていればぽいんとがはいります",
+    Announce_30sec: "ぽーずをあわせたままうごくとぽいんとあっぷ",
+    Announce_60sec: "ぼーなすたいむ。とくてんがばいになります"
 });
 
 const speech_text_en = Object.freeze({
@@ -1383,11 +1404,22 @@ const speech_text_en = Object.freeze({
     FoundManInFrontOfTheMirror: "Found a person in front of the mirror",
     LostManInFrontOfTheMirror: "Lost the person in front of the mirror",
     LostPlayers: "Players are lost",
-    ReadScore: "points"
+    ReadScore: "points",
+    Announce_10sec: "Let's match our poses. Earn points when they align.",
+    Announce_30sec: "Keep moving while maintaining the pose to increase points.",
+    Announce_60sec: "Bonus time! Points are doubled."
 });
 
 var speech_string = [];
 var pre_speech_string = "";
+
+function speech(key){   // jp/en
+    if (language === "ja") {
+        speech_push(key);
+      } else {
+        speech_push(get_navigation_en_speech(key));
+      }
+}
 
 function speech_push(string) {
     if (string == pre_speech_string) {
@@ -1445,6 +1477,28 @@ function read_score(){
     game_score_read_time = Date.now();
 }
 
+// 10, 30, 60sec announcement -----------------------------------------------------------------------------------------
+function checkAnnouncements() {
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - game_time;
+
+    if (elapsedTime >= 10000 && !announcementsMade.tenSeconds) {
+        speech(speech_text.Announce_10sec);
+        announcementsMade.tenSeconds = true;
+    }
+
+    if (elapsedTime >= 30000 && !announcementsMade.thirtySeconds) {
+        speech(speech_text.Announce_30sec);
+        announcementsMade.thirtySeconds = true;
+    }
+
+    if (elapsedTime >= 60000 && !announcementsMade.sixtySeconds) {
+        speech(speech_text.Announce_60sec);
+        announcementsMade.sixtySeconds = true;
+    }
+}
+
+
 // Game Status -----------------------------------------------------------------------------------------
 
 var gameend_speech_done = true;
@@ -1465,6 +1519,11 @@ function update_game_status() {
                 man2pose_time = Date.now();
                 game_score_read_time = Date.now();
                 game_time = Date.now();
+                announcementsMade = {
+                    tenSeconds: false,
+                    thirtySeconds: false,
+                    sixtySeconds: false
+                };
                 language_instruction = "";  // for repeat navigation sound
                 speech_cancel_all();
                 playNavigationSound(sound_navigation_list.GameStart);
@@ -1570,6 +1629,7 @@ function mirror_loop() {
     playNavigationQueue();
     speech_controller();
     read_score_controller();
+    checkAnnouncements();
 }
 
 var move = function () {
