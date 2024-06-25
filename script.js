@@ -28,6 +28,9 @@ const bottomRangeSlider2 = document.getElementById('bottom_range_2');
 const leftRangeSlider2 = document.getElementById('left_range_2');
 const rightRangeSlider2 = document.getElementById('right_range_2');
 
+const startModeToggle = document.getElementById('startModeToggle');
+const manualStartButton = document.getElementById('manualStartButton');
+
 const WIDTH = 320;
 const HEIGHT = 320;
 
@@ -112,6 +115,7 @@ const FilterinField_Max = 500;
 const game_mode = Object.freeze({ WaitingForPlayers: 0, Playing: 1, Pause: 2, End: 3 });
 var game_status = game_mode.WaitingForPlayers;
 var areamode = 0;   // 0: Full body mode, 1: Upper body mode
+var isAutoStart = true;
 var language = "ja";
 var language_instruction = "";
 
@@ -909,6 +913,25 @@ function getDeviceList_SoundOn() {
 }
 
 
+// Manual start button -----------------------------------------------------------------------------------------
+function updateStartButtonState() {
+    manualStartButton.disabled = !(inField_ManInFrontOfTheMirror && inField_ManInTheMirror);
+}
+
+startModeToggle.addEventListener('click', function() {
+    isAutoStart = !isAutoStart;
+    startModeToggle.textContent = isAutoStart ? 'Auto Start' : 'Manual Start';
+    manualStartButton.style.display = isAutoStart ? 'none' : 'inline-block';
+});
+
+manualStartButton.addEventListener('click', function() {
+    if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {
+        startGame();
+    }
+});
+
+
+
 // Cam area UI -----------------------------------------------------------------------------------------
 topRangeSlider1.addEventListener('input', function() {
     top_range_1 = parseFloat(this.value);
@@ -1152,36 +1175,40 @@ function checkAnnouncements() {
 
 
 // Game Status -----------------------------------------------------------------------------------------
+function startGame() {
+    game_status = game_mode.Playing;
+    gameend_sound_played = false;
+    gameend_speech_done = false;
+    swing_se_sound_count = 0;
+    swing_se_sound_count_time = Date.now();
+    synchro_percent = 100;
+    game_score = 0;
+    man1pose_move = 0;
+    man2pose_move = 0;
+    man1pose_time = Date.now();
+    man2pose_time = Date.now();
+    game_score_read_time = Date.now();
+    game_time = Date.now();
+    announcementsMade = {
+        tenSeconds: false,
+        thirtySeconds: false,
+        sixtySeconds: false
+    };
+    language_instruction = "";  // for repeat navigation sound
+    speech_cancel_all();
+    playNavigationSound(sound_navigation_list.GameStart);
+    playBGM();
+}
 
 var gameend_speech_done = true;
 function update_game_status() {
     switch (game_status) {
         case game_mode.WaitingForPlayers:
-            if (inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
-                game_status = game_mode.Playing;
-                gameend_sound_played = false;
-                gameend_speech_done = false;
-                swing_se_sound_count = 0;
-                swing_se_sound_count_time = Date.now();
-                synchro_percent = 100;
-                game_score = 0;
-                man1pose_move = 0;
-                man2pose_move = 0;
-                man1pose_time = Date.now();
-                man2pose_time = Date.now();
-                game_score_read_time = Date.now();
-                game_time = Date.now();
-                announcementsMade = {
-                    tenSeconds: false,
-                    thirtySeconds: false,
-                    sixtySeconds: false
-                };
-                language_instruction = "";  // for repeat navigation sound
-                speech_cancel_all();
-                playNavigationSound(sound_navigation_list.GameStart);
-                playBGM();
+            if (isAutoStart && inField_ManInFrontOfTheMirror && inField_ManInTheMirror) {    // Play Status
+                startGame();
             } else {
                 repeatNavigationSound();
+                updateStartButtonState();
             }
             break
 
@@ -1227,6 +1254,7 @@ function update_game_status() {
             }
             if(Date.now() - game_end_timer > 10000){    // keep end status for 10sec
                 game_status = game_mode.WaitingForPlayers;
+                updateStartButtonState();
             }
             bgm_stopping = true;
             break

@@ -66,6 +66,13 @@
         text-align: center;
         margin-top: 10px;
       }
+      #startModeToggle, #manualStartButton {
+        padding: 5px 10px;
+        margin: 0 5px;
+      }
+      #manualStartButton {
+        display: none;
+      }
     </style>
   </head>  
   <body>
@@ -100,6 +107,8 @@
         </select>
         <button id="area_mode_change_button" onclick="change_areamode()">Full/Upper</button>
         <button id="language_button" onclick="toggle_language()">JP/Eng</button>
+        <button id="startModeToggle">Auto Start</button>
+        <button id="manualStartButton" disabled>Start Game</button>
       </div>
       <div>
         <label for="bgm_volume">BGM:</label>
