@@ -12,8 +12,6 @@ var canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d')
 var canvas2 = document.getElementById('canvas2');
 const ctx2 = canvas2.getContext('2d')
-var canvas3 = document.getElementById('canvas3_status');
-const ctx3_status = canvas3.getContext('2d')
 var canvas_score = document.getElementById('canvas_score');
 const ctx_score = canvas_score.getContext('2d')
 const cameraOptions = document.querySelector('.video-options>select');
@@ -28,6 +26,8 @@ const bottomRangeSlider2 = document.getElementById('bottom_range_2');
 const leftRangeSlider2 = document.getElementById('left_range_2');
 const rightRangeSlider2 = document.getElementById('right_range_2');
 
+const languageButton = document.getElementById('language_button');
+const areaModeButton = document.getElementById('area_mode_change_button');
 const startModeToggle = document.getElementById('startModeToggle');
 const manualStartButton = document.getElementById('manualStartButton');
 
@@ -126,9 +126,12 @@ let announcementsMade = {
 function toggle_language() {
   if (language === "ja") {
     language = "en";
+    languageButton.textContent = "EN";
   } else {
     language = "ja";
+    languageButton.textContent = "JP";
   }
+  languageButton.classList.toggle('active-button');
 }
 
 function getUserMediaSupported() {
@@ -145,9 +148,12 @@ if (getUserMediaSupported()) {
 function change_areamode(event){
     if(areamode == 0){
         areamode = 1;
+        areaModeButton.textContent = "UpperBody";
     }else{
         areamode = 0;
+        areaModeButton.textContent = "FullBody";
     }
+    areaModeButton.classList.toggle('active-button');
 }
 
 var model = undefined;
@@ -325,30 +331,6 @@ function drawScoreTimeSynchro(ctx){
         ctx.fillText(status_text, 24, 700 / 2 + 4);
         ctx.stroke();
     }
-}
-
-function drawStatus(ctx) {
-    ctx.clearRect(0, 0, 500, 50);
-
-    var area_mode;
-    if(areamode == 0){
-        area_mode = "Full Body Mode";
-    }else{
-        area_mode = "Upper Body Mode";
-    }
-
-    var language_mode;
-    if(language == "ja"){
-        language_mode = "JP";
-    }else{
-        language_mode = "EN";
-    }
-
-    ctx.beginPath()
-    ctx.font = "18pt 'Times New Roman'";
-    ctx.fillText(area_mode + " / " + language_mode, 20, 20);
-    ctx.fillStyle = "#000000";
-    ctx.stroke();
 }
 
 function draw_man() {
@@ -1322,7 +1304,6 @@ function mirror_loop() {
     draw_man_in_out();
     draw_canvasarea();
     drawScoreTimeSynchro(ctx_score);
-    drawStatus(ctx3_status);
     handle_move();
     update_game_status();
     handle_synchro_percent();
@@ -1343,5 +1324,20 @@ var move = function () {
 window.onload = function () {
     loadSavedVolume();
     loadRangeSettings();
+
+    if(language === "en") {
+        languageButton.textContent = "EN";
+    } else {
+        languageButton.textContent = "JP";
+    }
+    languageButton.classList.add('active-button');
+
+    if(areamode == 1) {
+        areaModeButton.textContent = "UpperBody";
+    } else {
+        areaModeButton.textContent = "FullBody";
+    }
+    areaModeButton.classList.add('active-button');
+
     move();
 };
