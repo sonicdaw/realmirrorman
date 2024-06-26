@@ -91,8 +91,6 @@ var man1pose_temp = new Array(numOfJoint);
 var man2pose_temp = new Array(numOfJoint);
 var man1pose_move = 0;
 var man2pose_move = 0;
-var man1pose_draw = new Array(numOfJoint);
-var man2pose_draw = new Array(numOfJoint);
 var man1pose_time = Date.now();
 var man2pose_time = Date.now();
 
@@ -355,15 +353,17 @@ function drawStatus(ctx) {
 
 function draw_man() {
     clearPoseRect(ctx);
-    drawPose(ctx, man1pose_draw, joint_degree1, false/*true*//*mirror draw*/, 'lightgray');  // pose for draw
     if(Captured_ManInTheMirror){
         drawPose(ctx, man1pose, joint_degree1, false/*true*//*mirror draw*/, 'black');  // pose instance for analysis
+    }else{
+        drawPose(ctx, man1pose, joint_degree1, false/*true*//*mirror draw*/, 'lightgray');  // pose for draw
     }
 
     clearPoseRect(ctx2);
-    drawPose(ctx2, man2pose_draw, joint_degree2, true/*false*//*mirror draw*/, 'lightgray');  // pose for draw
     if(Captured_ManInFrontOfTheMirror){
         drawPose(ctx2, man2pose, joint_degree2, true/*false*//*mirror draw*/, 'black');  // pose instance for analysis
+    }else{
+        drawPose(ctx2, man2pose, joint_degree2, true/*false*//*mirror draw*/, 'lightgray');  // pose for draw
     }
 }
 
@@ -783,6 +783,10 @@ function update_man_status() {
 
 
 // Cam Pose Capture -----------------------------------------------------------------------------------------
+let lastValidShoulderWidth1 = null;
+let lastValidShoulderWidth2 = null;
+const INVALID_POSE_THRESHOLD = 1000;
+const ANALYZE_INTERVAL = 100;
 
 function predictWebcam_common(predictVideo, predictFunc) {
     model.estimateMultiplePoses(predictVideo, {
@@ -791,62 +795,61 @@ function predictWebcam_common(predictVideo, predictFunc) {
         scoreThreshold: 0.5,
         nmsRadius: 20
     }).then(function (predictions) {
-        // Detect frontmost person
-        let frontmostPose = null;
-        let frontmostY = Infinity;
+        // Detect near center person
+        const isVideo1 = predictVideo === video;
+        const leftRange = isVideo1 ? left_range_1 * WIDTH : left_range_2 * WIDTH;
+        const rightRange = isVideo1 ? right_range_1 * WIDTH : right_range_2 * WIDTH;
+        const topRange = isVideo1 ? top_range_1 * HEIGHT : top_range_2 * HEIGHT;
+        const bottomRange = isVideo1 ? bottom_range_1 * HEIGHT : bottom_range_2 * HEIGHT;
+
+        const centerX = (leftRange + rightRange) / 2;
+        let closestPose = null;
+        let closestDistance = Infinity;
 
         for (const pose of predictions) {
-            const pose_leftShoulder = pose.keypoints[leftShoulder];
-            const pose_rightShoulder = pose.keypoints[rightShoulder];
-            var active_pose = false;
-
-            if (predictVideo === video) {
-                active_pose = isInField(pose.keypoints, left_range_1*WIDTH, right_range_1*WIDTH, top_range_1*HEIGHT, bottom_range_1*HEIGHT);
-            }
-            if (predictVideo === video2) {
-                active_pose = isInField(pose.keypoints, left_range_2*WIDTH, right_range_2*WIDTH, top_range_2*HEIGHT, bottom_range_2*HEIGHT);
-            }
-
-            if (active_pose && pose_leftShoulder.score > 0.5 && pose_rightShoulder.score > 0.5) {
-                const shoulderY = (pose_leftShoulder.position.y + pose_rightShoulder.position.y) / 2;   // frontmost
-                if (shoulderY < frontmostY) {
-                    frontmostY = shoulderY;
-                    frontmostPose = pose;
-                }
+            if(pose.score < 0.3 || !isInField(pose.keypoints, leftRange, rightRange, topRange, bottomRange)) continue;
+            const shoulderCenterX = (pose.keypoints[leftShoulder].position.x + pose.keypoints[rightShoulder].position.x) / 2;
+            const distance = Math.abs(shoulderCenterX - centerX);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestPose = pose;
             }
         }
 
-        if (frontmostPose) {                    // found available pose
-            if (frontmostPose.score > 0.3) {
-                var kp = frontmostPose.keypoints;
-                const pose_leftShoulder = kp[leftShoulder];
-                const pose_rightShoulder = kp[rightShoulder];
-                if (predictVideo === video) {
-                    if(Date.now() - man1pose_time > 100){    // count 100 msec
-                        if(man1pose_temp[0] == null){man1pose_temp = Object.assign({}, kp);}
-                        man1pose_move = calc_pose_move_total_diff(man1pose_temp, kp);           // detect amount of movement
-                        man1pose_temp = Object.assign({}, kp);
-                        man1pose_draw = Object.assign({}, kp);
-                        man1pose_time = Date.now();
-                    }
-                    if(man1pose[0] == null){man1pose = Object.assign({}, kp);}
-                    man1pose = Object.assign({}, kp);                   // latest pose
-                    Captured_ManInTheMirror = true;
-                }
+        const currentTime = Date.now();
+        const lastPoseTime = isVideo1 ? man1pose_time : man2pose_time;
 
-                if (predictVideo === video2) {
-                    if(Date.now() - man2pose_time > 100){    // count 100 msec
-                        if(man2pose_temp[0] == null){man2pose_temp = Object.assign({}, kp);}
-                        man2pose_move = calc_pose_move_total_diff(man2pose_temp, kp);           // detect amount of movement
-                        man2pose_temp = Object.assign({}, kp);
-                        man2pose_draw = Object.assign({}, kp);
-                        man2pose_time = Date.now();
+        if (closestPose) {                    // found available pose
+            const currentPose = closestPose.keypoints;
+            const lastValidShoulderWidth = isVideo1 ? lastValidShoulderWidth1 : lastValidShoulderWidth2;
+            if (isValidPose_in30diff(currentPose, lastValidShoulderWidth) ||
+                currentTime - (lastPoseTime || currentTime) >= INVALID_POSE_THRESHOLD) {
+
+                if (isVideo1) { // viode1
+                    lastValidShoulderWidth1 = getShoulderWidth(currentPose);
+                    if(currentTime - man1pose_time > ANALYZE_INTERVAL) {
+                        if(man1pose_temp[0] == null) {
+                            man1pose_temp = Object.assign({}, currentPose);
+                        }
+                        man1pose_move = calc_pose_move_total_diff(man1pose_temp, currentPose);  // diff from previous pose
+                        man1pose_temp = Object.assign({}, currentPose);                         // for next analysis
+                        man1pose_time = currentTime;
                     }
-                    if(man2pose[0] == null){man2pose = Object.assign({}, kp);}
-                    man2pose = Object.assign({}, kp);                   // latest pose
+                    man1pose = Object.assign({}, currentPose);
+                    Captured_ManInTheMirror = true;
+                } else {        // video2
+                    lastValidShoulderWidth2 = getShoulderWidth(currentPose);
+                    if(currentTime - man2pose_time > ANALYZE_INTERVAL) {
+                        if(man2pose_temp[0] == null) {
+                            man2pose_temp = Object.assign({}, currentPose);
+                        }
+                        man2pose_move = calc_pose_move_total_diff(man2pose_temp, currentPose);
+                        man2pose_temp = Object.assign({}, currentPose);
+                        man2pose_time = currentTime;
+                    }
+                    man2pose = Object.assign({}, currentPose);
                     Captured_ManInFrontOfTheMirror = true;
                 }
-
             }
         }else{                                  // not found available pose
             let NotAvailablePose = null;
@@ -856,14 +859,20 @@ function predictWebcam_common(predictVideo, predictFunc) {
                     NotAvailablePose = pose;
                     NotAvailableScore = pose.score;
                 }
-                break;
             }
-            if (predictVideo === video && NotAvailablePose != null) {
-                man1pose_draw = Object.assign({}, NotAvailablePose.keypoints);
+            if (isVideo1) {
+                if(NotAvailablePose != null){
+                    man1pose = Object.assign({}, NotAvailablePose.keypoints);
+                }
+                lastValidShoulderWidth1 = null;
+                man1pose_time = currentTime;
                 Captured_ManInTheMirror = false;
-            }
-            if (predictVideo === video2 && NotAvailablePose != null) {
-                man2pose_draw = Object.assign({}, NotAvailablePose.keypoints);
+            } else {
+                if(NotAvailablePose != null){
+                    man2pose = Object.assign({}, NotAvailablePose.keypoints);
+                }
+                lastValidShoulderWidth2 = null;
+                man2pose_time = currentTime;
                 Captured_ManInFrontOfTheMirror = false;
             }
         }
@@ -872,6 +881,18 @@ function predictWebcam_common(predictVideo, predictFunc) {
     });
 }
 
+function getShoulderWidth(pose) {
+    return Math.abs(pose[leftShoulder].position.x - pose[rightShoulder].position.x);
+}
+
+function isValidPose_in30diff(currentPose, lastValidShoulderWidth) {
+    if (lastValidShoulderWidth === null) return true;
+
+    const currentShoulderWidth = getShoulderWidth(currentPose);
+    const widthDifference = Math.abs(currentShoulderWidth - lastValidShoulderWidth) / lastValidShoulderWidth;
+
+    return widthDifference < 0.3;
+}
 
 // in the mirror
 function predictWebcam() {
