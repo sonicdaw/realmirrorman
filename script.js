@@ -582,14 +582,16 @@ function mirror_joint_degree(joint_degree) {
 // Compare Pose (Calc synchro) -----------------------------------------------------------------------------------------
 
 function compare_joint_degree() {
-    if(!inField_ManInTheMirror || !inField_ManInFrontOfTheMirror) return;
+    if(!Captured_ManInTheMirror || !Captured_ManInFrontOfTheMirror) {synchro=900;return;console.log("out of field!!!")}
     var sync_confidence = 0;
     var mirror_joint_degree2 = mirror_joint_degree(joint_degree2);
     for (var i = 0; i < numOfJoint; i++) {
         if(areamode == 1 && numOfJoint >= leftHip) continue;  // Ignore if the area mode is upper body and not upper body
         var diff = Math.abs(joint_degree1[i] - mirror_joint_degree2[i]);
-        if (diff > 30) {
+        if (diff > 10) {
             sync_confidence = sync_confidence + diff;
+        }else if (diff > 40) {
+            sync_confidence = sync_confidence + diff * 2;
         }
     }
     synchro = sync_confidence;
