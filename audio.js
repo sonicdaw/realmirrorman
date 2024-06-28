@@ -136,7 +136,7 @@ function playNavigationQueue(){
 
 const speech_text = Object.freeze({
     GameInstruction1: "みらーおぶてらーにようこそ。かがみのせかいにまよいこんでしまったみたいですね。このげーむは、ふたりであそびます。ぽーずをとるひと、それをまねするひとにわかれてください。",
-    GameInstruction2: "ぽーずをとるひとはかがみのまえにたち。まねするひとはかがみのなかにたってください。いっぷんかん かがみになりきることができれば、かがみのせかいからぬけだせます。",
+    GameInstruction2: "ぽーずをとるひとはかがみのまえにたち。まねするひとはかがみのなかにたってください。きゅうじゅうびょう かがみになりきることができれば、かがみのせかいからぬけだせます。",
     Setup: "かがみのまえとなかにたってください",
     GameStart: "げーむをかいしします",
     GameEnd: "げーむしゅうりょうです",
@@ -156,7 +156,7 @@ const speech_text = Object.freeze({
 
 const speech_text_en = Object.freeze({
     GameInstruction1: "Welcome to Mirror of Terror. It seems like you've wandered into the world of mirrors. This game is played by two people. Please split into two roles.",
-    GameInstruction2: "The person who poses and the person who imitates. The person who poses should stand in front of the mirror. while the person who imitates should stand inside the mirror. If you can fully become the mirror for one minute. you'll be able to escape from the mirror world.",
+    GameInstruction2: "The person who poses and the person who imitates. The person who poses should stand in front of the mirror. while the person who imitates should stand inside the mirror. If you can fully become the mirror for 90 second. you'll be able to escape from the mirror world.",
     Setup: "Please stand in front of and inside the mirror",
     GameStart: "Game will start now",
     GameEnd: "Game is over",
