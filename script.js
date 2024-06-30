@@ -594,16 +594,20 @@ function compare_joint_degree() {
             sync_confidence = sync_confidence + diff * 2;
         }
     }
+    let time = Date.now();
+    console.log("Calc synchro:" + Date(time) + " " + time)
     synchro = sync_confidence;
 
     return;
 }
 
-function handle_synchro_percent() {
+function add_score_and_synchro_percent() {
     if(game_status != game_mode.Playing) return;
-    synchro_counter++;
-    if(synchro_counter < synchro_counter_max) return;
-    synchro_counter = 0;
+//    synchro_counter++;
+//    if(synchro_counter < synchro_counter_max) return;
+//    synchro_counter = 0;
+    let time = Date.now();
+    console.log("score calc: " + Date(time) + " " + time)
 
     synchro_percent = Math.round((1000 - synchro) / 10);
     if (synchro_percent < 0) synchro_percent = 0;
@@ -810,6 +814,8 @@ function predictWebcam_common(predictVideo, predictFunc) {
                 currentTime - (lastPoseTime || currentTime) >= INVALID_POSE_THRESHOLD) {
 
                 if (isVideo1) { // viode1
+                    let time = Date.now();
+                    console.log("Capture Video1: " + Date(time) + " " + time)
                     lastValidShoulderWidth1 = getShoulderWidth(currentPose);
                     if(currentTime - man1pose_time > ANALYZE_INTERVAL) {
                         if(man1pose_temp[0] == null) {
@@ -822,6 +828,8 @@ function predictWebcam_common(predictVideo, predictFunc) {
                     man1pose = Object.assign({}, currentPose);
                     Captured_ManInTheMirror = true;
                 } else {        // video2
+                    let time = Date.now();
+                    console.log("Capture Video2: " + Date(time) + " " + time)
                     lastValidShoulderWidth2 = getShoulderWidth(currentPose);
                     if(currentTime - man2pose_time > ANALYZE_INTERVAL) {
                         if(man2pose_temp[0] == null) {
@@ -1308,7 +1316,7 @@ function mirror_loop() {
     drawScoreTimeSynchro(ctx_score);
     handle_move();
     update_game_status();
-    handle_synchro_percent();
+    add_score_and_synchro_percent();
     handle_Sounds();
     playNavigationQueue();
     speech_controller();
