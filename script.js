@@ -301,18 +301,10 @@ function drawScoreTimeSynchro(ctx){
     }
 
     //  Draw Synchro
-    ctx.beginPath()
-    ctx.font = "150pt 'Times New Roman'";
-
-    if (synchro_percent < 60) {
-        ctx.fillStyle = "#FF0000";
-    } else if (synchro_percent < 80) {
-        ctx.fillStyle = "#FFA500";
-    } else {
-        ctx.fillStyle = "#118B11";
-    }
-
-    ctx.fillText("Synchro: " + synchro_percent + "%", 20, offset + height_diff * 2);
+    ctx.beginPath();
+    ctx.font = "100pt 'Times New Roman'";
+    ctx.fillStyle = getSynchroColor(synchro_percent);
+    ctx.fillText("Synchro: " + lastUpdatedSynchroRate + "% ("+ synchro_percent + "%)", 20, offset + height_diff * 2);
     ctx.stroke();
 
     if(game_status == game_mode.End || game_status == game_mode.WaitingForPlayers){
@@ -330,6 +322,16 @@ function drawScoreTimeSynchro(ctx){
         ctx.fillStyle = "#006400";
         ctx.fillText(status_text, 24, 700 / 2 + 4);
         ctx.stroke();
+    }
+}
+
+function getSynchroColor(rate) {
+    if (rate < 60) {
+        return "#FF0000";
+    } else if (rate < 80) {
+        return "#FFA500";
+    } else {
+        return "#118B11";
     }
 }
 
@@ -599,6 +601,35 @@ function compare_joint_degree() {
     synchro = sync_confidence;
 
     return;
+}
+
+// Calc Synchro
+let synchroRates = new Array(100).fill(100);
+let synchroRateIndex = 0;
+let lastUpdatedSynchroRate = 100;
+let lastSynchroRateUpdateTime = Date.now();
+
+function updateSynchroRate() {
+    let currentSynchroRate = Math.round((1000 - synchro) / 10);
+    if (currentSynchroRate < 0) currentSynchroRate = 0;
+
+    synchroRates[synchroRateIndex] = currentSynchroRate;
+    synchroRateIndex = (synchroRateIndex + 1) % 100;
+
+    let maxSynchroRate = Math.max(...synchroRates);
+    let averageSynchroRate = synchroRates.reduce((a, b) => a + b, 0) / synchroRates.length;
+
+    if (currentSynchroRate > maxSynchroRate) {
+        synchro_percent = currentSynchroRate;
+    } else {
+        synchro_percent = Math.round(averageSynchroRate);
+    }
+
+    let currentTime = Date.now();
+    if (currentTime - lastSynchroRateUpdateTime >= 1000) {
+        lastUpdatedSynchroRate = synchro_percent;
+        lastSynchroRateUpdateTime = currentTime;
+    }
 }
 
 function add_score_and_synchro_percent() {
@@ -1283,6 +1314,7 @@ function mirror_loop() {
     update_man_status();
     if (joint_degree1 && joint_degree2) {
         compare_joint_degree();
+        updateSynchroRate();
     }
     if (man1pose[leftWrist]){
         const {prevWristTime: prevWristTime, isPunchMoving: isPunchMoving} = handle_punch_sound(man1pose[leftWrist].position, prevLeftWristPos1, prevLeftWristTime1, isLeftPunchMoving1);
