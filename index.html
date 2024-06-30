@@ -13,50 +13,53 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
       }
       #demos {
         display: flex;
         flex-direction: column;
-        align-items: center;
         height: 100%;
       }
-      #canvas_score {
-        flex: 1;
-        width: 100%;
-      }
-      #liveView {
+      .main-content {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 70%;
+        flex: 1;
       }
-      .analysisView, .videoView {
+      .left-pane, .center-pane, .right-pane {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: space-around;
-        width: 45%;
+        justify-content: space-between;
+      }
+      .left-pane, .right-pane {
+        width: 25%;
+      }
+      .center-pane {
+        width: 100%;
+      }
+      #canvas_score {
+        width: 120%;
         height: 100%;
       }
       .canvasWrapper, .videoWrapper {
-        width: 100%;
         display: flex;
         justify-content: center;
+        align-items: center;
+        height: 50%;
       }
       .canvasWrapper canvas, .videoWrapper video {
         width: 240px;
         height: 240px;
       }
+      .controls {
+        padding: 20px;
+      }
       .buttonWrapper {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
         margin-bottom: 20px;
       }
       button, select {
         padding: 5px 10px;
-        margin: 0 5px;
       }
       label {
         margin-right: 10px;
@@ -68,18 +71,26 @@
       }
       #startModeToggle, #manualStartButton {
         padding: 5px 10px;
-        margin: 0 5px;
       }
       #manualStartButton {
         display: none;
+      }
+      .volume-controls, .range-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .volume-control, .range-control {
+        display: flex;
+        align-items: center;
       }
     </style>
   </head>  
   <body>
     <section id="demos">
-      <canvas id="canvas_score" width="1700" height="700"></canvas>
-      <div id="liveView">
-        <div class="analysisView">
+      <div class="main-content">
+        <div class="left-pane">
           <div class="canvasWrapper">
             <canvas id="canvas" width="320" height="320"></canvas>
           </div>
@@ -87,7 +98,10 @@
             <canvas id="canvas2" width="320" height="320"></canvas>
           </div>
         </div>
-        <div class="videoView">
+        <div class="center-pane">
+          <canvas id="canvas_score" width="1700" height="700"></canvas>
+        </div>
+        <div class="right-pane">
           <div class="videoWrapper">
             <video id="webcam" width="320" height="320" autoplay playsinline></video>
           </div>
@@ -96,48 +110,73 @@
           </div>
         </div>
       </div>
-      <div class="buttonWrapper">
-        <canvas id="canvas3_status" width="500" height="30"></canvas>
-        <button id="devices_button" onclick="getDeviceList_SoundOn()">Setup</button>
-        <button id="webcamButton1">Set Cam in the mirror</button>
-        <button id="webcamButton2">Set Cam in front of the mirror</button>
-        <select id="camera_list" size="1">
-          <option>(video)</option>
-        </select>
-        <button id="area_mode_change_button" onclick="change_areamode()">FullBody</button>
-        <button id="language_button" onclick="toggle_language()">JP</button>
-        <button id="startModeToggle">Auto Start</button>
-        <button id="manualStartButton" disabled>Start Game</button>
-      </div>
-      <div>
-        <label for="bgm_volume">BGM:</label>
-        <input type="range" id="bgm_volume" min="0" max="1" step="0.01" value="0.2">
-        <label for="se_volume">SE:</label>
-        <input type="range" id="se_volume" min="0" max="1" step="0.01" value="1.0">
-        <label for="navigation_volume">Navigation(JP):</label>
-        <input type="range" id="navigation_volume" min="0" max="1" step="0.01" value="0.7">
-        <label for="speech_volume">Speech:</label>
-        <input type="range" id="speech_volume" min="0" max="1" step="0.01" value="1.0">
-      </div>
-      <div>
-        <label for="top_range_1">In the mirror Top:</label>
-        <input type="range" id="top_range_1" min="0" max="1" step="0.01" value="0">
-        <label for="bottom_range_1">Bottom:</label>
-        <input type="range" id="bottom_range_1" min="0" max="1" step="0.01" value="1">
-        <label for="left_range_1">Left:</label>
-        <input type="range" id="left_range_1" min="0" max="1" step="0.01" value="0">
-        <label for="right_range_1">Right:</label>
-        <input type="range" id="right_range_1" min="0" max="1" step="0.01" value="1">
-      </div>
-      <div>
-        <label for="top_range_2">In front of the mirror Top:</label>
-        <input type="range" id="top_range_2" min="0" max="1" step="0.01" value="0">
-        <label for="bottom_range_2">Bottom:</label>
-        <input type="range" id="bottom_range_2" min="0" max="1" step="0.01" value="1">
-        <label for="left_range_2">Left:</label>
-        <input type="range" id="left_range_2" min="0" max="1" step="0.01" value="0">
-        <label for="right_range_2">Right:</label>
-        <input type="range" id="right_range_2" min="0" max="1" step="0.01" value="1">
+      <div class="controls">
+        <div class="buttonWrapper">
+          <button id="devices_button" onclick="getDeviceList_SoundOn()">Setup</button>
+          <button id="webcamButton1">Set Cam in the mirror</button>
+          <button id="webcamButton2">Set Cam in front of the mirror</button>
+          <select id="camera_list" size="1">
+            <option>(video)</option>
+          </select>
+          <button id="area_mode_change_button" onclick="change_areamode()">FullBody</button>
+          <button id="language_button" onclick="toggle_language()">JP</button>
+          <button id="startModeToggle">Auto Start</button>
+          <button id="manualStartButton" disabled>Start Game</button>
+        </div>
+        <div class="volume-controls">
+          <div class="volume-control">
+            <label for="bgm_volume">BGM:</label>
+            <input type="range" id="bgm_volume" min="0" max="1" step="0.01" value="0.2">
+          </div>
+          <div class="volume-control">
+            <label for="se_volume">SE:</label>
+            <input type="range" id="se_volume" min="0" max="1" step="0.01" value="1.0">
+          </div>
+          <div class="volume-control">
+            <label for="navigation_volume">Navigation(JP):</label>
+            <input type="range" id="navigation_volume" min="0" max="1" step="0.01" value="0.7">
+          </div>
+          <div class="volume-control">
+            <label for="speech_volume">Speech:</label>
+            <input type="range" id="speech_volume" min="0" max="1" step="0.01" value="1.0">
+          </div>
+        </div>
+        <div class="range-controls">
+          <div class="range-control">
+            <label for="top_range_1">In the mirror Top:</label>
+            <input type="range" id="top_range_1" min="0" max="1" step="0.01" value="0">
+          </div>
+          <div class="range-control">
+            <label for="bottom_range_1">Bottom:</label>
+            <input type="range" id="bottom_range_1" min="0" max="1" step="0.01" value="1">
+          </div>
+          <div class="range-control">
+            <label for="left_range_1">Left:</label>
+            <input type="range" id="left_range_1" min="0" max="1" step="0.01" value="0">
+          </div>
+          <div class="range-control">
+            <label for="right_range_1">Right:</label>
+            <input type="range" id="right_range_1" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
+        <div class="range-controls">
+          <div class="range-control">
+            <label for="top_range_2">In front of the mirror Top:</label>
+            <input type="range" id="top_range_2" min="0" max="1" step="0.01" value="0">
+          </div>
+          <div class="range-control">
+            <label for="bottom_range_2">Bottom:</label>
+            <input type="range" id="bottom_range_2" min="0" max="1" step="0.01" value="1">
+          </div>
+          <div class="range-control">
+            <label for="left_range_2">Left:</label>
+            <input type="range" id="left_range_2" min="0" max="1" step="0.01" value="0">
+          </div>
+          <div class="range-control">
+            <label for="right_range_2">Right:</label>
+            <input type="range" id="right_range_2" min="0" max="1" step="0.01" value="1">
+          </div>
+        </div>
       </div>
       <div class="license">
         Navigation Voice: らーさん<br>
