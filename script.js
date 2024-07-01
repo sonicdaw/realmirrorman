@@ -56,6 +56,7 @@ const VOLUME_HI = 0.8;
 const VOLUME_MID = 0.7;
 const VOLUME_LOW = 0.01;
 const GAME_TIME = 90000;
+const GAME_DOUBLE_POINT_TIME = 60000;
 
 var timer;
 var interval = 10;
@@ -597,7 +598,7 @@ function compare_joint_degree() {
         }
     }
     let time = Date.now();
-    console.log("Calc synchro:" + Date(time) + " " + time)
+//    console.log("Calc synchro:" + Date(time) + " " + time)
     synchro = sync_confidence;
 
     return;
@@ -637,10 +638,10 @@ function add_score_and_synchro_percent() {
     if(game_status != game_mode.Playing) return;
 
     let currentTime = Date.now();
-    console.log("score calc: " + new Date(currentTime).toISOString() + " " + currentTime);
+//    console.log("score calc: " + new Date(currentTime).toISOString() + " " + currentTime);
 
     var double_point = 1;
-    if(Date.now() - game_time > 60){
+    if(Date.now() - game_time > GAME_DOUBLE_POINT_TIME){
         double_point = 2;
         console.log("doublePoint time");
     }
@@ -652,6 +653,7 @@ function add_score_and_synchro_percent() {
         if (currentTime - lastScoreUpdateTime >= 1000) {
             game_score += 10 * double_point;
             lastScoreUpdateTime = currentTime;
+            console.log("game score add " + double_point)
         }
     }else if(synchro_percent < 80 && synchro_percent > 60){
         game_score--;
@@ -858,7 +860,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
 
                 if (isVideo1) { // viode1
                     let time = Date.now();
-                    console.log("Capture Video1: " + Date(time) + " " + time)
+//                    console.log("Capture Video1: " + Date(time) + " " + time)
                     lastValidShoulderWidth1 = getShoulderWidth(currentPose);
                     if(currentTime - man1pose_time > ANALYZE_INTERVAL) {
                         if(man1pose_temp[0] == null) {
@@ -872,7 +874,7 @@ function predictWebcam_common(predictVideo, predictFunc) {
                     Captured_ManInTheMirror = true;
                 } else {        // video2
                     let time = Date.now();
-                    console.log("Capture Video2: " + Date(time) + " " + time)
+//                    console.log("Capture Video2: " + Date(time) + " " + time)
                     lastValidShoulderWidth2 = getShoulderWidth(currentPose);
                     if(currentTime - man2pose_time > ANALYZE_INTERVAL) {
                         if(man2pose_temp[0] == null) {
