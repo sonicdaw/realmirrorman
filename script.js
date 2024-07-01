@@ -632,44 +632,56 @@ function updateSynchroRate() {
     }
 }
 
+let lastScoreUpdateTime = Date.now();
 function add_score_and_synchro_percent() {
     if(game_status != game_mode.Playing) return;
-//    synchro_counter++;
-//    if(synchro_counter < synchro_counter_max) return;
-//    synchro_counter = 0;
-    let time = Date.now();
-    console.log("score calc: " + Date(time) + " " + time)
+
+    let currentTime = Date.now();
+    console.log("score calc: " + new Date(currentTime).toISOString() + " " + currentTime);
+
+    var double_point = 1;
+    if(Date.now() - game_time > 60){
+        double_point = 2;
+        console.log("doublePoint time");
+    }
 
     synchro_percent = Math.round((1000 - synchro) / 10);
     if (synchro_percent < 0) synchro_percent = 0;
 
+    if (synchro_percent >= 85) {
+        if (currentTime - lastScoreUpdateTime >= 1000) {
+            game_score += 10 * double_point;
+            lastScoreUpdateTime = currentTime;
+        }
+    }else if(synchro_percent < 80 && synchro_percent > 60){
+        game_score--;
+    }else{  // less than 60
+        game_score -= 10;
+    }
+
+    // Move point calculation
+    let move_value = Math.max(Math.round(man1pose_move/10000), Math.round(man2pose_move/10000));
+    if (move_value > 0 && synchro_percent > 85) {
+        let move_points = (synchro_percent - 85) * move_value;
+        move_points = Math.min(move_points, 1000) * double_point;
+        game_score += Math.max(0, Math.round(move_points));
+    }
+
+    // Sound
     if (synchro_percent < 60) {
-        if (game_status == game_mode.Playing) {
-          playNavigationSound(sound_navigation_list.Synchronized_alert);
-        }
-        game_score--;
+        playNavigationSound(sound_navigation_list.Synchronized_alert);
     } else if (synchro_percent < 80) {
-        if (game_status == game_mode.Playing) {
-          playNavigationSound(sound_navigation_list.Not_synchronized);
-        }
-        game_score--;
-    } else {
-        var add_point = 10 + 30 * Math.round(man1pose_move/10000) * Math.round(man2pose_move/10000);
-        var double_point = 1;
-        if(Date.now() - game_time > 60){
-            double_point = 2;
-            console.log("doublePoint time");
-        }
-        game_score = game_score + add_point * double_point;
-        console.log("Point" + add_point)
-        if(add_point > 100){
+        playNavigationSound(sound_navigation_list.Not_synchronized);
+    } else {        // Synchro >= 80
+        if(move_value > 3){
             playSound_se(sound_se_list.se_MagicCharge1_soundeffectlab,VOLUME_HI);  // Super Power Point
-        }else if(add_point > 30){
+        }else if(move_value > 1){
             playSound_se(sound_se_list.se_MagicCharge2_soundeffectlab,VOLUME_MID);  // Power Point
         }
-        man1pose_move = 0;
-        man2pose_move = 0;
     }
+    man1pose_move = 0;
+    man2pose_move = 0;
+
     if(game_score < 0)game_score = 0;
 
     if (game_score >= 500 && game_score < 1000 && !cheers_played[500]) {
@@ -1233,6 +1245,7 @@ function startGame() {
     man2pose_time = Date.now();
     game_score_read_time = Date.now();
     game_time = Date.now();
+    lastScoreUpdateTime = Date.now();
     announcementsMade = {
         tenSeconds: false,
         thirtySeconds: false,
