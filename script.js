@@ -62,6 +62,7 @@ var timer;
 var interval = 10;
 var sound_on = false;
 var game_score = 0;
+var game_score_show = 0;
 var game_score_read_time = Date.now();
 var game_time = Date.now();
 var game_end_timer = Date.now();
@@ -289,7 +290,18 @@ function drawScoreTimeSynchro(ctx){
     ctx.beginPath()
     ctx.font = "150pt 'Times New Roman'";
     ctx.fillStyle = "#000000";
-    ctx.fillText("Score: "+ game_score, 20, offset);
+    if(game_status == game_mode.Playing){
+        if (game_score_show < game_score - 100)     {game_score_show += 100;}
+        else if (game_score_show < game_score - 10) {game_score_show += 10;}
+        else if (game_score_show < game_score)      {game_score_show++;}
+        else if (game_score_show > game_score + 100){game_score_show -= 100;}
+        else if (game_score_show > game_score + 10) {game_score_show -= 10;}
+        else if (game_score_show > game_score)      {game_score_show--;}
+
+    }else{
+        game_score_show = game_score;
+    }
+    ctx.fillText("Score: "+ game_score_show, 20, offset);
     ctx.stroke();
 
     //  Draw Time
@@ -1241,6 +1253,7 @@ function startGame() {
     swing_se_sound_count_time = Date.now();
     synchro_percent = 100;
     game_score = 0;
+    game_score_show = 0;
     man1pose_move = 0;
     man2pose_move = 0;
     man1pose_time = Date.now();
